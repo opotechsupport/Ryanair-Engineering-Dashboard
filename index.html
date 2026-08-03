@@ -1,269 +1,7419 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Info Delays Monthly Report - Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        :root {
+            --ry-blue: #07225B;
+            --ry-yellow: #F1C400;
+            --bg-color: #F4F6F8;
+            --card-bg: #FFFFFF;
+            --text-dark: #333333;
+            --text-muted: #7F8C8D;
+            --alert-red: #E74C3C;
+            --btn-green: #2ECC71;
+            --border-color: #E0E6ED;
+        }
 
-<title>Ryanair Engineering Dashboard</title>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            padding: 20px 30px;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        /* --- HEADER --- */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--ry-blue);
+            padding: 15px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { height: 45px; object-fit: contain; }
+        
+        .header-titles h1 { font-size: 24px; font-weight: 600; color: white; letter-spacing: 0.5px; }
+        .header-titles h1 .highlight-yellow { color: var(--ry-yellow); font-weight: 800; }
+        .header-titles .subtitle { font-size: 12px; color: white; opacity: 0.8; }
+        
+        .header-right { display: flex; gap: 15px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 25px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.3s ease; font-family: inherit; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .btn-white { background-color: white; color: var(--ry-blue); }
+        .btn-green { background-color: var(--btn-green); color: white; }
+        .btn-yellow { background-color: var(--ry-yellow); color: var(--ry-blue); }
 
-<style>
+        /* --- CONTROLO / BARRA DE MÊS --- */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--ry-blue);
+        }
+        .month-display { font-size: 16px; font-weight: 700; color: var(--ry-blue); }
 
-:root{
-    --blue:#07225B;
-    --yellow:#F1C400;
-    --background:#F4F6F8;
-    --card:#FFFFFF;
+        /* --- KPIs TOP --- */
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .kpi-card { background-color: var(--card-bg); border-radius: 12px; padding: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 4px solid var(--ry-yellow); }
+        .kpi-title { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+        .kpi-value { font-size: 36px; font-weight: 800; color: var(--ry-blue); }
+        @media (max-width: 900px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+        /* --- DATA CARDS (Tabelas) --- */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 25px; }
+        @media (min-width: 1024px) { .dashboard-grid { grid-template-columns: 3fr 2fr; } }
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .card-header { background-color: var(--ry-blue); color: white; padding: 15px; text-align: center; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+        .card-body { padding: 25px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .stat-group { display: flex; flex-direction: column; align-items: center; min-width: 80px; }
+        .stat-label { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--ry-blue); }
+        .stat-value.danger { color: var(--alert-red); }
+        .divider { width: 2px; height: 50px; background-color: #E0E0E0; }
+        .total-box { background-color: rgba(241, 196, 0, 0.15); padding: 15px 25px; border-radius: 8px; border: 1px solid rgba(241, 196, 0, 0.5); }
+
+        /* --- GRÁFICO --- */
+        .chart-container { width: 100%; padding: 20px; }
+        .chart-wrapper { position: relative; height: 400px; width: 100%; }
+        .header-logo { height: 60px; width: auto; object-fit: contain; }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 2px solid var(--ry-yellow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { color: var(--ry-blue); font-size: 20px; font-weight: 700; }
+        .modal-badge { background: rgba(7, 34, 91, 0.1); color: var(--ry-blue); padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: 700; }
+        
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .edit-section { margin-bottom: 25px; }
+        .edit-section h3 { color: var(--ry-blue); font-size: 14px; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px; }
+        
+        .form-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: var(--text-dark); width: 40%; }
+        .form-group input { width: 55%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 13px; outline: none; }
+        .form-group input:focus { border-color: var(--ry-blue); }
+        
+        .dynamic-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .dynamic-row input { flex: 1; }
+        .btn-remove { background: #fee2e2; color: var(--alert-red); border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-remove:hover { background: var(--alert-red); color: white; }
+        .btn-add { background: rgba(7, 34, 91, 0.1); color: var(--ry-blue); border: 1px dashed var(--ry-blue); padding: 8px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 5px; }
+        .btn-add:hover { background: rgba(7, 34, 91, 0.2); }
+
+        .modal-footer {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        /* ==========================================================
+   FWD DASHBOARD V2
+========================================================== */
+
+.dashboard-v2{
+
+    padding:25px 35px 40px;
+
 }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Montserrat,sans-serif;
-}
+.dashboard-v2 .dashboard-section{
 
-body{
-
-    background:var(--background);
+    margin-top:40px;
+    margin-bottom:40px;
 
 }
 
-header{
-
-    background:var(--blue);
-
-    padding:25px;
+.dashboard-v2 .section-title{
 
     display:flex;
-
-    justify-content:center;
-
-}
-
-header img{
-
-    height:65px;
-
-}
-
-.home{
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-    align-items:center;
-
-    margin-top:80px;
-
-}
-
-.home h1{
-
-    color:var(--blue);
-
-    font-size:42px;
-
-    margin-bottom:15px;
-
-}
-
-.home p{
-
-    color:#666;
-
-    margin-bottom:60px;
-
-    font-size:18px;
-
-}
-
-.cards{
-
-    display:flex;
-
-    gap:50px;
-
-    flex-wrap:wrap;
-
-    justify-content:center;
-
-}
-
-.card{
-
-    width:340px;
-
-    height:230px;
-
-    background:white;
-
-    border-radius:15px;
-
-    box-shadow:0 15px 40px rgba(0,0,0,.08);
-
-    cursor:pointer;
-
-    transition:.25s;
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-    align-items:center;
-
-}
-
-.card:hover{
-
-    transform:translateY(-10px);
-
-}
-
-.card h2{
-
-    color:var(--blue);
-
+    justify-content:space-between;
+    align-items:end;
     margin-bottom:20px;
 
 }
 
-.card button{
+.dashboard-v2 .section-title h2{
 
-    background:var(--yellow);
-
-    border:none;
-
-    padding:12px 35px;
-
-    border-radius:25px;
-
+    margin:0;
+    font-size:28px;
+    color:#003580;
     font-weight:700;
 
-    cursor:pointer;
+}
+
+.dashboard-v2 .section-title span{
+
+    color:#777;
+    font-size:14px;
 
 }
 
-.page{
+.dashboard-v2 .executive-grid{
 
-    display:none;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
 
 }
 
-.back{
+.dashboard-v2 .regional-kpis{
 
-    margin:25px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+    margin:20px 0;
 
-    background:var(--blue);
+}
 
-    color:white;
+.dashboard-v2 .analysis-grid{
 
-    border:none;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+    margin:20px 0;
 
-    padding:12px 25px;
+}
 
-    border-radius:25px;
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
 
-    cursor:pointer;
+<body>
+
+<div id="homeScreen">
+
+<style>
+
+#homeScreen{
+
+position:fixed;
+inset:0;
+
+background:
+linear-gradient(rgba(7,34,91,.60),rgba(7,34,91,.60)),
+url("FundoHomeRyanair.jpg");
+
+background-size:cover;
+background-position:center;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-family:Montserrat,sans-serif;
+
+z-index:99999;
+
+}
+
+.homePanel{
+
+width:760px;
+
+max-width:90%;
+
+background:rgba(255,255,255,.08);
+
+backdrop-filter:blur(12px);
+
+border:1px solid rgba(255,255,255,.20);
+
+border-radius:22px;
+
+padding:45px;
+
+box-shadow:0 25px 70px rgba(0,0,0,.35);
+
+text-align:center;
+
+color:white;
+
+}
+
+.homePanel img{
+
+height:70px;
+
+margin-bottom:25px;
+
+}
+
+.homeTitle{
+
+font-size:42px;
+
+font-weight:800;
+
+letter-spacing:2px;
+
+margin-bottom:8px;
+
+}
+
+.homeSub{
+
+font-size:18px;
+
+opacity:.9;
+
+margin-bottom:35px;
+
+}
+
+.bottomGlass{
+
+margin-top:45px;
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:18px;
+
+background:rgba(255,255,255,.06);
+
+border:1px solid rgba(255,255,255,.10);
+
+backdrop-filter:blur(8px);
+
+padding:18px;
+
+border-radius:18px;
+
+}
+
+.glassItem{
+
+text-align:center;
+
+}
+
+.glassLabel{
+
+font-size:12px;
+
+letter-spacing:1px;
+
+opacity:.75;
+
+margin-bottom:8px;
+
+}
+
+.glassValue{
+
+font-size:22px;
+
+font-weight:700;
+
+}
+
+.dashboardButtons{
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+gap:22px;
+
+margin-top:40px;
+
+}
+
+.dashboardButtons button{
+
+width:380px;
+
+height:78px;
+
+background:#FBCB00;
+
+border:none;
+
+border-radius:18px;
+
+font-size:18px;
+
+font-weight:800;
+
+letter-spacing:1px;
+
+color:#07225B;
+
+cursor:pointer;
+
+transition:.25s;
+
+box-shadow:0 15px 35px rgba(0,0,0,.25);
+
+}
+
+.dashboardButtons button:hover{
+
+transform:translateY(-6px) scale(1.03);
+
+box-shadow:0 18px 40px rgba(0,0,0,.35);
+
+}
+
+.infoTitle{
+
+font-size:11px;
+
+letter-spacing:1px;
+
+opacity:.8;
+
+margin-bottom:6px;
+
+}
+
+.infoValue{
+
+font-size:20px;
+
+font-weight:700;
+
+}
+
+.dashboardButtons{
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+gap:24px;
+
+margin-top:10px;
+
+margin-bottom:28px;
+
+}
+
+.version{
+
+margin-top:35px;
+
+font-size:12px;
+
+opacity:.75;
+
+letter-spacing:1px;
 
 }
 
 </style>
 
-</head>
-
-<body>
-
-<header>
+<div class="homePanel">
 
 <img src="ryanair-logo-2.png">
 
-</header>
+<div class="homeTitle">
+ENGINEERING DASHBOARD
+</div>
 
-<div id="home" class="home">
+<div class="homeSub">
+Engineering & Maintenance Platform
+</div>
 
-<h1>Engineering Dashboard</h1>
+<div class="dashboardButtons">
 
-<p>Select the dashboard you want to access.</p>
+<button onclick="openNoInfo()">
+NO INFO DELAYS
+</button>
 
-<div class="cards">
-
-<div class="card" onclick="openNoInfo()">
-
-<h2>No Info Delays</h2>
-
-<button>Open Dashboard</button>
+<button onclick="openFWD()">
+FIRST WAVE DELAYS
+</button>
 
 </div>
 
-<div class="card" onclick="openFWD()">
+<div class="bottomGlass">
 
-<h2>First Wave Delays</h2>
+<div class="glassItem">
 
-<button>Open Dashboard</button>
+<div class="glassLabel">
+BASE
+</div>
 
+<div class="glassValue">
+OPO - Porto
+</div>
+
+</div>
+
+<div class="glassItem">
+
+<div class="glassLabel">
+DATE
+</div>
+
+<div class="glassValue" id="homeDate">
+--
+</div>
+
+</div>
+
+<div class="glassItem">
+
+<div class="glassLabel">
+LOCAL TIME
+</div>
+
+<div class="glassValue" id="homeTime">
+--
+</div>
+
+</div>
+
+<div class="glassItem">
+
+<div class="glassLabel">
+PLATFORM
+</div>
+
+<div class="glassValue">
+Version 1.0
 </div>
 
 </div>
 
 </div>
 
-<div id="noInfoPage" class="page">
-
-<button class="back" onclick="goHome()">← Home</button>
-
-<div id="noInfoContainer"></div>
+</div>
 
 </div>
 
-<div id="fwdPage" class="page">
+<div id="dashboardContainer" style="display:none;">
+<div id="topNavigation">
 
-<button class="back" onclick="goHome()">← Home</button>
+    <div class="navLeft">
 
-<div id="fwdContainer"></div>
+        <button onclick="goHome()">HOME</button>
+
+        <button onclick="openNoInfo()">NO INFO DELAYS</button>
+
+        <button onclick="openFWD()">FIRST WAVE DELAYS</button>
+
+    </div>
+
+    <div class="navRight">
+
+        <span id="liveClock"></span>
+
+    </div>
 
 </div>
 
-<script>
+<style>
 
-function openNoInfo(){
+#topNavigation{
 
-document.getElementById("home").style.display="none";
+    width:100%;
 
-document.getElementById("noInfoPage").style.display="block";
+    height:58px;
+
+    background:#07225B;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 30px;
+
+    margin-bottom:12px;
+
+    border-radius:12px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
 
 }
 
-function openFWD(){
+.navLeft{
 
-document.getElementById("home").style.display="none";
+    display:flex;
 
-document.getElementById("fwdPage").style.display="block";
+    gap:12px;
 
 }
+
+.navLeft button{
+
+    background:transparent;
+
+    border:none;
+
+    color:white;
+
+    font-family:Montserrat,sans-serif;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    letter-spacing:.5px;
+
+    cursor:pointer;
+
+    padding:10px 16px;
+
+    border-radius:8px;
+
+    transition:.25s;
+
+}
+
+.navLeft button:hover{
+
+    background:#F1C400;
+
+    color:#07225B;
+
+}
+
+.navRight{
+
+    color:white;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    letter-spacing:.5px;
+
+    font-family:Montserrat,sans-serif;
+
+}
+
+</style>
+
+</div>
+
+    <header class="header-container">
+        <div class="header-left">
+            <img src="ryanair-logo-2.png" alt="Company Logo" class="header-logo" onerror="this.style.display='none'">
+            <div class="header-titles">
+                <h1><span class="highlight-yellow">NO INFO DELAYS</span> MONTHLY REPORT</h1>
+                <span class="subtitle">Engineering & Maintenance</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-white" onclick="exportPDF()">Export PDF</button>
+            <button class="btn btn-green" onclick="importData()">Import Excel Data</button>
+            <button class="btn btn-yellow" onclick="openModal()">Edit Visuals (Manual)</button>
+            <button class="btn btn-white" onclick="resetData()" style="background: #e74c3c; color: white; border: none;">Reset Data</button>
+        </div>
+    </header>
+
+    <div class="controls-bar">
+        <div class="month-display" id="display-month">
+            REPORTING MONTH: <span style="color: var(--text-dark);">CARREGANDO...</span>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">SPMFB - Total No Info Delays</div>
+            <div class="kpi-value" id="display-total">-</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">SPMFB - Average No Info Delays Per Base</div>
+            <div class="kpi-value" id="display-kpi1">-</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">SPMFB - Average No Info Delays Per Base (%)</div>
+            <div class="kpi-value" id="display-kpi2">-%</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">NO INFO DELAYS (%) - PORTUGAL</div>
+            <div class="card-body" id="display-portugal">
+                </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">TOP 3 BASES WITH HIGHEST NO INFO DELAYS</div>
+            <div class="card-body" id="display-top3">
+                </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">NO INFO DELAYS (%) PER SPMFB BASE</div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <canvas id="baseDelayChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 25px;">
+        <div class="card-header">NO INFO DELAYS PER COUNTRY</div>
+        <div class="chart-container">
+            <div class="chart-wrapper" style="height: 380px;">
+                <canvas id="countryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Visual Presentation</h2>
+                <span class="modal-badge">Editing: Monthly Data</span>
+            </div>
+            
+            <div class="modal-body">
+                <div>
+                    <div class="edit-section">
+                        <h3>General Data & KPIs</h3>
+                        <div class="form-group">
+                            <label>Reporting Month:</label>
+                            <input type="text" id="edit-month">
+                        </div>
+                        <div class="form-group">
+                            <label>Total No Info Delays:</label>
+                            <input type="text" id="edit-total">
+                        </div>
+                        <div class="form-group">
+                            <label>Avg Delays Per Base:</label>
+                            <input type="text" id="edit-kpi1">
+                        </div>
+                        <div class="form-group">
+                            <label>Avg Delays Per Base (%):</label>
+                            <input type="text" id="edit-kpi2">
+                        </div>
+                    </div>
+
+                    <div class="edit-section">
+                        <h3>Portugal Data (%)</h3>
+                        <div id="edit-portugal-rows"></div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Total Portugal (%):</label>
+                            <input type="text" id="edit-portugal-total">
+                        </div>
+                    </div>
+
+                    <div class="edit-section">
+                        <h3>Top 3 Bases</h3>
+                        <div id="edit-top3-rows"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="edit-section">
+                        <h3>Chart Data - Bases (%)</h3>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Add or remove bases. Values > 8% highlight automatically.</p>
+                        <div id="edit-chart-rows">
+                            </div>
+                        <button class="btn-add" onclick="addChartRow()">+ Add New Base Line</button>
+                    </div>
+
+                    <div class="edit-section">
+                        <h3>Chart Data - Countries (No.)</h3>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Add or remove countries in the pie chart.</p>
+                        <div id="edit-country-rows">
+                            </div>
+                        <button class="btn-add" onclick="addCountryRow()">+ Add New Country</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-white" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-yellow" onclick="saveChanges()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase Functions (Versão corrigida para a 10.11.0, mais estável)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import {
+        getDatabase,
+        ref,
+        onValue,
+        get,
+        set,
+        update,
+        remove
+        } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+        // Configuração Firebase
+        const firebaseConfig = {
+    apiKey: "AIzaSyBiDMZBxd6yvpLnVESv2SIVQJ_TXu0_7Cs",
+    authDomain: "opo-tech-support-dashboard.firebaseapp.com",
+    databaseURL: "https://opo-tech-support-dashboard-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "opo-tech-support-dashboard",
+    storageBucket: "opo-tech-support-dashboard.firebasestorage.app",
+    messagingSenderId: "326663138687",
+    appId: "1:326663138687:web:6911b61c485b9fe4ff3e4a",
+    measurementId: "G-K192DY98KG"
+};
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+window.database = database;
+window.firebaseRef = ref;
+window.firebaseGet = get;
+window.firebaseSet = set;
+window.firebaseUpdate = update;
+window.firebaseOnValue = onValue;
+window.firebaseRemove = remove;
+
+const dbRef = ref(database, 'dashboardData');
+        
+        // ======================================================
+        // FWD FIREBASE REFERENCE
+        // ======================================================
+
+        const fwdRef = ref(database, "dashboardData/FWD");
+
+        // Estado inicial por defeito
+        const defaultDb = {
+            month: "JUNE 2026",
+            total: "435",
+            kpi1: "16.7",
+            kpi2: "3.8%",
+            portugal: [
+                { base: "FAO", val: "2.3" },
+                { base: "FNC", val: "0" },
+                { base: "LIS", val: "0.5" },
+                { base: "OPO", val: "6.2" }
+            ],
+            portugalTotal: "9.0",
+            top3: [
+                { base: "BCN", val: "18.9" },
+                { base: "AGP", val: "15.9" },
+                { base: "RAK", val: "10.6" }
+            ],
+            chart: [
+                { base: "ACE", val: 2.1 }, { base: "AGA", val: 1.8 }, { base: "AGP", val: 15.9 },
+                { base: "ALC", val: 5.7 }, { base: "BCN", val: 18.9 }, { base: "BRU", val: 1.8 },
+                { base: "BVA", val: 5.5 }, { base: "CRL", val: 3.4 }, { base: "FAO", val: 2.3 },
+                { base: "FEZ", val: 1.1 }, { base: "FNC", val: 0.0 }, { base: "GRO", val: 1.8 },
+                { base: "IBZ", val: 0.5 }, { base: "LIS", val: 0.5 }, { base: "LPA", val: 0.7 },
+                { base: "MAD", val: 7.1 }, { base: "MRS", val: 2.1 }, { base: "OPO", val: 6.2 },
+                { base: "PMI", val: 1.8 }, { base: "RAK", val: 10.6 }, { base: "SCQ", val: 0.0 },
+                { base: "SVQ", val: 2.8 }, { base: "TFS", val: 1.1 }, { base: "TLS", val: 2.5 },
+                { base: "TNG", val: 2.3 }, { base: "VLC", val: 1.4 }
+            ],
+            countryChart: [
+                { country: "Spain", val: 260 },
+                { country: "Morocco", val: 69 },
+                { country: "Portugal", val: 39 },
+                { country: "France", val: 44 },
+                { country: "Belgium", val: 23 }
+            ]
+        };
+
+        // Estado Global
+        let db = defaultDb;
+
+        // Escuta os dados no Firebase em Tempo Real
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                db = data;
+                renderDashboard();
+            } else {
+                // Se a base de dados estiver vazia (1ª vez), salva os dados por defeito
+                set(dbRef, defaultDb);
+            }
+        });
+
+        Chart.register(ChartDataLabels);
+        let myChart = null;
+        let myCountryChart = null;
+
+        function renderDashboard() {
+            // Textos Simples
+            document.getElementById('display-month').innerHTML = `REPORTING MONTH: <span style="color: var(--text-dark);">${db.month}</span>`;
+            document.getElementById('display-total').innerText = db.total;
+            document.getElementById('display-kpi1').innerText = db.kpi1;
+            document.getElementById('display-kpi2').innerText = db.kpi2;
+
+            // Render Portugal
+            let ptHTML = '';
+            db.portugal.forEach(item => {
+                let isDanger = parseFloat(item.val) >= 5.0 ? 'danger' : '';
+                ptHTML += `<div class="stat-group"><span class="stat-label">${item.base}</span><span class="stat-value ${isDanger}">${item.val}%</span></div>`;
+            });
+            ptHTML += `<div class="divider"></div><div class="stat-group total-box"><span class="stat-label">PORTUGAL (%)</span><span class="stat-value">${db.portugalTotal}%</span></div>`;
+            document.getElementById('display-portugal').innerHTML = ptHTML;
+
+            // Render TOP 3
+            let top3HTML = '';
+            db.top3.forEach(item => {
+                top3HTML += `<div class="stat-group"><span class="stat-label">${item.base}</span><span class="stat-value danger">${item.val}%</span></div>`;
+            });
+            document.getElementById('display-top3').innerHTML = top3HTML;
+
+            // Gráfico Barras
+            const labels = db.chart.map(item => item.base);
+            const data = db.chart.map(item => item.val);
+            const bgColors = data.map(v => v > 8.0 ? '#F1C400' : '#07225B');
+
+            if (myChart) {
+                myChart.data.labels = labels;
+                myChart.data.datasets[0].data = data;
+                myChart.data.datasets[0].backgroundColor = bgColors;
+                myChart.update();
+            } else {
+                const ctx = document.getElementById('baseDelayChart').getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [{ data: data, backgroundColor: bgColors, borderRadius: 6 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: { anchor: 'end', align: 'top', font: { family: 'Montserrat', weight: 'bold', size: 11 }, formatter: v => v.toFixed(1).replace('.', ',') + '%' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, suggestedMax: Math.max(...data) + 5, grid: { borderDash: [5, 5] }, ticks: { callback: v => v + '%' } },
+                            x: { grid: { display: false }, ticks: { font: { weight: '600' }, color: '#07225B' } }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico Pizza
+            const countryLabels = db.countryChart.map(item => item.country);
+            const countryData = db.countryChart.map(item => item.val);
+            const bluePalette = ['#07225B', '#154C79', '#1B6EA5', '#2E96C4', '#5CB8DD', '#93D2EA', '#0D3A6B', '#3A82B8'];
+            const countryColors = countryData.map((_, i) => bluePalette[i % bluePalette.length]);
+
+            if (myCountryChart) {
+                myCountryChart.data.labels = countryLabels;
+                myCountryChart.data.datasets[0].data = countryData;
+                myCountryChart.data.datasets[0].backgroundColor = countryColors;
+                myCountryChart.update();
+            } else {
+                const ctxCountry = document.getElementById('countryChart').getContext('2d');
+                myCountryChart = new Chart(ctxCountry, {
+                    type: 'pie',
+                    data: { labels: countryLabels, datasets: [{ data: countryData, backgroundColor: countryColors, borderColor: '#fff', borderWidth: 2 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        layout: { padding: 40 },
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: {
+                                labels: {
+                                    percentage: {
+                                        color: '#fff',
+                                        font: { family: 'Montserrat', weight: 'bold', size: 13 },
+                                        formatter: (value, ctx) => {
+                                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                            return total ? (value / total * 100).toFixed(1).replace('.', ',') + '%' : '0%';
+                                        }
+                                    },
+                                    value: {
+                                        anchor: 'end', align: 'end', offset: 10,
+                                        color: (ctx) => ctx.chart.data.datasets[0].backgroundColor[ctx.dataIndex],
+                                        font: { family: 'Montserrat', weight: 'bold', size: 12 },
+                                        formatter: (value, ctx) => {
+                                            const label = ctx.chart.data.labels[ctx.dataIndex];
+                                            return `${label}; ${value}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        const modal = document.getElementById('editModal');
+
+        function openModal() {
+            document.getElementById('edit-month').value = db.month;
+            document.getElementById('edit-total').value = db.total;
+            document.getElementById('edit-kpi1').value = db.kpi1;
+            document.getElementById('edit-kpi2').value = db.kpi2.replace('%', '');
+
+            let ptHTML = '';
+            db.portugal.forEach((item, index) => {
+                ptHTML += `<div class="form-group"><label>Base ${index + 1}:</label><input type="text" class="pt-base" value="${item.base}" style="width:25%;"><input type="number" step="0.1" class="pt-val" value="${item.val}" style="width:28%;"></div>`;
+            });
+            document.getElementById('edit-portugal-rows').innerHTML = ptHTML;
+            document.getElementById('edit-portugal-total').value = db.portugalTotal.replace('%', '');
+
+            let topHTML = '';
+            db.top3.forEach((item, index) => {
+                topHTML += `<div class="form-group"><label>Rank ${index + 1}:</label><input type="text" class="top-base" value="${item.base}" style="width:25%;"><input type="number" step="0.1" class="top-val" value="${item.val}" style="width:28%;"></div>`;
+            });
+            document.getElementById('edit-top3-rows').innerHTML = topHTML;
+
+            renderChartEditorRows();
+            renderCountryEditorRows();
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() { modal.style.display = 'none'; }
+
+        function renderChartEditorRows() {
+            let chartHTML = '';
+            db.chart.forEach((item, index) => {
+                chartHTML += `
+                    <div class="dynamic-row" id="chart-row-${index}">
+                        <input type="text" class="chart-edit-base" value="${item.base}" placeholder="Base (ex: LIS)">
+                        <input type="number" step="0.1" class="chart-edit-val" value="${item.val}" placeholder="% (ex: 5.5)">
+                        <button class="btn-remove" onclick="removeChartRow(${index})" title="Remover Base">X</button>
+                    </div>`;
+            });
+            document.getElementById('edit-chart-rows').innerHTML = chartHTML;
+        }
+
+        function addChartRow() {
+            db.chart.push({ base: "NEW", val: 0.0 });
+            renderChartEditorRows();
+        }
+
+        function removeChartRow(index) {
+            db.chart.splice(index, 1);
+            renderChartEditorRows();
+        }
+
+        function renderCountryEditorRows() {
+            let countryHTML = '';
+            db.countryChart.forEach((item, index) => {
+                countryHTML += `
+                    <div class="dynamic-row" id="country-row-${index}">
+                        <input type="text" class="country-edit-name" value="${item.country}" placeholder="Country (ex: Spain)">
+                        <input type="number" step="1" class="country-edit-val" value="${item.val}" placeholder="No. (ex: 260)">
+                        <button class="btn-remove" onclick="removeCountryRow(${index})" title="Remover País">X</button>
+                    </div>`;
+            });
+            document.getElementById('edit-country-rows').innerHTML = countryHTML;
+        }
+
+        function addCountryRow() {
+            db.countryChart.push({ country: "NEW", val: 0 });
+            renderCountryEditorRows();
+        }
+
+        function removeCountryRow(index) {
+            db.countryChart.splice(index, 1);
+            renderCountryEditorRows();
+        }
+
+        function saveChanges() {
+            db.month = document.getElementById('edit-month').value;
+            db.total = document.getElementById('edit-total').value;
+            db.kpi1 = document.getElementById('edit-kpi1').value;
+            db.kpi2 = document.getElementById('edit-kpi2').value + "%";
+
+            const ptBases = document.querySelectorAll('.pt-base');
+            const ptVals = document.querySelectorAll('.pt-val');
+            db.portugal = [];
+            for(let i = 0; i < ptBases.length; i++) {
+                db.portugal.push({ base: ptBases[i].value, val: ptVals[i].value });
+            }
+            db.portugalTotal = document.getElementById('edit-portugal-total').value;
+
+            const topBases = document.querySelectorAll('.top-base');
+            const topVals = document.querySelectorAll('.top-val');
+            db.top3 = [];
+            for(let i = 0; i < topBases.length; i++) {
+                db.top3.push({ base: topBases[i].value, val: topVals[i].value });
+            }
+
+            const chartBases = document.querySelectorAll('.chart-edit-base');
+            const chartVals = document.querySelectorAll('.chart-edit-val');
+            db.chart = [];
+            for(let i = 0; i < chartBases.length; i++) {
+                db.chart.push({ base: chartBases[i].value, val: parseFloat(chartVals[i].value) || 0 });
+            }
+
+            const countryNames = document.querySelectorAll('.country-edit-name');
+            const countryVals = document.querySelectorAll('.country-edit-val');
+            db.countryChart = [];
+            for(let i = 0; i < countryNames.length; i++) {
+                db.countryChart.push({ country: countryNames[i].value, val: parseFloat(countryVals[i].value) || 0 });
+            }
+
+            // Guarda os dados atualizados diretamente no Firebase Database
+            set(dbRef, db).then(() => {
+                closeModal();
+            }).catch((error) => {
+                alert("Erro ao gravar dados: " + error);
+            });
+        }
+
+        function importData() { alert("Funcionalidade de importar Excel em desenvolvimento!"); }
+        function exportPDF() { window.print(); }
+
+        function resetData() {
+            if(confirm("Tens a certeza que queres apagar todas as alterações na Cloud e restaurar os valores iniciais?")) {
+                set(dbRef, defaultDb).then(() => {
+                    alert("Dados repostos com sucesso!");
+                });
+            }
+        }
+
+        // --- EXPORTAR FUNÇÕES PARA O HTML ---
+        // Como estamos a usar type="module", precisamos de tornar estas funções 
+        // visíveis globalmente para que os botões (onclick) consigam encontrá-las.
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.saveChanges = saveChanges;
+        window.addChartRow = addChartRow;
+        window.removeChartRow = removeChartRow;
+        window.addCountryRow = addCountryRow;
+        window.removeCountryRow = removeCountryRow;
+        window.importData = importData;
+        window.exportPDF = exportPDF;
+        window.resetData = resetData;
+
+    // ======================================================
+    // FWD FIREBASE FUNCTIONS
+    // ======================================================
+
+window.saveDayToFirebase = async function(year, month, day, data) {
+
+    const dayRef = ref(
+    database,
+    `dashboardData/FWD/${year}/${String(month).padStart(2,"0")}/${String(day).padStart(2,"0")}`
+    );
+
+    await update(dayRef, data);
+
+};
+
+window.loadDayFromFirebase = function(year, month, day){
+
+    return new Promise((resolve)=>{
+
+        const dayRef = ref(
+            database,
+            `dashboardData/FWD/${year}/${String(month).padStart(2,"0")}/${String(day).padStart(2,"0")}`
+        );
+
+        onValue(dayRef, (snapshot)=>{
+
+            resolve(snapshot.val());
+
+        }, {
+            onlyOnce: true
+        });
+
+    });
+
+};
+</script>
+
+
+</div>
+
+<style>
+
+/* =======================================================
+   FIRST WAVE DASHBOARD
+=======================================================*/
+
+.exec-section,
+.region-section,
+.base-section,
+.analysis-section,
+.trend-section,
+.insight-section,
+.explorer-section{
+
+    margin-bottom:32px;
+
+}
+
+.exec-header,
+.region-header,
+.base-header,
+.analysis-header,
+.trend-header,
+.insight-header,
+.explorer-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:22px;
+
+}
+
+.exec-header h2::after,
+.region-header h2::after,
+.base-header h2::after,
+.analysis-header h2::after,
+.trend-header h2::after,
+.insight-header h2::after,
+.explorer-header h2::after{
+
+    content:"";
+
+    display:block;
+
+    width:90px;
+
+    height:5px;
+
+    margin-top:10px;
+
+    border-radius:50px;
+
+    background:#F1C400;
+
+}
+
+.exec-header span,
+.region-header span,
+.base-header span,
+.analysis-header span,
+.trend-header span,
+.insight-header span,
+.explorer-header span{
+
+    color:#7f8c8d;
+    font-size:14px;
+
+}
+
+/* ==========================================
+   KPI CARDS
+==========================================*/
+
+.exec-grid,
+.region-grid,
+.analysis-grid{
+
+    display:grid;
+    gap:20px;
+
+}
+
+.exec-grid{
+
+    grid-template-columns:repeat(4,1fr);
+
+}
+
+.region-grid{
+
+    grid-template-columns:repeat(4,1fr);
+
+}
+
+.analysis-grid{
+
+    grid-template-columns:repeat(3,1fr);
+
+}
+
+.exec-card,
+.region-card,
+.analysis-card{
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:28px;
+
+    border:1px solid #E7EBF3;
+
+    box-shadow:0 8px 24px rgba(7,34,91,.08);
+
+    transition:all .25s ease;
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.exec-card:hover,
+.region-card:hover,
+.analysis-card:hover{
+
+    transform:translateY(-6px);
+
+    border-color:#F1C400;
+
+    box-shadow:0 18px 40px rgba(7,34,91,.15);
+
+}
+
+.exec-title,
+.region-title,
+.analysis-title{
+
+    font-size:12px;
+
+    text-transform:uppercase;
+
+    letter-spacing:1px;
+
+    color:#8a99aa;
+
+    margin-bottom:12px;
+
+    font-weight:700;
+
+}
+
+.exec-value,
+.region-value,
+.analysis-value{
+
+    font-size:44px;
+font-weight:900;
+letter-spacing:-1px;
+color:#07225B;
+
+}
+
+.analysis-subtitle{
+
+    margin-top:10px;
+
+    font-size:13px;
+
+    color:#7B8794;
+
+    font-weight:600;
+
+}
+
+/* ==========================================
+   FILTERS
+==========================================*/
+
+.region-filters,
+.base-filters,
+.analysis-filters,
+.trend-filters,
+.explorer-toolbar{
+
+    display:flex;
+    gap:18px;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    margin-bottom:24px;
+
+}
+
+.region-filter,
+.base-filter,
+.analysis-filter,
+.explorer-search{
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    min-width:220px;
+
+}
+
+.region-filter label,
+.base-filter label,
+.analysis-filter label,
+.trend-filter label,
+.explorer-search label{
+
+    font-size:12px;
+    text-transform:uppercase;
+    font-weight:700;
+    color:#7f8c8d;
+    letter-spacing:.8px;
+
+}
+
+.region-filter select,
+.base-filter select,
+.analysis-filter select,
+.trend-filter select,
+.explorer-search input{
+
+    height:46px;
+
+    padding:0 14px;
+
+    border:1px solid #D9E3EF;
+
+    border-radius:12px;
+
+    background:#fff;
+
+    font-size:14px;
+
+    transition:.2s;
+
+}
+
+.region-filter select:hover,
+.base-filter select:hover,
+.analysis-filter select:hover,
+.trend-filter select:hover,
+.explorer-search input:hover{
+
+    border-color:#0A4DA2;
+
+}
+
+.region-filter select:focus,
+.base-filter select:focus,
+.analysis-filter select:focus,
+.trend-filter select:focus,
+.explorer-search input:focus{
+
+    outline:none;
+
+    border-color:#0A4DA2;
+
+    box-shadow:0 0 0 4px rgba(10,77,162,.12);
+
+}
+
+
+/* ==========================================
+   CHART CARDS
+==========================================*/
+
+.region-chart,
+.base-chart,
+.trend-chart{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:24px;
+
+    border:1px solid #EEF2F6;
+
+    border-top:6px solid #F1C400;
+
+    box-shadow:0 12px 30px rgba(7,34,91,.08);
+
+    transition:.25s;
+
+}
+
+.region-chart:hover,
+.base-chart:hover,
+.trend-chart:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 20px 45px rgba(7,34,91,.15);
+
+}
+
+.region-chart-header,
+.base-chart-header,
+.trend-chart-header{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#07225B;
+
+    margin-bottom:20px;
+
+}
+
+
+/* ==========================================
+   EXECUTIVE SUMMARY
+==========================================*/
+
+.exec-summary{
+
+    margin-top:24px;
+
+    background:linear-gradient(
+135deg,
+#07225B 0%,
+#0A4DA2 70%,
+#1559B5 100%
+);
+
+border-left:8px solid #F1C400;
+
+    color:white;
+
+    padding:28px;
+
+    border-radius:18px;
+
+    box-shadow:0 14px 40px rgba(7,34,91,.25);
+
+}
+
+.exec-summary p{
+
+    margin:0;
+
+    line-height:1.8;
+
+    font-size:15px;
+
+}
+
+
+/* ==========================================
+   INSIGHTS
+==========================================*/
+
+.insight-card{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:24px;
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:30px;
+
+    border:1px solid #EEF2F6;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+
+}
+
+.insight-icon{
+
+    width:72px;
+
+    height:72px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:34px;
+
+    background:#EDF5FF;
+
+}
+
+.insight-content{
+
+    flex:1;
+
+}
+
+.insight-content p{
+
+    margin:0;
+
+    color:#34495e;
+
+    line-height:1.8;
+
+    font-size:15px;
+
+}
+
+/* ==========================================
+   DATA EXPLORER
+==========================================*/
+
+.explorer-card{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    border:1px solid #EEF2F6;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+
+    overflow:hidden;
+
+}
+
+.explorer-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.explorer-table thead{
+
+    background:#07225B;
+
+}
+
+.explorer-table thead th{
+
+    color:white;
+
+    text-align:left;
+
+    padding:16px 18px;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.8px;
+
+}
+
+.explorer-table tbody td{
+
+    padding:16px 18px;
+
+    border-bottom:1px solid #EEF2F6;
+
+    font-size:14px;
+
+    color:#34495e;
+
+}
+
+.explorer-table tbody tr{
+
+    transition:.2s;
+
+}
+
+.explorer-table tbody tr:hover{
+
+    background:#F8FAFD;
+
+}
+
+
+/* ==========================================
+   CHARTS
+==========================================*/
+
+.chart-container{
+
+    width:100%;
+
+    overflow-x:auto;
+
+}
+
+.chart-wrapper{
+
+    min-height:480px;
+
+    position:relative;
+
+}
+
+
+/* ==========================================
+   GENERAL TRANSITIONS
+==========================================*/
+
+.exec-card,
+.region-card,
+.analysis-card,
+.region-chart,
+.base-chart,
+.trend-chart,
+.insight-card,
+.explorer-card{
+
+    transition:all .25s ease;
+
+}
+
+.region-chart:hover,
+.base-chart:hover,
+.trend-chart:hover,
+.insight-card:hover,
+.explorer-card:hover{
+
+    box-shadow:0 16px 40px rgba(0,0,0,.10);
+
+}
+
+
+/* ==========================================
+   RESPONSIVE
+==========================================*/
+
+@media (max-width:1200px){
+
+.exec-grid{
+
+    grid-template-columns:repeat(2,1fr);
+
+}
+
+.region-grid{
+
+    grid-template-columns:repeat(2,1fr);
+
+}
+
+.analysis-grid{
+
+    grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+
+@media (max-width:768px){
+
+.exec-grid,
+.region-grid,
+.analysis-grid{
+
+    grid-template-columns:1fr;
+
+}
+
+.exec-header,
+.region-header,
+.base-header,
+.analysis-header,
+.trend-header,
+.insight-header,
+.explorer-header{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:10px;
+
+}
+
+.region-filters,
+.base-filters,
+.analysis-filters,
+.trend-filters,
+.explorer-toolbar{
+
+    flex-direction:column;
+
+}
+
+.region-filter,
+.base-filter,
+.analysis-filter,
+.trend-filter,
+.explorer-search{
+
+    width:100%;
+
+}
+
+.region-filter select,
+.base-filter select,
+.analysis-filter select,
+.trend-filter select,
+.explorer-search input{
+
+    width:100%;
+
+}
+
+.insight-card{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+}
+
+.chart-wrapper{
+
+    min-height:320px;
+
+}
+
+.explorer-table{
+
+    min-width:700px;
+
+}
+
+}
+
+
+/* ==========================================
+   SMALL DETAILS
+==========================================*/
+
+.exec-value,
+.region-value,
+.analysis-value{
+
+    line-height:1;
+
+}
+
+.exec-card::before,
+.region-card::before,
+.analysis-card::before{
+
+    content:"";
+
+    display:block;
+
+    width:calc(100% + 56px);
+
+    height:6px;
+
+    background:#F1C400;
+
+    margin:-28px -28px 22px -28px;
+
+    border-radius:22px 22px 0 0;
+
+}
+
+.fwd-dashboard-grid{
+
+    display:grid;
+
+    gap:32px;
+
+}
+
+/* ==========================================
+   IMPORT DATA POPUP
+==========================================*/
+
+#importOverlay{
+
+    display:none;
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    backdrop-filter:blur(5px);
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:999999;
+
+}
+
+#importPopup{
+
+    width:900px;
+
+    max-width:92%;
+
+    background:white;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    box-shadow:0 25px 60px rgba(0,0,0,.35);
+
+    animation:popupOpen .25s ease;
+
+}
+
+@keyframes popupOpen{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px) scale(.97);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0) scale(1);
+
+    }
+
+}
+
+#importHeader{
+
+    background:#07225B;
+
+    color:white;
+
+    padding:25px 35px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+#importHeader h2{
+
+    margin:0;
+
+    font-size:26px;
+
+}
+
+#importBody{
+
+    padding:45px;
+
+}
+
+.importCards{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:30px;
+
+}
+
+.importCard{
+
+    border:2px solid #E7EBF3;
+
+    border-radius:18px;
+
+    padding:45px;
+
+    text-align:center;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.importCard:hover{
+
+    transform:translateY(-6px);
+
+    border-color:#F1C400;
+
+    box-shadow:0 15px 35px rgba(7,34,91,.15);
+
+}
+
+.importIcon{
+
+    font-size:58px;
+
+    margin-bottom:20px;
+
+}
+
+.importTitle{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+}
+
+.importSubtitle{
+
+    margin-top:12px;
+
+    color:#7f8c8d;
+
+    line-height:1.6;
+
+}
+
+.selectedRegionCard{
+
+    width:100%;
+    background:#fff;
+    border:1px solid #d8dee8;
+    border-radius:14px;
+
+    padding:20px 24px;
+
+    box-sizing:border-box;
+
+}
+
+.selectedRegionTitle{
+
+    font-size:12px;
+    font-weight:700;
+
+    color:#7a869a;
+
+    letter-spacing:1.5px;
+
+    margin-bottom:10px;
+
+}
+
+.selectedRegionValue{
+
+    font-size:28px;
+    font-weight:800;
+
+    color:#073590;
+
+    text-transform:uppercase;
+
+}
+
+#baseHistoryChart{
+
+    width:100%;
+
+    height:320px !important;
+
+}
+
+/* ===========================
+   Operational Trends Layout
+=========================== */
+
+.trend-layout{
+
+    display:grid;
+
+    grid-template-columns:2.4fr 1fr;
+
+    gap:24px;
+
+    margin-top:20px;
+
+}
+
+.trend-section{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:20px;
+
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+
+}
+
+.insight-section{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:24px;
+
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:flex-start;
+
+}
+
+#trendChart{
+
+    height:300px !important;
+
+}
+
+/* ==============================
+   Operational Trends Layout
+============================== */
+
+.trend-layout{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+}
+
+.trend-insights{
+
+    background:#fff;
+
+    border-radius:16px;
+
+    padding:24px;
+
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+
+}
+
+#operationalInsights{
+
+    margin-top:20px;
+
+    line-height:1.7;
+
+    color:#475569;
+
+    font-size:15px;
+
+}
+
+/* =========================================
+   Operational Trend KPI Cards
+========================================= */
+
+.trend-kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+
+    gap:18px;
+
+    align-items:stretch;
+
+}
+
+.trend-kpi-card{
+
+    background:#f8fafc;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:14px;
+
+    padding:18px;
+
+    transition:.25s;
+
+    display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+min-height:165px;
+
+}
+
+.trend-kpi-card:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+}
+
+.trend-kpi-title{
+
+    font-size:13px;
+
+    color:#64748b;
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+}
+
+.trend-kpi-value{
+
+    font-size:30px;
+
+    font-weight:700;
+
+    color:#0f172a;
+
+}
+
+.trend-kpi-subtitle{
+
+    color:#64748b;
+
+    margin-top:4px;
+
+}
+
+.trend-kpi-status{
+
+    font-size:18px;
+
+    font-weight:600;
+
+    color:#2563eb;
+
+}
+
+.trend-kpi-small{
+
+    font-size:14px;
+
+    color:#475569;
+
+    line-height:1.5;
+
+}
+
+/* =========================================
+   Operational Insight Cards
+========================================= */
+
+.trend-kpi-grid{
+
+    display:grid;
+
+    gap:16px;
+
+}
+
+.trend-kpi-card{
+
+    background:#ffffff;
+
+    border-top:4px solid #f5c400;
+
+    border-radius:16px;
+
+    padding:22px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+    transition:all .25s ease;
+
+}
+
+.trend-kpi-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 14px 28px rgba(0,0,0,.12);
+
+}
+
+.trend-kpi-title{
+
+    font-size:12px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.08em;
+
+    font-weight:700;
+
+    color:#64748b;
+
+    margin-bottom:14px;
+
+}
+
+.trend-kpi-value{
+
+    font-size:38px;
+
+    font-weight:700;
+
+    color:#002b6b;
+
+    line-height:1;
+
+}
+
+.trend-kpi-subtitle{
+
+    margin-top:6px;
+
+    font-size:13px;
+
+    color:#64748b;
+
+}
+
+.trend-kpi-status{
+
+    font-size:22px;
+
+    font-weight:700;
+
+    color:#2563eb;
+
+}
+
+.trend-kpi-small{
+
+    font-size:14px;
+
+    line-height:1.5;
+
+    color:#475569;
+
+}
+
+/* ==========================================================
+   OPERATIONAL SUMMARY
+========================================================== */
+
+.operationalSummaryGrid{
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+
+    align-items:start;
+
+}
+
+.operationalSummaryCard{
+
+    background:#fff;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,.10);
+    border:1px solid #ececec;
+
+}
+
+.operationalSummaryTitle{
+
+    margin:0;
+    padding:14px 18px;
+    background:#073590;
+    color:white;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.5px;
+
+}
+
+.operationalSummaryTable{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+.operationalSummaryTable th{
+
+    background:#FFD200;
+    color:#073590;
+    padding:10px;
+    font-weight:700;
+    text-align:center;
+
+}
+
+.operationalSummaryTable td{
+
+    padding:10px;
+    text-align:center;
+    border-bottom:1px solid #efefef;
+    color:#073590 !important;
+    font-weight:600;
+
+}
+
+.operationalSummaryTable tr:nth-child(even){
+
+    background:#f8f9fb;
+
+}
+
+.operationalSummaryTable tr:hover{
+
+    background:#eef5ff;
+
+}
+
+.operationalSummaryTable tr:last-child td{
+
+    border-bottom:none;
+
+}
+
+@media (max-width:1100px){
+
+    .operationalSummaryGrid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+.regional-pies{
+
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:24px;
+    margin-top:30px;
+
+}
+
+.pie-card{
+
+    background:#fff;
+    border-radius:18px;
+    padding:24px;
+    box-shadow:0 8px 20px rgba(7,53,144,.08);
+
+}
+
+.pie-title{
+
+    text-align:center;
+    font-size:18px;
+    font-weight:700;
+    color:#073590;
+    margin-bottom:20px;
+
+}
+
+.pie-card canvas{
+
+    height:360px !important;
+    width:100% !important;
+
+}
+
+    </style>
+
+<!-- ===================================================== -->
+<!-- FIRST WAVE DELAYS DASHBOARD -->
+<!-- ===================================================== -->
+
+<div id="fwdDashboard" class="dashboard-v2" style="display:none;">
+
+    <header class="header-container">
+        <div class="header-left">
+            <img src="ryanair-logo-2.png" alt="Company Logo" class="header-logo">
+            <div class="header-titles">
+                <h1><span class="highlight-yellow">FIRST WAVE DELAYS</span> MONTHLY REPORT</h1>
+                <span class="subtitle">Engineering & Maintenance</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="btn btn-white">Export PDF</button>
+            <button class="btn btn-green" onclick="openManualInput()">
+                    Import Data
+                    </button>
+            <button class="btn btn-yellow">Edit Visuals (Manual)</button>
+            <button class="btn btn-white" style="background:#e74c3c;color:white;">
+                Reset Data
+            </button>
+        </div>
+    </header>
+
+    <div class="controls-bar">
+
+    <div class="month-display">
+
+        <label style="margin-right:12px;font-weight:600;">
+    Analysis Period
+</label>
+
+<select id="dashboardPeriod"
+        style="padding:8px 14px;border-radius:8px;border:1px solid #ccc;min-width:220px;">
+
+</select>
+
+    </div>
+
+</div>
+
+
+    <!-- ===================================================== -->
+<!-- EXECUTIVE SUMMARY -->
+<!-- ===================================================== -->
+
+<section class="exec-section">
+
+    <div class="exec-header">
+
+        <h2>Executive Summary</h2>
+
+        <span>Overall monthly operational performance</span>
+
+    </div>
+
+    <div class="exec-grid">
+
+        <div class="exec-card">
+            <div class="exec-title">TOTAL FIRST WAVE DELAYS</div>
+            <div class="exec-value" id="fwdTotal">-</div>
+        </div>
+
+        <div class="exec-card">
+            <div class="exec-title">TOTAL NIGHT STOPS</div>
+            <div class="exec-value" id="totalNightStops">-</div>
+        </div>
+
+        <div class="exec-card">
+            <div class="exec-title">FIRST WAVE RATE</div>
+            <div class="exec-value" id="fwdRate">-%</div>
+        </div>
+
+        <div
+class="exec-card"
+style="cursor:pointer;"
+onclick="openBasesModal()">
+
+    <div class="exec-title">
+        ACTIVE BASES
+    </div>
+
+    <div class="exec-value" id="activeBases">
+        -
+    </div>
+
+</div>
+
+        <div
+class="exec-card"
+style="cursor:pointer;"
+onclick="openActiveDaysModal()">
+
+    <div class="exec-title">
+        ACTIVE DAYS
+    </div>
+
+    <div
+    class="exec-value"
+    id="activeDays">
+
+        -
+
+    </div>
+
+</div>
+
+        <div class="exec-card">
+            <div class="exec-title">AVERAGE FWD / BASE</div>
+            <div class="exec-value" id="fwdAverage">-</div>
+        </div>
+
+        <div class="exec-card">
+            <div class="exec-title">AVERAGE NS / BASE</div>
+            <div class="exec-value" id="averageNightStops">-</div>
+        </div>
+
+        <div class="exec-card">
+    <div class="exec-title">NS PER BASE / DAY</div>
+    <div class="exec-value" id="nsPerBaseDay">0.00</div>
+</div>
+
+    </div>
+
+    <div class="exec-summary">
+
+    <h3>Operational Summary</h3>
+
+    <p id="executiveSummary">
+
+        Detailed information follows below.
+
+    </p>
+
+    <div class="operationalSummaryGrid">
+
+    <div class="operationalSummaryCard">
+        <h4 class="operationalSummaryTitle">FWD RATE PER COUNTRY</h4>
+        <div id="countrySummaryTable"></div>
+    </div>
+
+    <div class="operationalSummaryCard">
+        <h4 class="operationalSummaryTitle">TOP 3 BASES WITH HIGHEST FWD</h4>
+        <div id="topBasesSummaryTable"></div>
+    </div>
+
+    <div class="operationalSummaryCard">
+        <h4 class="operationalSummaryTitle">FWD RATE - PORTUGAL</h4>
+        <div id="portugalSummaryTable"></div>
+    </div>
+
+</div>
+
+    </div>
+
+</div>
+
+</section>
+
+<div class="fwd-dashboard-grid">
+
+    <!-- ===================================================== -->
+<!-- REGIONAL OVERVIEW -->
+<!-- ===================================================== -->
+
+<section class="region-section">
+
+    <div class="region-header">
+
+        <h2>Regional Overview</h2>
+
+        <span>Select the country and metric to analyse.</span>
+
+    </div>
+
+    <div class="region-filters">
+
+    <div class="selectedRegionCard">
+
+        <div class="selectedRegionTitle">
+            SELECTED REGION
+        </div>
+
+        <div id="selectedCountryLabel" class="selectedRegionValue">
+            ALL COUNTRIES
+        </div>
+
+    </div>
+
+</div>
+
+    </div>
+
+    <div class="region-grid">
+
+        <div class="region-card">
+
+            <div class="region-title">BASES</div>
+
+            <div class="region-value" id="countryBases">-</div>
+
+        </div>
+
+        <div class="region-card">
+
+            <div class="region-title">TOTAL FWD</div>
+
+            <div class="region-value" id="countryFWD">-</div>
+
+        </div>
+
+        <div class="region-card">
+
+            <div class="region-title">NIGHT STOPS</div>
+
+            <div class="region-value" id="countryNS">-</div>
+
+        </div>
+
+        <div class="region-card">
+
+            <div class="region-title">FWD RATE</div>
+
+            <div class="region-value" id="countryRate">-%</div>
+
+        </div>
+
+    </div>
+
+<div class="region-chart">
+
+    <div class="region-chart-header">
+
+        Country Performance
+
+    </div>
+
+    <div class="chart-container">
+
+        <div id="regionalMapContainer"
+             style="
+                width:100%;
+                height:500px;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                background:#FAFBFD;
+                border-radius:16px;
+            ">
+
+            <div id="regionalMap">
+
+<svg id="regionalSVG"
+     xmlns="http://www.w3.org/2000/svg"
+     viewBox="935 165 120 210"
+     preserveAspectRatio="xMidYMid meet"
+     style="
+    width:100%;
+    height:100%;
+    overflow:visible;
+">
+
+<path id="Belgium" d="M1016.5 177.1l-0.4 4.2-1.3 0.2-0.4 3.5-4.4-2.9-2.5 0.5-3.5-2.9-2.4-2.5-2.2-0.1-0.8-2.2 3.9-1.2 3.6 0.5 4.5-1.3 3.1 2.7 2.8 1.5z"/>
+
+<path id="Morocco" d="M974.8 276l1.9 4.1 0.3 3.9 1.9 6.8 1.4 1.4-1 2.5-7.1 1.1-2.5 2.3-3.1 0.6-0.3 4.8-6.4 2.5-2.1 3.2-4.5 1.7-5.4 1-8.9 4.8-0.1 7.6-0.9 0 0.1 3.4-3.4 0.2-1.8 1.5-2.5 0-2-0.9-4.6 0.7-1.9 5-1.8 0.5-2.7 8.1-7.9 6.9-2 8.9-2.4 2.9-0.7 2.3-12.5 0.5-0.1 0 0.3-3 2.2-1.7 1.9-3.4-0.3-2.2 2-4.5 3.2-4.1 1.9-1 1.6-3.7 0.2-3.5 2.1-3.9 3.8-2.4 3.6-6.5 0.1-0.1 2.9-2.5 5.1-0.7 4.4-4.4 2.8-1.7 4.7-5.4-1.2-7.9 2.2-5.6 0.9-3.4 3.6-4.3 5.4-2.9 4.1-2.7 3.7-6.6 1.8-4 3.9 0.1 3.1 2.7 5.1-0.4 5.5 1.4 2.4 0z"/>
+
+<path id="Portugal" d="M946.9 263.7l-2.2 1.6-2.8-0.9-2.7 0.7 0.9-5-0.3-3.9-2.4-0.6-1.1-2.4 0.5-4.2 2.2-2.3 0.5-2.6 1.2-3.8 0-2.7-0.9-2.3-0.2-2.2 1.9-1.6 2.2-0.9 1.2 3.1 3 0 0.9-0.8 3.1 0.2 1.3 3.2-2.4 1.7-0.3 5-0.8 0.9-0.3 3.1-2.3 0.5 2 3.8-1.6 4.2 1.8 1.9-0.8 1.7-2 2.4 0.4 2.2z"/>
+
+<path id="Spain" d="M976.6 223.4l2 2.4 9.5 2.9 1.9-1.4 5.8 2.9 5.9-0.8 0.4 3.7-4.9 4.2-6.6 1.4-0.5 2.1-3.2 3.5-2 5.2 2 3.7-3 2.8-1.2 4.2-4 1.3-3.7 4.9-6.8 0.1-5-0.1-3.4 2.2-2.1 2.4-2.6-0.5-1.9-2.2-1.4-3.6-4.9-1-0.4-2.2 2-2.4 0.8-1.7-1.8-1.9 1.6-4.2-2-3.8 2.3-0.5 0.3-3.1 0.8-0.9 0.3-5 2.4-1.7-1.3-3.2-3.1-0.2-0.9 0.8-3 0-1.2-3.1-2.2 0.9-1.9 1.6 0.5-4.5-2-2.7 7.4-4.6 6.2 1.1 6.9 0 5.4 1.1 4.3-0.4 8.3 0.3z"/>
+
+<path id="France" d="M1014.4 185 1015.5 185.5 1016.9 185.4 1019.3 187 1026.5 188.2 1024.1 192.4 1023.7 196.9 1022.4 198 1020.1 197.4 1020.3 199 1016.7 202.5 1016.7 205.4 1019.1 204.4 1020.9 207.1 1020.8 208.9 1022.3 211.3 1020.6 213.2 1022.1 218.1 1024.9 218.9 1024.4 221.6 1019.9 225.2 1009.7 223.5 1002.3 225.6 1001.7 229.4 995.8 230.2 990 227.3 988.1 228.7 978.6 225.8 976.6 223.4 979.3 219.6 980.3 207 975.2 200.4 971.5 197.2 963.9 194.8 963.5 190.2 970 188.9 978.3 190.5 976.8 183.4 981.5 186.1 992.9 181.3 994.4 176.2 998.6 174.9 999.4 177.1 1001.6 177.2 1004 179.7 1007.5 182.6 1010 182.1 1014.4 185z"/>
+
+</svg>
+
+</div>
+
+    </div>
+
+    <div class="regional-pies">
+
+        <div class="pie-card">
+
+            <div class="pie-title">
+                FWD PER COUNTRY (%)
+            </div>
+
+            <canvas id="countryFwdChart"></canvas>
+
+        </div>
+
+        <div class="pie-card">
+
+            <div class="pie-title">
+                NIGHT-STOP AIRCRAFT PER COUNTRY (%)
+            </div>
+
+            <canvas id="countryNsChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+   <!-- ===================================================== -->
+<!-- BASE PERFORMANCE -->
+<!-- ===================================================== -->
+
+<section class="base-section">
+
+    <div class="base-header">
+
+        <h2>Base Performance</h2>
+
+        <span>Compare operational performance across all maintenance bases.</span>
+
+    </div>
+
+    <div class="base-filters">
+
+        <div class="base-filter">
+
+            <label>Country</label>
+
+            <select id="baseCountryFilter">
+
+                <option value="ALL">All Countries</option>
+
+            </select>
+
+        </div>
+
+        <div class="base-filter">
+
+            <label>Sort By</label>
+
+            <select id="baseSort">
+
+                <option value="fwd">First Wave Delays</option>
+<option value="fwdPerDay">FWD per Day</option>
+<option value="rate">FWD Rate</option>
+<option value="nightStops">Night Stops</option>
+<option value="nightStopsPerDay">Night Stops per Day</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="base-chart">
+
+        <div class="base-chart-header">
+
+            Base Ranking
+
+        </div>
+
+        <div class="chart-container">
+
+            <div class="chart-wrapper" style="height:900px;">
+
+    <canvas id="baseRankingChart"></canvas>
+
+</div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- BASE ANALYSIS -->
+<!-- ===================================================== -->
+
+<section class="analysis-section">
+
+    <div class="analysis-header">
+
+        <h2>Base Analysis</h2>
+
+        <span>Detailed analysis of an individual maintenance base.</span>
+
+    </div>
+
+    <div class="analysis-filters">
+
+        <div class="analysis-filter analysis-filter-base">
+
+    <label>Select Base</label>
+
+    <select id="analysisBase">
+
+        <option value="">Select a base...</option>
+
+    </select>
+
+</div>
+
+    </div>
+
+    <div class="analysis-grid">
+
+        <div class="analysis-card">
+
+            <div class="analysis-title">
+
+                FIRST WAVE DELAYS
+
+            </div>
+
+            <div class="analysis-value" id="analysisFWD">
+
+                -
+
+            </div>
+
+        </div>
+
+        <div class="analysis-card">
+
+            <div class="analysis-title">
+
+                NIGHT STOPS
+
+            </div>
+
+            <div class="analysis-value" id="analysisNS">
+
+                -
+
+            </div>
+
+        </div>
+
+        <div class="analysis-card">
+
+            <div class="analysis-title">
+
+                FWD RATE
+
+            </div>
+
+            <div class="analysis-value" id="analysisRate">
+
+                -%
+
+            </div>
+
+        </div>
+
+<div class="analysis-card">
+
+    <div class="analysis-title">
+
+        FLEET COMPARISON
+
+    </div>
+
+    <div class="analysis-value" id="analysisFleetDiff">
+
+        -
+
+    </div>
+
+    <div class="analysis-subtitle" id="analysisFleetText">
+
+        vs Fleet Average
+
+    </div>
+
+</div>
+
+<div class="analysis-card">
+
+    <div class="analysis-title">
+
+        BASE RANK
+
+    </div>
+
+    <div class="analysis-value" id="analysisRank">
+
+        -
+
+    </div>
+
+    <div class="analysis-subtitle">
+
+        Position in Fleet
+
+    </div>
+
+</div>
+
+<div class="base-chart" style="grid-column:1 / -1;">
+
+    <div class="base-chart-header">
+
+        Daily Base Performance
+
+    </div>
+
+    <div class="chart-container">
+
+        <div class="chart-wrapper">
+
+            <canvas id="baseHistoryChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- OPERATIONAL TRENDS -->
+<!-- ===================================================== -->
+
+<section class="trend-section">
+
+    <div class="trend-header">
+
+        <h2>Operational Trends</h2>
+
+        <span>Analyse the monthly operational evolution.</span>
+
+    </div>
+
+    <div class="trend-filters">
+
+    <div class="trend-filter">
+
+        <label>View</label>
+
+        <select id="trendView">
+
+            <option value="6">Last 6 Months</option>
+            <option value="12" selected>Last 12 Months</option>
+            <option value="all">All Available Data</option>
+
+        </select>
+
+    </div>
+
+</div>
+
+    <div class="trend-layout">
+
+    <div class="trend-chart">
+
+    <div class="trend-chart-header">
+        Fleet Trend
+    </div>
+
+    <div class="chart-container">
+
+        <div style="height:420px;">
+            <canvas id="trendChart"></canvas>
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    id="operationalInsights"
+    style="
+        margin-top:22px;
+    ">
+</div>
+
+
+</section>
+
+
+</div>
+
+<!-- ====================================================== -->
+<!-- MANUAL INPUT SCREEN -->
+<!-- ====================================================== -->
+
+<div id="manualInputScreen"
+style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+backdrop-filter:blur(5px);
+z-index:999998;
+overflow:auto;
+padding:40px;
+">
+
+<div
+style="
+position:relative;
+max-width:1200px;
+margin:auto;
+background:#F4F6F8;
+border-radius:22px;
+overflow:hidden;
+box-shadow:0 25px 60px rgba(0,0,0,.35);
+">
+
+<div class="header-container">
+
+<div class="header-left">
+
+<img src="ryanair-logo-2.png" class="header-logo">
+
+<div class="header-titles">
+
+<h1>
+
+<span class="highlight-yellow">
+
+FIRST WAVE
+
+</span>
+
+MANUAL INPUT
+
+</h1>
+
+<span class="subtitle">
+
+Engineering & Maintenance
+
+</span>
+
+</div>
+
+</div>
+
+<div class="header-right">
+
+<button class="btn btn-white" onclick="manualInputBack()">
+
+    ← Back
+
+</button>
+
+</div>
+
+</div>
+
+<div id="manualControlsBar" class="controls-bar"
+style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<div class="month-display">
+
+SELECT REPORTING MONTH
+
+</div>
+
+<button
+class="btn btn-green"
+onclick="openExcelImport()">
+
+📊 Excel Import
+
+</button>
+
+<div id="importSelection" style="display:none;"></div>
+
+</div>
+
+<div id="calendarContainer"
+
+style="
+display:block;
+background:white;
+border-radius:12px;
+padding:30px;
+margin-top:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+"
+
+style="
+
+display:none;
+
+background:white;
+
+border-radius:12px;
+
+padding:30px;
+
+margin-top:20px;
+
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+
+">
+
+<h2 style="margin-bottom:20px;color:#07225B;">
+
+<div style="display:flex;gap:20px;align-items:end;margin-bottom:25px;flex-wrap:wrap;">
+
+    <div>
+
+        <label style="font-weight:700;color:#07225B;">Month</label><br>
+
+        <select
+    id="calendarMonth"
+    class="btn-white"
+    onchange="generateCalendar()"
+    style="padding:10px 15px;border-radius:8px;border:1px solid #ccc;min-width:180px;">
+
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6" selected>July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
+
+        </select>
+
+    </div>
+
+    <div>
+
+        <label style="font-weight:700;color:#07225B;">Year</label><br>
+
+        <input id="calendarYear"
+               type="number"
+               value="2026"
+                onchange="generateCalendar()"
+               style="padding:10px 15px;border-radius:8px;border:1px solid #ccc;width:120px;">
+
+    </div>
+
+        <button class="btn btn-yellow" onclick="generateCalendar()">
+
+            Generate Calendar
+
+        </button>
+
+    </div>
+
+    <div id="calendarGrid"></div>
+
+    </h2>
+
+    </div>
+
+    <div id="dayEditorContainer" style="display:none;">
+
+        <h2 id="selectedDayTitle"
+            style="
+            color:#07225B;
+            text-align:center;
+            margin-bottom:25px;">
+        </h2>
+
+        <div id="dailyBasesContainer"
+            style="
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+            gap:20px;">
+        </div>
+
+        <div
+        style="
+        display:flex;
+        justify-content:center;
+        gap:20px;
+        margin-top:30px;">
+
+            <button
+            class="btn btn-green"
+            onclick="saveDayData()">
+
+                Save Day
+
+            </button>
+
+            <button
+            class="btn btn-white"
+            onclick="backToCalendar()">
+
+                ← Back
+
+            </button>
+
+        </div>
+
+    </div>
+
+    </div>
+
+    </div>
+
+    <script>
+
+    function openNoInfo(){
+
+        document.getElementById("homeScreen").style.display="none";
+        document.getElementById("dashboardContainer").style.display="block";
+
+        document.getElementById("fwdDashboard").style.display="none";
+
+        document.querySelector(".header-container").style.display="";
+        document.querySelector(".controls-bar").style.display="";
+        document.querySelector(".month-display").parentElement.style.display="";
+        document.querySelector(".kpi-grid").style.display="";
+        document.querySelectorAll(".dashboard-grid, .card").forEach(el=>{
+            el.style.display="";
+        });
+
+    }
+
+    async function openFWD(){
+
+        await loadBases();
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("dashboardContainer").style.display = "block";
+
+    document.querySelector(".header-container").style.display = "none";
+    document.querySelector(".controls-bar").style.display = "none";
+    document.querySelector(".kpi-grid").style.display = "none";
+    document.querySelector(".month-display").parentElement.style.display = "none";
+
+    document.querySelectorAll(".dashboard-grid, .card").forEach(el=>{
+        el.style.display = "none";
+    });
+
+    document.getElementById("fwdDashboard").style.display = "block";
+
+    await loadAvailableDashboardPeriods();
+
+    const selector = document.getElementById("dashboardPeriod");
+
+    if(selector.options.length){
+
+        selector.selectedIndex = selector.options.length - 1;
+
+        const [year,month] =
+            selector.value.split("-").map(Number);
+
+        await updateFWDDashboard(year,month);
+
+    }
+
+}
+
+function openImportPopup(){
+
+    document.getElementById("importOverlay").style.display = "flex";
+
+}
+
+function closeImportPopup(){
+
+    document.getElementById("importOverlay").style.display = "none";
+
+}
+
+// ======================================================
+// ACTIVE DAYS MODAL
+// ======================================================
+
+async function openActiveDaysModal(){
+
+    generateCalendar();
+
+    await new Promise(resolve => setTimeout(resolve,50));
+
+    const container =
+        document.getElementById("activeDaysCalendarContainer");
+
+    const calendar =
+        document.getElementById("calendarContainer");
+
+    container.innerHTML = calendar.innerHTML;
+
+    container.querySelectorAll("button").forEach(btn=>{
+
+        if(btn.innerText.trim() === "Generate Calendar"){
+
+            btn.remove();
+            return;
+
+        }
+
+        btn.removeAttribute("onclick");
+        btn.removeAttribute("onmouseover");
+        btn.removeAttribute("onmouseout");
+
+        btn.style.cursor = "default";
+
+    });
+
+    document.getElementById("activeDaysModal").style.display="flex";
+
+}
+
+function closeActiveDaysModal(){
+
+    document.getElementById("activeDaysModal").style.display = "none";
+
+}
+
+function openImportPopupFromActiveDays(){
+
+    closeActiveDaysModal();
+
+    openManualInput();
+
+}
+
+window.openActiveDaysModal = openActiveDaysModal;
+window.closeActiveDaysModal = closeActiveDaysModal;
+window.openImportPopupFromActiveDays = openImportPopupFromActiveDays;
+
+// ======================================================
+// ACTIVE BASES MODAL
+// ======================================================
+
+async function openBasesModal(){
+
+    await renderBasesModal();
+
+    document.getElementById("basesModal").style.display = "flex";
+
+}
+
+function closeBasesModal(){
+
+    document.getElementById("basesModal").style.display = "none";
+
+}
+
+async function renderBasesModal(){
+
+    const container = document.getElementById("basesList");
+
+    container.innerHTML = "";
+
+    await loadBases();
+
+    const countries = [...new Set(
+        BASE_DETAILS.map(b => b.country)
+    )].sort();
+
+    countries.forEach(country => {
+
+        const title = document.createElement("h3");
+
+        title.textContent = country;
+
+        title.style.color = "#07225B";
+        title.style.margin = "20px 0 10px";
+
+        container.appendChild(title);
+
+        BASE_DETAILS
+            .filter(b => b.country === country)
+            .sort((a,b)=>a.code.localeCompare(b.code))
+            .forEach(base => {
+
+                const row = document.createElement("div");
+
+                row.style.display = "flex";
+                row.style.justifyContent = "space-between";
+                row.style.alignItems = "center";
+                row.style.padding = "10px 0";
+                row.style.borderBottom = "1px solid #eee";
+
+                row.innerHTML = `
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+width:100%;
+">
+
+    <span style="font-weight:600;">
+        ${base.code}
+    </span>
+
+    <div style="
+    display:flex;
+    align-items:center;
+    gap:12px;
+    ">
+
+        <input
+            type="checkbox"
+            ${base.active ? "checked" : ""}
+            onchange="toggleBase('${base.code}',this.checked)">
+
+        <button
+            class="btn btn-white"
+            style="padding:4px 10px;"
+            onclick="deleteBase('${base.code}')">
+
+            🗑
+
+        </button>
+
+    </div>
+
+</div>
+`;
+
+                container.appendChild(row);
+
+            });
+
+    });
+
+}
+
+// ======================================================
+// ACTIVATE / DEACTIVATE BASE
+// ======================================================
+
+async function toggleBase(code, active){
+
+    const baseRef = window.firebaseRef(
+        window.database,
+        `dashboardData/bases/${code}`
+    );
+
+    await window.firebaseUpdate(baseRef,{
+        active: active
+    });
+
+    await loadBases();
+
+    const selector = document.getElementById("dashboardPeriod");
+
+    if(selector && selector.value){
+
+        const [year,month] =
+            selector.value.split("-").map(Number);
+
+        await updateFWDDashboard(year,month);
+
+    }
+
+}
+
+// ======================================================
+// DELETE BASE
+// ======================================================
+
+async function deleteBase(code){
+
+    if(!confirm(`Delete base "${code}"?`)){
+        return;
+    }
+
+    const baseRef = window.firebaseRef(
+        window.database,
+        `dashboardData/bases/${code}`
+    );
+
+    await window.firebaseRemove(baseRef);
+
+    await loadBases();
+
+    await renderBasesModal();
+
+    const selector = document.getElementById("dashboardPeriod");
+
+    if(selector && selector.value){
+
+        const [year,month] =
+            selector.value.split("-").map(Number);
+
+        await updateFWDDashboard(year,month);
+
+    }
+
+}
+
+window.deleteBase = deleteBase;
+
+// ======================================================
+// ADD BASE MODAL
+// ======================================================
+
+function openAddBaseModal(){
+
+    document.getElementById("newBaseCode").value = "";
+    document.getElementById("newBaseCountry").value = "";
+
+    document.getElementById("addBaseModal").style.display = "flex";
+
+}
+
+function closeAddBaseModal(){
+
+    document.getElementById("addBaseModal").style.display = "none";
+
+}
+
+async function saveNewBase(){
+
+    const code = document.getElementById("newBaseCode")
+        .value
+        .trim()
+        .toUpperCase();
+
+    const country = document.getElementById("newBaseCountry")
+        .value
+        .trim();
+
+    if(!code || !country){
+
+        alert("Please fill in all fields.");
+
+        return;
+
+    }
+
+    const baseRef = window.firebaseRef(
+        window.database,
+        `dashboardData/bases/${code}`
+    );
+
+    await window.firebaseSet(baseRef,{
+        code: code,
+        country: country,
+        active: true
+    });
+
+    await loadBases();
+
+    closeAddBaseModal();
+
+    await renderBasesModal();
+
+    const selector = document.getElementById("dashboardPeriod");
+
+    if(selector && selector.value){
+
+        const [year,month] =
+            selector.value.split("-").map(Number);
+
+        await updateFWDDashboard(year,month);
+
+    }
+
+}
+
+window.openAddBaseModal = openAddBaseModal;
+window.closeAddBaseModal = closeAddBaseModal;
+window.saveNewBase = saveNewBase;
+
+window.toggleBase = toggleBase;
+
+window.openBasesModal = openBasesModal;
+window.closeBasesModal = closeBasesModal;
 
 function goHome(){
 
-document.getElementById("home").style.display="flex";
+    document.getElementById("dashboardContainer").style.display="none";
 
-document.getElementById("noInfoPage").style.display="none";
+    document.getElementById("homeScreen").style.display="flex";
 
-document.getElementById("fwdPage").style.display="none";
+}
+
+function openManualInput(){
+
+    document.getElementById("manualInputScreen").style.display = "block";
+
+    const today = new Date();
+
+    document.getElementById("calendarMonth").value = today.getMonth();
+    document.getElementById("calendarYear").value = today.getFullYear();
+
+    document.getElementById("importSelection").style.display = "none";
+    document.getElementById("calendarContainer").style.display = "block";
+
+    generateCalendar();
+
+}
+
+function backToFWD(){
+
+    document.getElementById("manualInputScreen").style.display = "none";
+
+    document.getElementById("fwdDashboard").style.display = "block";
+
+loadAvailableDashboardPeriods().then(() => {
+
+    const selector = document.getElementById("dashboardPeriod");
+
+    if (selector.options.length > 0) {
+
+        selector.selectedIndex = selector.options.length - 1;
+
+        const [year, month] = selector.value.split("-").map(Number);
+
+        updateFWDDashboard(year, month);
+
+    }
+
+});
+
+}
+
+function manualInputBack(){
+
+    // Esconde o popup
+    document.getElementById("manualInputScreen").style.display = "none";
+
+    // Garante que na próxima abertura aparece sempre o calendário
+    document.getElementById("dayEditorContainer").style.display = "none";
+    document.getElementById("calendarContainer").style.display = "block";
+    document.querySelector(".controls-bar").style.display = "flex";
+
+}
+
+function openCalendarInput(){
+
+    document.getElementById("importSelection").style.display = "none";
+    document.getElementById("calendarContainer").style.display = "block";
+
+}
+
+function openExcelImport(){
+
+    document.getElementById("excelImportModal").style.display="flex";
+
+}
+
+function closeExcelImportModal(){
+
+    document.getElementById("excelImportModal").style.display="none";
+
+}
+
+function closeExcelSummary(){
+
+    document.getElementById("excelSummaryModal").style.display="none";
+
+}
+
+function showImportSummary(){
+
+    const html = `
+
+        <div style="font-size:18px;margin-bottom:20px;">
+
+            <b>Month:</b>
+            ${pendingImportMonth}/${pendingImportYear}
+
+        </div>
+
+        <div style="font-size:18px;">
+
+            <div style="margin-bottom:10px;">
+                📄 Days found:
+                <b>${Object.keys(pendingImportDays).length}</b>
+            </div>
+
+            <div style="margin-bottom:10px;color:#2E8B57;">
+                🟢 New days:
+                <b>${newImportDays.length}</b>
+            </div>
+
+            <div style="margin-bottom:18px;color:#C49000;">
+                🟡 Existing days:
+                <b>${existingImportDays.length}</b>
+            </div>
+
+            <div>
+
+                <b>Existing:</b><br>
+
+                ${
+                    existingImportDays.length
+                    ?
+                    existingImportDays.join(", ")
+                    :
+                    "None"
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+    document.getElementById("excelSummaryText").innerHTML = html;
+
+    document.getElementById("excelSummaryModal").style.display="flex";
+
+}
+
+async function compareImportWithFirebase(){
+
+    existingImportDays = [];
+
+    newImportDays = [];
+
+    for(const day of Object.keys(pendingImportDays)){
+
+        const data = await loadDayFromFirebase(
+
+            pendingImportYear,
+
+            pendingImportMonth,
+
+            Number(day)
+
+        );
+
+        if(data){
+
+            existingImportDays.push(Number(day));
+
+        }
+        else{
+
+            newImportDays.push(Number(day));
+
+        }
+
+    }
+
+    existingImportDays.sort((a,b)=>a-b);
+
+    newImportDays.sort((a,b)=>a-b);
+
+    showImportSummary();
+
+}
+
+async function executeImport(mode){
+
+    closeExcelSummary();
+
+    let daysToImport = [];
+
+    if(mode==="new"){
+
+        daysToImport = newImportDays;
+
+    }else{
+
+        daysToImport = Object.keys(pendingImportDays).map(Number);
+
+    }
+
+    for(const day of daysToImport){
+
+        await saveDayToFirebase(
+
+            pendingImportYear,
+
+            pendingImportMonth,
+
+            day,
+
+            pendingImportDays[day]
+
+        );
+
+    }
+
+    await refreshCalendarStatus(
+    pendingImportYear,
+    pendingImportMonth
+);
+
+// Atualiza imediatamente o dashboard
+await loadAvailableDashboardPeriods();
+
+const selector = document.getElementById("dashboardPeriod");
+
+const target = `${pendingImportYear}-${pendingImportMonth}`;
+
+for(let i = 0; i < selector.options.length; i++){
+
+    if(selector.options[i].value === target){
+
+        selector.selectedIndex = i;
+        break;
+
+    }
+
+}
+
+await updateFWDDashboard(
+    pendingImportYear,
+    pendingImportMonth
+);
+
+alert(
+    "Import completed successfully.\n\nImported " +
+    daysToImport.length +
+    " day(s)."
+);
+
+}
+
+async function importOnlyNew(){
+
+    await executeImport("new");
+
+}
+
+async function overwriteImport(){
+
+    await executeImport("all");
+
+}
+
+function confirmExcelImport(){
+
+    document.getElementById("excelImportModal").style.display="none";
+
+    document.getElementById("excelFileInput").click();
+
+}
+
+async function importExcelFile(event){
+
+    const file = event.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e){
+
+        const data = new Uint8Array(e.target.result);
+
+        const workbook = XLSX.read(data,{type:"array"});
+
+        const sheetName = workbook.SheetNames[0];
+
+        const worksheet = workbook.Sheets[sheetName];
+
+    // ======================================
+// CONVERTER EXCEL PARA ESTRUTURA INTERNA
+// ======================================
+
+const importedDays = {};
+
+function normalize(v){
+
+    if(v === undefined || v === null) return null;
+
+    if(typeof v === "string"){
+
+        v = v.trim();
+
+        if(v === "" || v === "-" || v === "/" || v === "//")
+            return null;
+
+    }
+
+    const n = Number(v);
+
+    return Number.isNaN(n) ? null : n;
+
+}
+
+const lastRow = XLSX.utils.decode_range(worksheet["!ref"]).e.r + 1;
+
+for(let row = 2; row <= lastRow; row += 2){
+
+    const day = Number(worksheet["A"+row]?.v);
+
+    if(isNaN(day)) continue;
+
+    const dayData = {};
+
+    let hasData = false;
+
+    BASES.forEach((base,index)=>{
+
+        const column =
+            XLSX.utils.encode_col(index + 1);
+
+        const fwd = normalize(
+            worksheet[column + row]?.v
+        );
+
+        const nightStop = normalize(
+            worksheet[column + (row + 1)]?.v
+        );
+
+        if(fwd !== null || nightStop !== null){
+
+            hasData = true;
+
+        }
+
+        dayData[base] = {
+
+            fwd,
+
+            nightStop
+
+        };
+
+    });
+
+    if(hasData){
+
+        importedDays[day] = dayData;
+
+    }
+
+}
+
+console.log(importedDays);    
+
+// Guardar temporariamente os dados do Excel
+pendingImportDays = importedDays;
+
+// Mês e ano escolhidos no modal
+pendingImportMonth = Number(
+    document.getElementById("excelImportMonth").value
+);
+
+pendingImportYear = Number(
+    document.getElementById("excelImportYear").value
+);
+
+// Comparar com a Firebase
+await compareImportWithFirebase();
+
+    };
+
+    reader.readAsArrayBuffer(file);
+
+    event.target.value="";
+}
+
+function generateCalendar() {
+
+    const month = parseInt(document.getElementById("calendarMonth").value);
+    const year = parseInt(document.getElementById("calendarYear").value);
+
+    const calendarGrid = document.getElementById("calendarGrid");
+
+    const monthNames = [
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
+    ];
+
+    const weekDays = [
+        "Mon","Tue","Wed","Thu","Fri","Sat","Sun"
+    ];
+
+    // Primeiro dia do mês
+    const firstDay = new Date(year, month, 1);
+
+    // Número de dias
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Converter domingo=0 para segunda=0
+    let startDay = firstDay.getDay();
+
+    startDay = (startDay + 6) % 7;
+
+    let html = "";
+
+    html += `
+        <h2 style="
+            text-align:center;
+            margin-bottom:25px;
+            color:#07225B;
+            font-size:28px;
+        ">
+            ${monthNames[month]} ${year}
+        </h2>
+
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(7,1fr);
+            gap:12px;
+            text-align:center;
+            margin-bottom:15px;
+            font-weight:bold;
+            color:#07225B;
+        ">
+    `;
+
+    weekDays.forEach(day => {
+        html += `<div>${day}</div>`;
+    });
+
+    html += "</div>";
+
+    html += `
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(7,1fr);
+            gap:12px;
+        ">
+    `;
+
+    // Espaços antes do dia 1
+    for(let i = 0; i < startDay; i++){
+
+        html += `<div></div>`;
+
+    }
+
+    // Dias do mês
+    for(let day = 1; day <= daysInMonth; day++){
+
+        html += `
+            <button
+                onclick="openDay(${day},${month},${year})"
+                style="
+                    height:70px;
+                    border:none;
+                    border-radius:12px;
+                    background:#ffffff;
+                    box-shadow:0 3px 8px rgba(0,0,0,.08);
+                    font-size:18px;
+                    font-weight:bold;
+                    cursor:pointer;
+                    transition:.2s;
+                "
+                onmouseover="this.style.transform='scale(1.05)'"
+                onmouseout="this.style.transform='scale(1)'"
+            >
+                ${day}
+            </button>
+        `;
+
+    }
+
+    html += "</div>";
+
+    calendarGrid.innerHTML = html;
+
+// Se o modal Active Days estiver aberto,
+// atualiza automaticamente a cópia do calendário.
+if(document.getElementById("activeDaysModal").style.display === "flex"){
+
+    const container =
+        document.getElementById("activeDaysCalendarContainer");
+
+    const calendar =
+        document.getElementById("calendarContainer");
+
+    container.innerHTML = calendar.innerHTML;
+
+    container.querySelectorAll("button").forEach(btn=>{
+
+        if(btn.innerText.trim() === "Generate Calendar"){
+
+            btn.remove();
+
+            return;
+
+        }
+
+        btn.removeAttribute("onclick");
+        btn.removeAttribute("onmouseover");
+        btn.removeAttribute("onmouseout");
+
+        btn.style.cursor = "default";
+
+    });
+
+}
+    // Atualiza as cores dos dias guardados
+    refreshCalendarStatus(year, month + 1);
+
+}
+
+// ======================================================
+// REFRESH CALENDAR STATUS FROM FIREBASE
+// ======================================================
+
+async function refreshCalendarStatus(year, month){
+
+    const buttons = document.querySelectorAll("#calendarGrid button");
+
+    for(const btn of buttons){
+
+        const day = Number(btn.innerText);
+
+        const data = await loadDayFromFirebase(year, month, day);
+
+        if(!data){
+
+            btn.style.background = "white";
+            btn.style.color = "#07225B";
+            continue;
+
+        }
+
+        let totalFields = BASES.length * 2;
+
+let filledFields = 0;
+
+BASES.forEach(base => {
+
+    const ns = data[base]?.nightStop;
+    const fwd = data[base]?.fwd;
+
+    if (
+        ns !== null &&
+        ns !== undefined &&
+        ns !== "" &&
+        ns !== "-" &&
+        ns !== "/"
+    ){
+        filledFields++;
+    }
+
+    if (
+        fwd !== null &&
+        fwd !== undefined &&
+        fwd !== "" &&
+        fwd !== "-" &&
+        fwd !== "/"
+    ){
+        filledFields++;
+    }
+
+});
+
+        if (filledFields === 0) {
+
+        btn.style.background = "white";
+        btn.style.color = "#07225B";
+
+    }
+    else if (filledFields === totalFields) {
+
+    btn.style.background = "#27AE60";
+    btn.style.color = "white";
+
+    }
+    else {
+
+    btn.style.background = "#F2C94C";
+    btn.style.color = "#222";
+
+    }
+
+    }
+}
+
+// ======================================================
+// DAILY DATA (temporário)
+// Depois será substituído pela Firebase
+// ======================================================
+
+let dayData = {};
+
+let currentDay = null;
+let currentMonth = null;
+let currentYear = null;
+
+
+// ======================================================
+// RYANAIR BASES
+// ======================================================
+
+// ======================================================
+// RYANAIR BASES
+// ======================================================
+
+const BASES = [
+    "ACE",
+    "AGA",
+    "AGP",
+    "ALC",
+    "BCN",
+    "BRU",
+    "BVA",
+    "CRL",
+    "FAO",
+    "FEZ",
+    "FNC",
+    "GRO",
+    "IBZ",
+    "LIS",
+    "LPA",
+    "MAD",
+    "MRS",
+    "OPO",
+    "PMI",
+    "RAK",
+    "SCQ",
+    "SVQ",
+    "TFS",
+    "TLS",
+    "TNG",
+    "VLC"
+];
+
+// ======================================================
+// BASES MANAGER
+// ======================================================
+
+let BASE_DETAILS = [];
+
+async function loadBases() {
+
+    const basesRef = window.firebaseRef(
+        window.database,
+        "dashboardData/bases"
+    );
+
+    const snapshot = await window.firebaseGet(basesRef);
+
+    // Se ainda não existirem bases na Firebase,
+    // cria automaticamente usando a lista atual.
+    if (!snapshot.exists()) {
+
+        const initialBases = {};
+
+        BASES.forEach(base => {
+
+            initialBases[base] = {
+                code: base,
+                country: BASE_COUNTRIES[base],
+                active: true
+            };
+
+        });
+
+        await window.firebaseSet(basesRef, initialBases);
+
+        BASE_DETAILS = Object.values(initialBases);
+
+        return;
+
+    }
+
+    BASE_DETAILS = Object.values(snapshot.val());
+
+    BASES.length = 0;
+
+    BASE_DETAILS
+        .filter(b => b.active)
+        .forEach(b => BASES.push(b.code));
+
+}
+
+let pendingImportDays = {};
+
+let existingImportDays = [];
+
+let newImportDays = [];
+
+let pendingImportYear = null;
+
+let pendingImportMonth = null;
+
+let regionalChart = null;
+
+let baseRankingChart = null;
+
+let selectedBase = "ALL";
+
+let baseHistoryChart = null;
+
+// ======================================
+// GLOBAL DASHBOARD STATE
+// ======================================
+
+let currentStats = null;
+
+let selectedCountry = "ALL";
+
+// ======================================================
+// OPEN DAILY INPUT
+// ======================================================
+
+function openDay(day, month, year){
+
+    currentDay = day;
+    currentMonth = month;
+    currentYear = year;
+
+    document.getElementById("calendarContainer").style.display = "none";
+    document.getElementById("manualControlsBar").style.display = "none";
+    document.getElementById("dayEditorContainer").style.display = "block";
+
+    const monthNames = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+];
+
+const weekDays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+];
+
+const date = new Date(year, month, day);
+
+document.getElementById("selectedDayTitle").innerHTML = `
+    <div style="
+        text-align:center;
+        margin-bottom:35px;
+    ">
+
+        <div style="
+            font-size:13px;
+            font-weight:700;
+            letter-spacing:2px;
+            text-transform:uppercase;
+            color:#7A8599;
+            margin-bottom:8px;
+        ">
+            FIRST WAVE MANUAL INPUT
+        </div>
+
+        <div style="
+            font-size:22px;
+            font-weight:600;
+            color:#7A8599;
+            margin-bottom:10px;
+        ">
+            ${weekDays[date.getDay()]}
+        </div>
+
+        <div style="
+            font-size:44px;
+            font-weight:800;
+            color:#07225B;
+            line-height:1;
+        ">
+            ${day} ${monthNames[month]} ${year}
+        </div>
+
+    </div>
+`;
+
+    generateDailyForm();
+
+    loadDayFromFirebase(currentYear, currentMonth + 1, currentDay)
+    .then(data => {
+
+        if(!data) return;
+
+        BASES.forEach(base => {
+
+            if(!data[base]) return;
+
+            const ns = document.getElementById("ns_" + base);
+            const fwd = document.getElementById("fwd_" + base);
+
+            if(ns) ns.value = data[base].nightStop ?? "";
+            if(fwd) fwd.value = data[base].fwd ?? "";
+
+        });
+
+    });
+
+}
+
+// ======================================================
+// BACK TO CALENDAR
+// ======================================================
+
+function backToCalendar(){
+
+    document.getElementById("dayEditorContainer").style.display = "none";
+    document.getElementById("manualControlsBar").style.display = "flex";
+    document.getElementById("calendarContainer").style.display = "block";
+
+}
+
+// ======================================================
+// GENERATE DAILY FORM
+// ======================================================
+
+function generateDailyForm(){
+
+    const container = document.getElementById("dailyBasesContainer");
+
+    let html = "";
+
+    BASES.forEach(base=>{
+
+        html += `
+
+        <div style="
+            background:#f8f9fb;
+            border-radius:12px;
+            padding:18px;
+            box-shadow:0 3px 10px rgba(0,0,0,.08);
+        ">
+
+            <h3 style="
+                color:#07225B;
+                margin-bottom:18px;
+                text-align:center;
+            ">
+                ${base}
+            </h3>
+
+            <label style="font-weight:bold;">
+                Night Stop
+            </label>
+
+            <input
+                type="number"
+                min="0"
+                id="ns_${base}"
+                value=""
+                style="
+                    width:100%;
+                    margin-top:6px;
+                    margin-bottom:14px;
+                    padding:10px;
+                    border-radius:8px;
+                    border:1px solid #ccc;
+                ">
+
+            <label style="font-weight:bold;">
+                FWD
+            </label>
+
+            <input
+                type="number"
+                min="0"
+                id="fwd_${base}"
+                value=""
+                style="
+                    width:100%;
+                    margin-top:6px;
+                    padding:10px;
+                    border-radius:8px;
+                    border:1px solid #ccc;
+                ">
+
+        </div>
+
+        `;  
+
+    });
+
+    container.innerHTML = html;
+
+}
+
+// ======================================================
+// CALCULATE DAY STATUS
+// ======================================================
+
+function calculateDayStatus(){
+
+    let emptyFields = 0;
+
+    BASES.forEach(base=>{
+
+        const ns = document.getElementById("ns_"+base).value.trim();
+        const fwd = document.getElementById("fwd_"+base).value.trim();
+
+        if(ns==="" || fwd===""){
+
+            emptyFields++;
+
+        }
+
+    });
+
+    if(emptyFields===BASES.length){
+
+        return "empty";
+
+    }
+
+    if(emptyFields>0){
+
+        return "partial";
+
+    }
+
+    return "complete";
+
+}
+
+// ======================================================
+// SAVE (TEMPORÁRIO)
+// ======================================================
+
+function saveDayData(){
+
+    const key =
+        `${currentYear}-${currentMonth+1}-${currentDay}`;
+
+    if(!dayData[key]){
+
+        dayData[key] = {
+
+    status: calculateDayStatus()
+
+        };
+
+    }
+
+    BASES.forEach(base=>{
+
+        const ns = document.getElementById("ns_"+base).value.trim();
+        const fwd = document.getElementById("fwd_"+base).value.trim();
+
+        dayData[key][base] = {
+
+            nightStop: ns === "" ? null : Number(ns),
+            fwd: fwd === "" ? null : Number(fwd)
+
+};
+
+    });
+
+    updateCalendarStatus();
+
+    // ======================================================
+    // SAVE TO FIREBASE
+    // ======================================================
+
+saveDayToFirebase(
+    currentYear,
+    currentMonth + 1,
+    currentDay,
+    dayData[key]
+)
+.then(async () => {
+
+    console.log("FWD saved to Firebase.");
+
+    // Atualiza imediatamente as cores
+    refreshCalendarStatus(currentYear, currentMonth + 1);
+
+    // Atualiza automaticamente o dashboard
+    await updateFWDDashboard(currentYear, currentMonth + 1);
+
+    // Atualiza novamente o calendário
+    generateCalendar();
+
+    backToCalendar();
+
+})
+
+}
+function updateCalendarStatus(){
+
+    const key =
+        `${currentYear}-${currentMonth+1}-${currentDay}`;
+
+    const status = dayData[key].status;
+
+    const buttons=document.querySelectorAll("#calendarGrid button");
+
+    buttons.forEach(btn=>{
+
+        if(Number(btn.innerText)!==currentDay) return;
+
+        btn.style.color="white";
+
+        switch(status){
+
+            case "complete":
+
+                btn.style.background="#27AE60";
+
+                break;
+
+            case "partial":
+
+                btn.style.background="#F2C94C";
+
+                btn.style.color="#222";
+
+                break;
+
+            default:
+
+                btn.style.background="white";
+
+                btn.style.color="#07225B";
+
+        }
+
+    });
+
+}
+
+function updateClock(){
+
+    const now=new Date();
+
+    const date=now.toLocaleDateString("en-GB");
+
+    const time=now.toLocaleTimeString("en-GB");
+
+    document.getElementById("liveClock").innerHTML=date+" | "+time;
+
+}
+
+setInterval(updateClock,1000);
+
+updateClock();
+
+function updateHomeClock(){
+
+const now=new Date();
+
+document.getElementById("homeDate").innerHTML=
+now.toLocaleDateString("en-GB",{
+day:"2-digit",
+month:"long",
+year:"numeric"
+});
+
+document.getElementById("homeTime").innerHTML=
+now.toLocaleTimeString("en-GB");
+
+}
+
+setInterval(updateHomeClock,1000);
+
+updateHomeClock();
+
+// ======================================
+// MONTHLY STATISTICS ENGINE
+// ======================================
+
+async function getMonthData(year, month){
+
+    const monthRef = window.firebaseRef(
+        window.database,
+        `dashboardData/FWD/${year}/${String(month).padStart(2,"0")}`
+    );
+
+    const snapshot = await window.firebaseGet(monthRef);
+
+    if(!snapshot.exists()){
+
+        return {};
+
+    }
+
+    return snapshot.val();
+
+}
+
+function emptyStatistics(){
+
+    return{
+
+        totalFWD:0,
+
+        totalNightStops:0,
+
+        activeBases:0,
+
+        activeDays:0,
+
+        baseStats:{},
+
+        countryStats:{},
+
+        topBases:[]
+
+    };
+
+}
+
+// ======================================
+// BASE → COUNTRY
+// ======================================
+
+// ======================================
+// BASE → COUNTRY
+// ======================================
+
+const BASE_COUNTRIES = {
+
+    ACE: "Spain",
+    AGA: "Morocco",
+    AGP: "Spain",
+    ALC: "Spain",
+    BCN: "Spain",
+
+    BRU: "Belgium",
+    BVA: "France",
+    CRL: "Belgium",
+
+    FAO: "Portugal",
+    FNC: "Portugal",
+    LIS: "Portugal",
+    OPO: "Portugal",
+
+    FEZ: "Morocco",
+    RAK: "Morocco",
+    TNG: "Morocco",
+
+    GRO: "Spain",
+    IBZ: "Spain",
+    LPA: "Spain",
+    MAD: "Spain",
+    PMI: "Spain",
+    SCQ: "Spain",
+    SVQ: "Spain",
+    TFS: "Spain",
+    VLC: "Spain",
+
+    MRS: "France",
+    TLS: "France"
+
+};
+
+// ======================================
+// CALCULATE MONTHLY STATISTICS
+// ======================================
+
+async function calculateMonthlyStatistics(year, month){
+
+    const monthData = await getMonthData(year, month);
+
+    const stats = emptyStatistics();
+
+    BASES.forEach(base=>{
+
+    stats.baseStats[base]={
+
+        fwd:0,
+        nightStops:0,
+        activeDays:0,
+        rate:0
+
+    };
+
+});
+
+    for(const day in monthData){
+
+        const dayData = monthData[day];
+
+// Um dia só conta como ativo se TODAS as bases tiverem
+// Night Stops e FWD preenchidos
+let completeDay = true;
+
+BASES.forEach(base => {
+
+    const baseData = dayData[base];
+
+    if(
+        !baseData ||
+        baseData.fwd === null ||
+        baseData.fwd === undefined ||
+        baseData.nightStop === null ||
+        baseData.nightStop === undefined
+    ){
+        completeDay = false;
+    }
+
+});
+
+if(completeDay){
+    stats.activeDays++;
+}
+
+        BASES.forEach(base=>{
+
+            const baseData = dayData[base];
+
+            if(!baseData) return;
+
+            const fwd = Number(baseData.fwd) || 0;
+            const ns = Number(baseData.nightStop) || 0;
+
+            stats.totalFWD += fwd;
+            stats.totalNightStops += ns;
+
+            stats.baseStats[base].fwd += fwd;
+            stats.baseStats[base].nightStops += ns;
+
+            if(fwd>0 || ns>0){
+
+                stats.baseStats[base].activeDays++;
+
+            }
+
+        });
+
+    }
+
+    // Todas as bases contam, mesmo que tenham zero movimentos
+stats.activeBases = BASES.length;
+
+// ======================================
+// CALCULATE RATE FOR EACH BASE
+// ======================================
+
+Object.values(stats.baseStats).forEach(base=>{
+
+    base.rate =
+        base.nightStops
+            ? (base.fwd / base.nightStops) * 100
+            : 0;
+
+});
+
+// ======================================
+// ADDITIONAL MONTHLY CALCULATIONS
+// ======================================
+
+// Médias
+stats.averageFWDPerBase =
+    stats.activeBases
+        ? stats.totalFWD / stats.activeBases
+        : 0;
+
+stats.averageNightStopsPerBase =
+    stats.activeBases
+        ? stats.totalNightStops / stats.activeBases
+        : 0;
+
+stats.averageFWDPerDay =
+    stats.activeDays
+        ? stats.totalFWD / stats.activeDays
+        : 0;
+
+stats.averageNightStopsPerDay =
+    stats.activeDays
+        ? stats.totalNightStops / stats.activeDays
+        : 0;
+
+// Percentagem FWD
+stats.fwdPercentage =
+    stats.totalNightStops
+        ? (stats.totalFWD / stats.totalNightStops) * 100
+        : 0;
+
+// Ranking completo
+stats.ranking = Object.entries(stats.baseStats)
+    .sort((a,b)=>b[1].rate-a[1].rate);
+
+console.log(stats.ranking);    
+stats.topBases = stats.ranking.slice(0,3);
+
+// Dados preparados para gráficos
+stats.chartData = {
+
+    labels: stats.ranking.map(item=>item[0]),
+
+    fwd: stats.ranking.map(item=>item[1].fwd),
+
+    nightStops: stats.ranking.map(item=>item[1].nightStops)
+
+};
+
+// Bases sem qualquer atividade
+stats.inactiveBases = BASES.filter(base=>{
+
+    const b = stats.baseStats[base];
+
+    return b.fwd===0 && b.nightStops===0;
+
+});
+
+// ======================================
+// COUNTRY STATISTICS
+// ======================================
+
+Object.entries(stats.baseStats).forEach(([base,data])=>{
+
+    const country = BASE_COUNTRIES[base];
+
+    if(!country) return;
+
+    if(!stats.countryStats[country]){
+
+        stats.countryStats[country]={
+
+            fwd:0,
+            nightStops:0,
+            bases:0
+
+        };
+
+    }
+
+    stats.countryStats[country].fwd += data.fwd;
+
+    stats.countryStats[country].nightStops += data.nightStops;
+
+    stats.countryStats[country].bases++;
+
+});
+
+// Percentagem por país
+
+Object.values(stats.countryStats).forEach(country=>{
+
+    country.percentage =
+        country.nightStops
+            ? (country.fwd/country.nightStops)*100
+            : 0;
+
+});
+
+// Ranking países
+
+stats.countryRanking = Object.entries(stats.countryStats)
+.sort((a,b)=>b[1].fwd-a[1].fwd);
+
+return stats;
+
+}
+
+async function loadAvailableDashboardPeriods() {
+
+    const snapshot = await window.firebaseGet(
+        window.firebaseRef(window.database, "dashboardData/FWD")
+    );
+
+    if (!snapshot.exists()) return;
+
+    const data = snapshot.val();
+
+    const selector = document.getElementById("dashboardPeriod");
+
+    selector.innerHTML = "";
+
+    const periods = [];
+
+    Object.keys(data).forEach(year => {
+
+        Object.keys(data[year]).forEach(month => {
+
+            periods.push({
+                year: Number(year),
+                month: Number(month)
+            });
+
+        });
+
+    });
+
+    periods.sort((a, b) => {
+
+        if (a.year !== b.year) {
+
+            return a.year - b.year;
+
+        }
+
+        return a.month - b.month;
+
+    });
+
+    periods.forEach(period => {
+
+        const option = document.createElement("option");
+
+        option.value = `${period.year}-${period.month}`;
+
+        option.textContent =
+            new Date(period.year, period.month - 1)
+                .toLocaleString("en-GB", {
+                    month: "long",
+                    year: "numeric"
+                });
+
+        selector.appendChild(option);
+
+    });
+
+}
+
+function calculateNSPerBasePerDay(stats){
+
+    if(!stats || stats.activeDays === 0){
+        return 0;
+    }
+
+    return stats.totalNightStops / (BASES.length * stats.activeDays);
+
+}
+
+// ======================================
+// UPDATE FWD DASHBOARD
+// ======================================
+
+async function updateFWDDashboard(year, month){
+
+    console.log("updateFWDDashboard foi chamada");
+
+    const stats = await calculateMonthlyStatistics(year, month);
+
+    currentStats = stats;
+
+    console.log(stats);
+
+// ======================================
+// NS PER BASE / DAY
+// ======================================
+
+const nsPerBasePerDay = calculateNSPerBasePerDay(stats);
+
+const nsPerBaseDayElement = document.getElementById("nsPerBaseDay");
+
+if(nsPerBaseDayElement){
+
+    nsPerBaseDayElement.textContent = nsPerBasePerDay.toFixed(2);
+
+}
+
+// ======================================
+// POPULAR LISTAS DE PAÍSES
+// ======================================
+
+const countries = Object.keys(stats.countryStats).sort();
+
+[
+    "countrySelector",
+    "baseCountryFilter"
+]
+
+
+
+.forEach(id => {
+
+    const select = document.getElementById(id);
+
+    if(!select) return;
+
+    const previous = select.value;
+
+    select.innerHTML = `
+        <option value="ALL">All Countries</option>
+    `;
+
+    countries.forEach(country => {
+
+        select.innerHTML += `
+            <option value="${country}">
+                ${country}
+            </option>
+        `;
+
+    });
+
+    if(previous && countries.includes(previous))
+        select.value = previous;
+
+});
+
+// ======================================
+// BASE ANALYSIS DROPDOWN
+// ======================================
+
+const analysisBase =
+    document.getElementById("analysisBase");
+
+if(analysisBase && analysisBase.options.length <= 1){
+
+    BASES
+        .slice()
+        .sort((a,b)=>{
+
+            const ca = BASE_COUNTRIES[a];
+            const cb = BASE_COUNTRIES[b];
+
+            if(ca === cb)
+                return a.localeCompare(b);
+
+            return ca.localeCompare(cb);
+
+        })
+
+        .forEach(base=>{
+
+            const option =
+                document.createElement("option");
+
+            option.value = base;
+
+            option.textContent =
+                `${BASE_COUNTRIES[base]} — ${base}`;
+
+            analysisBase.appendChild(option);
+
+        });
+
+        analysisBase.value = "OPO";
+
+updateBaseAnalysis();
+
+updateBaseHistoryChart();
+
+updateOperationalTrends();
+
+}
+
+// ======================================
+// REGIONAL OVERVIEW
+// ======================================
+
+let totalBases = 0;
+let totalCountryFWD = 0;
+let totalCountryNightStops = 0;
+
+Object.values(stats.countryStats).forEach(country => {
+
+    totalBases += country.bases;
+    totalCountryFWD += country.fwd;
+    totalCountryNightStops += country.nightStops;
+
+});
+
+const overallRate =
+    totalCountryNightStops > 0
+        ? (totalCountryFWD / totalCountryNightStops * 100).toFixed(2)
+        : "0.00";
+
+    console.clear();
+
+    console.log("=================================");
+    console.log("FWD DASHBOARD");
+    console.log("=================================");
+
+    console.log("Year:", year);
+    console.log("Month:", month);
+
+    console.table({
+
+        "Total FWD": stats.totalFWD,
+
+        "Night Stops": stats.totalNightStops,
+
+        "Active Bases": stats.activeBases,
+
+        "Active Days": stats.activeDays,
+
+        "Average FWD/Base": stats.averageFWDPerBase,
+
+        "Average FWD/Day": stats.averageFWDPerDay,
+
+        "Average NS/Base": stats.averageNightStopsPerBase,
+
+        "Average NS/Day": stats.averageNightStopsPerDay,
+
+        "FWD Rate": stats.fwdPercentage + "%"
+
+    });
+
+    // ======================================
+// REGIONAL OVERVIEW CARDS
+// ======================================
+
+function updateRegionalCards(country){
+
+    let bases = 0;
+    let fwd = 0;
+    let nightStops = 0;
+
+    if(country === "ALL"){
+
+        Object.values(stats.countryStats).forEach(c => {
+
+            bases += c.bases;
+            fwd += c.fwd;
+            nightStops += c.nightStops;
+
+        });
+
+    }else{
+
+        const c = stats.countryStats[country];
+
+        if(c){
+
+            bases = c.bases;
+            fwd = c.fwd;
+            nightStops = c.nightStops;
+
+        }
+
+    }
+
+    const rate =
+        nightStops > 0
+            ? ((fwd / nightStops) * 100).toFixed(2)
+            : "0.00";
+
+    document.getElementById("countryBases").innerText = bases;
+
+    document.getElementById("countryFWD").innerText =
+        fwd.toLocaleString();
+
+    document.getElementById("countryNS").innerText =
+        nightStops.toLocaleString();
+
+    document.getElementById("countryRate").innerText =
+        rate + "%";
+
+}
+
+// Primeira atualização
+updateRegionalCards("ALL");
+
+let countryFwdChart = null;
+let countryNsChart = null;
+
+function updateRegionalPieCharts(){
+
+    const labels = [];
+    const fwdValues = [];
+    const nsValues = [];
+    const colours = [];
+
+    const totalFwd =
+    Object.values(stats.countryStats)
+        .reduce((sum,c)=>sum+c.fwd,0);
+
+const totalNS =
+    Object.values(stats.countryStats)
+        .reduce((sum,c)=>sum+c.nightStops,0);
+
+    const palette = {
+
+        Portugal:"#8E44AD",
+        Spain:"#0B84A5",
+        France:"#3498DB",
+        Belgium:"#27AE60",
+        Morocco:"#F39C12"
+
+    };
+
+    const countries =
+        Object.entries(stats.countryStats)
+            .sort((a,b)=>b[1].fwd-a[1].fwd);
+
+    countries.forEach(([country,data])=>{
+
+        labels.push(country);
+
+        fwdValues.push(
+
+    totalFwd
+        ? ((data.fwd / totalFwd) * 100).toFixed(2)
+        : 0
+
+);
+
+nsValues.push(
+
+    totalNS
+        ? ((data.nightStops / totalNS) * 100).toFixed(2)
+        : 0
+
+);
+
+        colours.push(
+            palette[country] || "#073590"
+        );
+
+    });
+
+    if(countryFwdChart){
+
+        countryFwdChart.destroy();
+
+    }
+
+    if(countryNsChart){
+
+        countryNsChart.destroy();
+
+    }
+
+    countryFwdChart = new Chart(
+
+        document.getElementById("countryFwdChart"),
+
+        {
+
+            type:"pie",
+
+            data:{
+
+                labels,
+
+                datasets:[{
+
+                    data:fwdValues,
+                    backgroundColor:colours,
+                    borderColor:"#FFFFFF",
+                    borderWidth:2
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                animation:{
+                    duration:1200,
+                    easing:"easeOutQuart"
+                },
+
+                plugins:{
+
+    legend:{
+        position:"bottom",
+        labels:{
+            color:"#073590",
+            padding:18,
+            font:{
+                weight:"600"
+            }
+        }
+    },
+
+    tooltip:{
+
+        backgroundColor:"#07225B",
+
+        titleColor:"#fff",
+
+        bodyColor:"#fff",
+
+        cornerRadius:10,
+
+        callbacks:{
+
+            label:function(context){
+
+                return context.label + ": " +
+                       Number(context.raw).toFixed(2) + "%";
+
+            }
+
+        }
+
+    },
+
+    datalabels:{
+
+        color:"#ffffff",
+
+        formatter:function(value){
+
+            return Number(value).toFixed(1) + "%";
+
+        },
+
+        font:{
+            weight:"bold",
+            size:14
+        }
+
+    }
+
+}
+
+            }
+
+        }
+
+    );
+
+    countryNsChart = new Chart(
+
+        document.getElementById("countryNsChart"),
+
+        {
+
+            type:"pie",
+
+            data:{
+
+                labels,
+
+                datasets:[{
+
+                    data:nsValues,
+                    backgroundColor:colours,
+                    borderColor:"#FFFFFF",
+                    borderWidth:2
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                animation:{
+                    duration:1200,
+                    easing:"easeOutQuart"
+                },
+
+                plugins:{
+
+    legend:{
+        position:"bottom",
+        labels:{
+            color:"#073590",
+            padding:18,
+            font:{
+                weight:"600"
+            }
+        }
+    },
+
+    tooltip:{
+
+        backgroundColor:"#07225B",
+
+        titleColor:"#fff",
+
+        bodyColor:"#fff",
+
+        cornerRadius:10,
+
+        callbacks:{
+
+            label:function(context){
+
+                return context.label + ": " +
+                       Number(context.raw).toFixed(2) + "%";
+
+            }
+
+        }
+
+    },
+
+    datalabels:{
+
+        color:"#ffffff",
+
+        formatter:function(value){
+
+            return Number(value).toFixed(1) + "%";
+
+        },
+
+        font:{
+            weight:"bold",
+            size:14
+        }
+
+    }
+
+}
+
+            }
+
+        }
+
+    );
+
+}
+
+// ======================================
+// REGIONAL OVERVIEW CHART
+// ======================================
+
+function updateRegionalChart(){
+
+    console.log("updateRegionalChart executada");
+
+    const svg = document.getElementById("regionalSVG");
+
+if(!svg) return;
+
+const paintMap = () => {
+
+console.log(svg);
+console.log(svg.getElementById("Portugal"));
+console.log(svg.getElementById("Spain"));
+
+        console.log(stats);
+        const metric = null;
+
+        let maxValue = 0;
+
+        Object.values(stats.countryStats).forEach(country=>{
+
+            let value = 0;
+
+            switch(metric){
+
+                case "nightStops":
+                    value = country.nightStops;
+                    break;
+
+                case "rate":
+                    value = country.percentage;
+                    break;
+
+                default:
+                    value = country.fwd;
+
+            }
+
+            if(value > maxValue) maxValue = value;
+
+        });
+
+        Object.entries(stats.countryStats).forEach(([country,data])=>{
+
+            const element = svg.getElementById(country);
+
+            if(!element) return;
+
+            let value = 0;
+
+            switch(metric){
+
+                case "nightStops":
+                    value = data.nightStops;
+                    break;
+
+                case "rate":
+                    value = data.percentage;
+                    break;
+
+                default:
+                    value = data.fwd;
+
+            }
+
+            const ratio = maxValue ? value / maxValue : 0;
+
+element.setAttribute("fill", "#FFC300");
+
+element.style.transition = "fill .35s ease, opacity .2s ease";
+element.style.cursor = "pointer";
+
+element.onmouseenter = () => {
+
+    element.style.opacity = "0.9";
+    element.setAttribute("fill", "#E6B000");
+    element.style.stroke = "#073590";
+    element.style.strokeWidth = "2.5";
+
+};
+
+element.onmouseleave = () => {
+
+    element.style.opacity = "1";
+    element.setAttribute("fill", "#FFC300");
+
+    element.style.stroke = "#ffffff";
+    element.style.strokeWidth = "0.8";
+
+};
+
+element.onclick = () => {
+
+    selectedCountry = country;
+
+    updateRegionalCards(country);
+
+    const label = document.getElementById("selectedCountryLabel");
+
+    if(label){
+        label.textContent = country.toUpperCase();
+    }
+
+    svg.querySelectorAll("path").forEach(c => {
+        c.style.stroke = "#ffffff";
+        c.style.strokeWidth = "0.8";
+    });
+
+    element.style.stroke = "#073590";
+    element.style.strokeWidth = "3";
+};
+
+        });
+
+    };
+
+    paintMap();
+    updateRegionalPieCharts();
+
+}
+
+updateRegionalChart();
+
+    console.log("Top Ranking");
+
+    console.table(
+        stats.ranking.map(([base,data],index)=>({
+
+            Rank:index+1,
+
+            Base:base,
+
+            FWD:data.fwd,
+
+            "Night Stops":data.nightStops
+
+        }))
+    );
+
+// ======================================
+// BASE PERFORMANCE
+// ======================================
+
+function updateBasePerformance(){
+
+    if(!currentStats) return;
+
+    const stats = currentStats;
+
+    const selectedCountry =
+        document.getElementById("baseCountryFilter").value;
+
+    const sortBy =
+        document.getElementById("baseSort").value;
+
+    let ranking = BASES.map(base => [
+    base,
+    stats.baseStats[base]
+]);
+
+if(selectedCountry !== "ALL"){
+
+    ranking = ranking.filter(([base]) =>
+        BASE_COUNTRIES[base] === selectedCountry
+    );
+
+}
+
+    ranking.sort((a,b)=>{
+
+        switch(sortBy){
+
+    case "nightStops":
+        return b[1].nightStops - a[1].nightStops;
+
+    case "rate":
+        return b[1].rate - a[1].rate;
+
+    case "fwdPerDay":
+        return (
+            (b[1].activeDays ? b[1].fwd / b[1].activeDays : 0) -
+            (a[1].activeDays ? a[1].fwd / a[1].activeDays : 0)
+        );
+
+    case "nightStopsPerDay":
+        return (
+            (b[1].activeDays ? b[1].nightStops / b[1].activeDays : 0) -
+            (a[1].activeDays ? a[1].nightStops / a[1].activeDays : 0)
+        );
+
+    default:
+        return b[1].fwd - a[1].fwd;
+
+}
+
+}
+
+);
+
+    const labels = ranking.map(([base])=>base);
+
+    const values = ranking.map(([base,data])=>{
+
+        switch(sortBy){
+
+    case "nightStops":
+        return data.nightStops;
+
+    case "fwdPerDay":
+        return Number(
+            (
+                data.activeDays
+                    ? data.fwd / data.activeDays
+                    : 0
+            ).toFixed(2)
+        );
+
+    case "nightStopsPerDay":
+    return Math.round(
+        data.activeDays
+            ? data.nightStops / data.activeDays
+            : 0
+    );
+
+    case "rate":
+        return Number(data.rate.toFixed(2));
+
+    default:
+        return data.fwd;
+
+}
+
+    });
+
+    const colours = labels.map((base,index)=>{
+
+        if(base===selectedBase)
+            return "#005EB8";
+
+        if(index===0)
+            return "#FFC300";
+
+        if(index===1)
+            return "#FFD84D";
+
+        if(index===2)
+            return "#FFE88A";
+
+        return "#07225B";
+
+    });
+
+    const canvas =
+    document.getElementById("baseRankingChart");
+
+const wrapper =
+    canvas.parentElement;
+
+wrapper.style.height =
+    Math.max(320, ranking.length * 34) + "px";
+
+const ctx = canvas.getContext("2d");
+
+    if(baseRankingChart){
+
+        baseRankingChart.data.labels = labels;
+
+        baseRankingChart.data.datasets[0].data = values;
+
+        baseRankingChart.data.datasets[0].backgroundColor =
+            colours;
+
+        baseRankingChart.update();
+
+        return;
+
+    }
+
+const separatorPlugin = {
+
+    id:"topThreeSeparator",
+
+    afterDatasetsDraw(chart){
+
+        const {ctx, scales:{y}} = chart;
+
+        if(chart.data.labels.length <= 3) return;
+
+        const y1 = y.getPixelForValue(2);
+        const y2 = y.getPixelForValue(3);
+
+        const lineY = (y1 + y2) / 2;
+
+        ctx.save();
+
+        ctx.strokeStyle = "#D9E2EC";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6,6]);
+
+        ctx.beginPath();
+        ctx.moveTo(20,lineY);
+        ctx.lineTo(chart.width-15,lineY);
+        ctx.stroke();
+
+        ctx.restore();
+
+    }
+
+};
+
+baseRankingChart = new Chart(ctx,{
+
+    plugins:[separatorPlugin],
+
+    type:"bar",
+
+    data:{
+            labels,
+
+            datasets:[{
+
+                data:values,
+
+                borderRadius:8,
+                borderSkipped:false,
+
+                backgroundColor:colours,
+
+                borderSkipped:false,
+
+                barThickness:18,
+                maxBarThickness:20,
+                categoryPercentage:0.82,
+                barPercentage:0.9
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+            layout:{
+    padding:{
+        top:10,
+        bottom:10,
+        left:10,
+        right:20
+    }
+},
+
+            indexAxis:"y",
+
+            animation:{
+                duration:1200,
+                easing:"easeOutQuart"
+            },
+layout:{
+    padding:{
+        top:10,
+        bottom:20,
+        left:10,
+        right:25
+    }
+},
+            plugins:{
+
+                legend:{
+                    display:false
+                },
+
+                tooltip:{
+    backgroundColor:"#07225B",
+    titleColor:"#fff",
+    bodyColor:"#fff",
+    padding:14,
+    cornerRadius:10,
+
+    callbacks:{
+        label:function(context){
+
+            if(document.getElementById("baseSort").value === "nightStopsPerDay"){
+                return Math.round(context.raw);
+            }
+
+            return context.formattedValue;
+        }
+    }
+},
+
+                datalabels:{
+    color:"#07225B",
+    anchor:"end",
+    align:"end",
+    offset:4,
+
+    font:{
+        weight:"bold",
+        size:12
+    },
+
+    formatter:function(value){
+    return Math.round(value);
+}
+
+}
+
+            },
+
+            scales:{
+
+                x:{
+
+                    beginAtZero:true,
+
+                    grid:{
+                        color:"#EEF2F6"
+                    },
+
+                    ticks:{
+                        color:"#6B778C"
+                    }
+
+                },
+
+                y:{
+
+                    grid:{
+                        display:false
+                    },
+
+                    ticks:{
+                        color:"#07225B",
+                        font:{
+                            weight:"700"
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+const baseCountryFilter =
+    document.getElementById("baseCountryFilter");
+
+baseCountryFilter.onchange = () => {
+
+    updateBasePerformance();
+
+};
+
+const baseSort =
+    document.getElementById("baseSort");
+
+baseSort.onchange = () => {
+
+    updateBasePerformance();
+
+};
+
+// ======================================
+// UPDATE EXECUTIVE SUMMARY
+// ======================================
+
+document.getElementById("fwdTotal").textContent =
+    stats.totalFWD;
+
+document.getElementById("totalNightStops").textContent =
+    stats.totalNightStops;
+
+document.getElementById("fwdRate").textContent =
+    stats.fwdPercentage.toFixed(2) + "%";
+
+document.getElementById("activeBases").textContent =
+    stats.activeBases;
+
+document.getElementById("activeDays").textContent =
+    stats.activeDays;
+
+document.getElementById("fwdAverage").textContent =
+    stats.averageFWDPerBase.toFixed(2);
+
+document.getElementById("averageNightStops").textContent =
+    stats.averageNightStopsPerBase.toFixed(2);
+
+// ======================================
+// COUNTRY SUMMARY TABLE
+// ======================================
+
+const countrySummaryTable =
+    document.getElementById("countrySummaryTable");
+
+if(countrySummaryTable){
+
+    const ranking = Object.entries(stats.countryStats)
+        .sort((a,b)=>b[1].percentage-a[1].percentage);
+
+    let html = `
+    <table class="operationalSummaryTable">
+            <tr>
+                <th>Country</th>
+                <th>FWD %</th>
+                <th>NS</th>
+            </tr>
+    `;
+
+    ranking.forEach(([country,data])=>{
+
+        html += `
+            <tr>
+                <td>${country}</td>
+                <td>${data.percentage.toFixed(1)}%</td>
+                <td>${data.nightStops}</td>
+            </tr>
+        `;
+
+    });
+
+    html += `</table>`;
+
+    countrySummaryTable.innerHTML = html;
+
+}
+
+// ======================================
+// TOP 3 BASES SUMMARY TABLE
+// ======================================
+
+const topBasesSummaryTable =
+    document.getElementById("topBasesSummaryTable");
+
+if(topBasesSummaryTable){
+
+    let html = `
+    <table class="operationalSummaryTable">
+            <tr>
+                <th>#</th>
+                <th>Base</th>
+                <th>FWD %</th>
+            </tr>
+    `;
+
+    stats.ranking
+    .slice(0,3)
+    .forEach(([base],index)=>{
+
+        const baseData = stats.baseStats[base];
+
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${base}</td>
+                <td>${baseData.rate.toFixed(1)}%</td>
+            </tr>
+        `;
+
+    });
+
+    html += `</table>`;
+
+    topBasesSummaryTable.innerHTML = html;
+
+}
+
+// ======================================
+// PORTUGAL OVERVIEW
+// ======================================
+
+const portugalSummaryTable =
+    document.getElementById("portugalSummaryTable");
+
+if(portugalSummaryTable){
+
+    const portugalBases =
+        Object.entries(stats.baseStats)
+            .filter(([base]) => BASE_COUNTRIES[base] === "Portugal")
+            .sort((a,b)=>b[1].rate-a[1].rate);
+
+    let html = `
+    <table class="operationalSummaryTable">
+            <tr>
+                <th>FWD %</th>
+                <th>Base</th>
+                <th>NS / Day</th>
+            </tr>
+    `;
+
+    portugalBases.forEach(([base,data])=>{
+
+        const nsPerDay =
+    stats.activeDays
+        ? Math.round(data.nightStops / stats.activeDays)
+        : 0;
+
+        html += `
+            <tr>
+                <td>${data.rate.toFixed(1)}%</td>
+                <td>${base}</td>
+                <td>${nsPerDay}</td>
+            </tr>
+        `;
+
+    });
+
+    html += `</table>`;
+
+    portugalSummaryTable.innerHTML = html;
+
+}
+
+// ======================================
+// UPDATE BASE PERFORMANCE
+// ======================================
+
+updateBasePerformance();
+
+updateBaseAnalysis();
+
+
+}
+
+// ======================================
+// BASE ANALYSIS
+// ======================================
+
+function updateBaseAnalysis(){
+
+    if(!currentStats) return;
+
+    const selector =
+        document.getElementById("analysisBase");
+
+    if(!selector) return;
+
+    const base = selector.value;
+
+    if(!base){
+
+        document.getElementById("analysisFWD").textContent="-";
+        document.getElementById("analysisNS").textContent="-";
+        document.getElementById("analysisRate").textContent="-%";
+        document.getElementById("analysisFleetDiff").textContent="-";
+        document.getElementById("analysisFleetText").textContent=
+            "Select a base";
+
+        return;
+
+    }
+
+const data =
+    currentStats.baseStats[base];
+
+    const ranking =
+    currentStats.ranking.findIndex(
+        item => item[0] === base
+    ) + 1;
+
+    const fleetRate = currentStats.fwdPercentage;
+
+let performance = 0;
+
+if(fleetRate > 0){
+
+    performance =
+        ((fleetRate - data.rate) / fleetRate) * 100;
+
+}
+
+document.getElementById("analysisFleetDiff").textContent =
+    (performance >= 0 ? "+" : "") +
+    performance.toFixed(0) + "%";
+
+const fleetText = document.getElementById("analysisFleetText");
+
+if (performance > 0) {
+
+    fleetText.textContent = "Better than Fleet Average";
+    fleetText.style.color = "#22c55e";
+
+} else if (performance < 0) {
+
+    fleetText.textContent = "Below Fleet Average";
+    fleetText.style.color = "#ef4444";
+
+} else {
+
+    fleetText.textContent = "Fleet Average";
+    fleetText.style.color = "#facc15";
+
+}
+
+    document.getElementById("analysisFWD").textContent =
+        data.fwd;
+
+    document.getElementById("analysisNS").textContent =
+        data.nightStops;
+
+    document.getElementById("analysisRate").textContent =
+        data.rate.toFixed(2) + "%";
+
+    document.getElementById("analysisFleetDiff").textContent =
+    (performance >= 0 ? "+" : "") +
+    performance.toFixed(0) + "%";
+
+document.getElementById("analysisRank").textContent =
+    "#" + ranking + " / " + BASES.length;
+
+}
+
+const analysisBase =
+    document.getElementById("analysisBase");
+
+if(analysisBase){
+
+    analysisBase.addEventListener("change",()=>{
+
+        updateBaseAnalysis();
+
+        updateBaseHistoryChart();
+
+});
+}
+
+
+async function updateBaseHistoryChart(){
+
+    if(!currentStats) return;
+
+    const selector =
+        document.getElementById("analysisBase");
+
+    if(!selector) return;
+
+    const base = selector.value;
+
+    if(!base){
+
+        if(baseHistoryChart){
+
+            baseHistoryChart.destroy();
+            baseHistoryChart = null;
+
+        }
+
+        return;
+
+    }
+
+    const dashboardPeriod =
+        document.getElementById("dashboardPeriod");
+
+    if(!dashboardPeriod) return;
+
+    const [year, month] =
+        dashboardPeriod.value
+            .split("-")
+            .map(Number);
+
+    const monthData =
+        await getMonthData(year, month);
+
+    const labels = [];
+    const nightStops = [];
+    const fwd = [];
+    const rates = [];
+
+
+
+    Object.keys(monthData)
+        .sort((a,b)=>Number(a)-Number(b))
+        .forEach(day=>{
+
+            const data =
+                monthData[day][base];
+
+            const ns =
+                Number(data?.nightStop) || 0;
+
+            const fw =
+                Number(data?.fwd) || 0;
+
+            labels.push(day);
+
+            nightStops.push(ns);
+
+            fwd.push(fw);
+
+            rates.push(
+                ns
+                    ? Number(((fw/ns)*100).toFixed(2))
+                    : 0
+            );
+
+        });
+
+    const ctx = document.getElementById("baseHistoryChart");
+
+if(!ctx) return;
+
+if(baseHistoryChart){
+
+    baseHistoryChart.destroy();
+
+}
+
+baseHistoryChart = new Chart(ctx,{
+
+    type:"bar",
+
+    data:{
+
+        labels,
+
+        datasets:[
+
+            {
+
+                type:"bar",
+
+                label:"Night Stops",
+
+                data:nightStops,
+
+                yAxisID:"y",
+
+                backgroundColor:"#D9E8F5",
+
+                borderColor:"#D9E8F5"
+
+            },
+
+            {
+
+                type:"bar",
+
+                label:"FWD",
+
+                data:fwd,
+
+                yAxisID:"y",
+
+                backgroundColor:"#073B74",
+
+                borderColor:"#073B74"
+
+            },
+
+            {
+
+                type:"line",
+
+                label:"FWD Rate",
+
+                data:rates,
+
+                yAxisID:"y1",
+
+                borderColor:"#F4A100",
+
+                backgroundColor:"#F4A100",
+
+                borderWidth:3,
+
+                tension:.35,
+
+                fill:false,
+
+                pointRadius:4
+
+            }
+
+        ]
+
+    },
+
+    options:{
+
+        responsive:true,
+
+        maintainAspectRatio:false,
+
+        interaction:{
+
+            mode:"index",
+
+            intersect:false
+
+        },
+
+        plugins:{
+
+            legend:{
+
+                position:"bottom"
+
+            }
+
+        },
+
+        scales:{
+
+
+            x:{
+
+    title:{
+
+        display:true,
+
+        text:"Days",
+
+        color:"#07225B",
+
+        font:{
+
+            size:13,
+
+            weight:"bold"
+
+        }
+
+    }
+
+},
+            y:{
+
+                beginAtZero:true,
+
+                title:{
+
+                    display:true,
+
+                    text:"Flights"
+
+                }
+
+            },
+
+            y1:{
+
+                position:"right",
+
+                beginAtZero:true,
+
+                grid:{
+
+                    drawOnChartArea:false
+
+                },
+
+                title:{
+
+                    display:true,
+
+                    text:"FWD Rate (%)"
+
+                }
+
+            }
+
+        }
+
+    }
+
+});
+
+}
+
+// ======================================
+// OPERATIONAL TRENDS
+// ======================================
+
+let trendChart = null;
+
+async function updateOperationalTrends(){
+
+    const selector =
+        document.getElementById("dashboardPeriod");
+
+    if(!selector) return;
+
+    const [selectedYear, selectedMonth] =
+        selector.value.split("-").map(Number);
+
+    const period =
+        document.getElementById("trendView")?.value || "12";
+
+    const snapshot = await window.firebaseGet(
+        window.firebaseRef(
+            window.database,
+            "dashboardData/FWD"
+        )
+    );
+
+    if(!snapshot.exists()) return;
+
+    const db = snapshot.val();
+
+    const months = [];
+
+    Object.keys(db).forEach(year=>{
+
+        Object.keys(db[year]).forEach(month=>{
+
+            months.push({
+
+                year:Number(year),
+
+                month:Number(month)
+
+            });
+
+        });
+
+    });
+
+    months.sort((a,b)=>{
+
+        if(a.year!==b.year)
+            return a.year-b.year;
+
+        return a.month-b.month;
+
+    });
+
+    let filtered = months;
+
+    if(period !== "all"){
+
+        filtered =
+            months.slice(-Number(period));
+
+    }
+
+    const labels = [];
+
+    const rates = [];
+
+    const fwdTotals = [];
+
+    const nsTotals = [];
+
+    for(const item of filtered){
+
+        const stats =
+            await calculateMonthlyStatistics(
+                item.year,
+                item.month
+            );
+
+        labels.push(
+
+            new Date(
+                item.year,
+                item.month-1
+            ).toLocaleString(
+                "en-GB",
+                {
+                    month:"short",
+                    year:"2-digit"
+                }
+            )
+
+        );
+
+        rates.push(
+            Number(
+                stats.fwdPercentage.toFixed(2)
+            )
+        );
+
+        fwdTotals.push(stats.totalFWD);
+
+        nsTotals.push(stats.totalNightStops);
+
+    }
+
+    const rollingAverage = [];
+
+for(let i = 0; i < rates.length; i++){
+
+    if(i < 2){
+
+        rollingAverage.push(null);
+
+        continue;
+
+    }
+
+    const avg =
+
+        (rates[i] +
+         rates[i-1] +
+         rates[i-2]) / 3;
+
+    rollingAverage.push(
+
+        Number(avg.toFixed(2))
+
+    );
+
+}
+
+    console.log("Operational Trends");
+
+    console.table(
+
+        labels.map((label,index)=>({
+
+            Month:label,
+
+            FWD:fwdTotals[index],
+
+            NightStops:nsTotals[index],
+
+            Rate:rates[index]
+
+        }))
+
+    );
+
+const ctx = document
+    .getElementById("trendChart")
+    ?.getContext("2d");
+
+if(!ctx) return;
+
+if(trendChart){
+
+    trendChart.destroy();
+
+}
+
+trendChart = new Chart(ctx,{
+
+    type:"line",
+
+    data:{
+
+        labels,
+
+        datasets:[
+
+{
+
+    label:"Fleet FWD Rate",
+
+    data:rates,
+
+    borderColor:"#2563eb",
+
+    backgroundColor:"rgba(37,99,235,.10)",
+
+    borderWidth: labels.length > 1 ? 3 : 0,
+
+    showLine: labels.length > 1,
+
+    fill: labels.length > 1,
+
+    tension:.35,
+
+    pointRadius: labels.length > 1 ? 5 : 10,
+
+    pointHoverRadius:12,
+
+    pointBorderWidth:3,
+
+    pointBackgroundColor:"#2563eb",
+
+    pointBorderColor:"#ffffff"
+
+},
+
+{
+
+    label:"3-Month Average",
+
+    data:rollingAverage,
+
+    hidden: rollingAverage.every(v => v === null),
+
+    borderColor:"#94a3b8",
+
+    borderDash:[8,6],
+
+    borderWidth:2,
+
+    fill:false,
+
+    tension:.35,
+
+    pointRadius:0,
+
+    pointHoverRadius:0
+
+}]
+    },
+
+    options:{
+
+        responsive:true,
+
+        maintainAspectRatio:false,
+
+        interaction:{
+
+            mode:"index",
+
+            intersect:false
+
+        },
+
+        plugins:{
+
+    tooltip:{
+
+        callbacks:{
+
+            title:(context)=>context[0].label,
+
+            label:(context)=>{
+
+                const i = context.dataIndex;
+
+                return [
+                    `Fleet FWD Rate: ${rates[i]}%`,
+                    `FWD Events: ${fwdTotals[i]}`,
+                    `Night Stops: ${nsTotals[i]}`
+                ];
+
+            }
+
+        }
+
+    },
+
+    legend:{
+
+        display: labels.length > 1,
+
+        labels:{
+
+            usePointStyle:true,
+
+            pointStyle:"circle",
+
+            padding:20
+
+        }
+
+    }
+
+},
+
+        scales:{
+
+           y:{
+
+    beginAtZero:true,
+
+    suggestedMax:
+    (rates.length ? Math.max(...rates) : 0) + 0.3,
+
+    grid:{
+
+        color:"rgba(148,163,184,.12)"
+
+    },
+
+    ticks:{
+
+        color:"#64748b"
+
+    },
+
+    title:{
+
+        display:true,
+
+        text:"Fleet FWD Rate (%)"
+
+    }
+
+},
+
+            x:{
+
+    offset:true,
+
+    grid:{
+
+        display: labels.length > 1
+
+    },
+
+    ticks:{
+
+        autoSkip:false,
+
+        maxRotation:0,
+
+        minRotation:0,
+
+        color:"#64748b",
+
+        font:{
+
+            size:12,
+
+            weight:"600"
+
+        }
+
+    },
+
+    title:{
+
+        display:false
+
+    }
+
+}
+
+        }
+
+    }
+
+});
+
+const insight = document.getElementById("operationalInsights");
+
+if(insight){
+
+    const latestRate = rates.at(-1);
+
+const bestRate = Math.min(...rates);
+
+const bestIndex = rates.indexOf(bestRate);
+
+const bestMonth = labels[bestIndex];
+
+let trendText = "Collecting History";
+let trendColor = "#f5c400";
+
+if (rates.length > 1) {
+
+    const previousRate = rates[rates.length - 2];
+
+    const improvement =
+        ((previousRate - latestRate) / previousRate) * 100;
+
+    if (improvement > 0) {
+
+        trendText = `▲ Improving<br>
+<span style="font-size:.85rem;">
++${improvement.toFixed(0)}% vs previous month
+</span>`;
+        trendColor = "#22c55e";
+
+    } else if (improvement < 0) {
+
+        trendText = `▼ Declining<br>
+<span style="font-size:.85rem;">
+${improvement.toFixed(0)}% vs previous month
+</span>`;
+        trendColor = "#ef4444";
+
+    } else {
+
+        trendText = `▬ Stable<br>
+<span style="font-size:.85rem;">
+No change vs previous month
+</span>`;
+        trendColor = "#64748b";
+
+    }
+
+}
+
+const worstRate = Math.max(...rates);
+const worstIndex = rates.indexOf(worstRate);
+const worstMonth = labels[worstIndex];
+
+insight.innerHTML = `
+
+<div style="
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:18px;
+">
+
+    <div class="trend-kpi-card">
+        <div class="trend-kpi-title">Current Rate</div>
+        <div class="trend-kpi-value">${latestRate}%</div>
+    </div>
+
+    <div class="trend-kpi-card">
+        <div class="trend-kpi-title">Data Coverage</div>
+        <div class="trend-kpi-value">${labels.length}</div>
+        <div class="trend-kpi-subtitle">
+            Month${labels.length>1?"s":""}
+        </div>
+    </div>
+
+    <div class="trend-kpi-card">
+        <div class="trend-kpi-title">Trend</div>
+        <div class="trend-kpi-status" style="color:${trendColor};">
+            ${trendText}
+        </div>
+    </div>
+
+    <div class="trend-kpi-card">
+        <div class="trend-kpi-title">Best Month</div>
+        <div class="trend-kpi-status" style="color:#002b6b;">
+            ${bestMonth}
+        </div>
+        <div class="trend-kpi-subtitle">
+            ${bestRate.toFixed(2)}%
+        </div>
+    </div>
+
+    <div class="trend-kpi-card">
+        <div class="trend-kpi-title">Worst Month</div>
+        <div class="trend-kpi-status" style="color:#dc2626;">
+            ${worstMonth}
+        </div>
+        <div class="trend-kpi-subtitle">
+            ${worstRate.toFixed(2)}%
+        </div>
+    </div>
+
+</div>
+
+`;
+
+}
 
 }
 
 </script>
 
-</body>
+<input
+    type="file"
+    id="excelFileInput"
+    accept=".xlsx,.xls"
+    style="display:none;"
+    onchange="importExcelFile(event)">
 
-</html>
+<div id="excelImportModal"
+style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+<div
+style="
+background:white;
+width:430px;
+border-radius:16px;
+padding:30px;
+box-shadow:0 20px 50px rgba(0,0,0,.25);
+">
+
+<h2 style="color:#07225B;margin-bottom:25px;">
+
+Import Excel Data
+
+</h2>
+
+<div style="margin-bottom:20px;">
+
+<label style="font-weight:700;">Month</label>
+
+<select
+id="excelImportMonth"
+style="
+width:100%;
+margin-top:8px;
+padding:10px;
+border-radius:8px;
+">
+
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7" selected>July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+
+</select>
+
+</div>
+
+<div style="margin-bottom:25px;">
+
+<label style="font-weight:700;">Year</label>
+
+<input
+id="excelImportYear"
+type="number"
+value="2026"
+style="
+width:100%;
+margin-top:8px;
+padding:10px;
+border-radius:8px;
+">
+
+</div>
+
+<div
+style="
+display:flex;
+justify-content:flex-end;
+gap:12px;
+">
+
+<button
+class="btn btn-white"
+onclick="closeExcelImportModal()">
+
+Cancel
+
+</button>
+
+<button
+class="btn btn-yellow"
+onclick="confirmExcelImport()">
+
+Continue
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- EXCEL IMPORT SUMMARY -->
+<!-- ========================================= -->
+
+<div
+id="excelSummaryModal"
+style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+<div
+style="
+background:white;
+width:650px;
+max-width:90%;
+border-radius:16px;
+padding:30px;
+box-shadow:0 20px 50px rgba(0,0,0,.25);
+">
+
+        <h2 style="margin-top:0;">
+            Excel Import Summary
+        </h2>
+
+        <div id="excelSummaryText" style="margin-top:25px;font-size:17px;line-height:1.8;"></div>
+
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:35px;">
+
+            <button
+                class="btn"
+                onclick="closeExcelSummary()"
+                style="background:#808080;">
+                Cancel
+            </button>
+
+            <button
+                class="btn"
+                onclick="importOnlyNew()"
+                style="background:#2E8B57;">
+                Import Only New
+            </button>
+
+            <button
+                class="btn"
+                onclick="overwriteImport()"
+                style="background:#005EB8;">
+                Overwrite Existing
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- ACTIVE BASES MODAL -->
+<!-- ====================================================== -->
+
+<div
+id="basesModal"
+style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+<div
+style="
+background:white;
+width:700px;
+max-width:90%;
+border-radius:16px;
+padding:30px;
+box-shadow:0 20px 50px rgba(0,0,0,.25);
+">
+
+    <div
+    style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    ">
+
+        <h2 style="color:#07225B;margin:0;">
+            Active Bases
+        </h2>
+
+        <button
+        class="btn btn-white"
+        onclick="closeBasesModal()">
+
+            ✕
+
+        </button>
+
+    </div>
+
+    <div
+    id="basesList"
+    style="
+    max-height:420px;
+    overflow-y:auto;
+    margin-bottom:25px;
+    ">
+
+        Loading...
+
+    </div>
+
+    <div
+    style="
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    ">
+
+        <button
+        class="btn btn-green"
+        onclick="openAddBaseModal()">
+
+            + Add Base
+
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- ADD BASE MODAL -->
+<!-- ====================================================== -->
+
+<div
+id="addBaseModal"
+style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+<div
+style="
+background:white;
+width:420px;
+max-width:90%;
+border-radius:16px;
+padding:30px;
+">
+
+<h2 style="margin-top:0;color:#07225B;">
+Add Base
+</h2>
+
+<label>Base Code</label>
+
+<input
+id="newBaseCode"
+type="text"
+style="width:100%;margin:8px 0 18px;padding:10px;">
+
+<label>Country</label>
+
+<input
+id="newBaseCountry"
+type="text"
+style="width:100%;margin:8px 0 25px;padding:10px;">
+
+<div
+style="
+display:flex;
+justify-content:flex-end;
+gap:12px;
+">
+
+<button
+class="btn btn-white"
+onclick="closeAddBaseModal()">
+Cancel
+</button>
+
+<button
+class="btn btn-green"
+onclick="saveNewBase()">
+Save
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- ACTIVE DAYS MODAL -->
+<!-- ====================================================== -->
+
+<div
+id="activeDaysModal"
+style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+<div
+style="
+background:white;
+width:950px;
+max-width:95%;
+border-radius:16px;
+padding:30px;
+box-shadow:0 20px 50px rgba(0,0,0,.25);
+">
+
+    <div
+    style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    ">
+
+        <h2 style="margin:0;color:#07225B;">
+            Active Days
+        </h2>
+
+        <button
+        class="btn btn-white"
+        onclick="closeActiveDaysModal()">
+
+            ✕
+
+        </button>
+
+    </div>
+
+    <div
+    id="activeDaysCalendarContainer"
+    style="
+    display:flex;
+    justify-content:center;
+    margin-bottom:30px;
+    ">
+
+        Loading...
+
+    </div>
+
+    <div
+    style="
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    ">
+
+        <button
+        class="btn btn-green"
+        onclick="openImportPopupFromActiveDays()">
+
+            Import Data
+
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+</body>
+</html> 
