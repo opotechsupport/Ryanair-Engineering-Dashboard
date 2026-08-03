@@ -3883,11 +3883,129 @@ await updateFWDDashboard(
     pendingImportMonth
 );
 
+// NOVO
+await rebuildDashboardSnapshot(
+    pendingImportYear,
+    pendingImportMonth
+);
+
 alert(
     "Import completed successfully.\n\nImported " +
     daysToImport.length +
     " day(s)."
 );
+
+}
+
+// ======================================
+// REBUILD DASHBOARD SNAPSHOT
+// ======================================
+
+async function rebuildDashboardSnapshot(year, month){
+
+    console.log("Rebuilding Dashboard Snapshot...");
+
+    // Construir snapshot
+    const snapshot = await buildSnapshot(year, month);
+
+    // Atualizar módulos
+    await rebuildKPIs(snapshot);
+
+    await rebuildCharts(snapshot);
+
+    await rebuildRankings(snapshot);
+
+    await rebuildRegionalOverview(snapshot);
+
+    await rebuildBasePerformance(snapshot);
+
+    console.log("Dashboard Snapshot Updated");
+
+}
+
+// ======================================
+// BUILD SNAPSHOT
+// ======================================
+
+async function buildSnapshot(year, month){
+
+    console.log("Building Snapshot...");
+
+    const snapshot = {
+
+        year,
+
+        month,
+
+        totals:{},
+
+        baseStats:{},
+
+        countryStats:{},
+
+        ranking:[]
+
+    };
+
+    return snapshot;
+
+}
+
+// ======================================
+// SNAPSHOT MODULES
+// ======================================
+
+async function rebuildKPIs(year, month){
+
+    console.log("Updating KPIs...");
+
+}
+
+async function rebuildCharts(year, month){
+
+    console.log("Updating Charts...");
+
+}
+
+async function rebuildRankings(year, month){
+
+    console.log("Updating Rankings...");
+
+}
+
+async function rebuildRegionalOverview(year, month){
+
+    console.log("Updating Regional Overview...");
+
+}
+
+async function rebuildBasePerformance(year, month){
+
+    console.log("Updating Base Performance...");
+
+}
+
+// ======================================
+// SAVE DASHBOARD SNAPSHOT
+// ======================================
+
+async function saveDashboardSnapshot(year, month, stats){
+
+    const snapshotRef = window.firebaseRef(
+
+        window.database,
+
+        `dashboardData/Snapshots/${year}/${String(month).padStart(2,"0")}`
+
+    );
+
+    await window.firebaseSet(snapshotRef,{
+
+        updatedAt: new Date().toISOString(),
+
+        stats
+
+    });
 
 }
 
@@ -5090,6 +5208,16 @@ async function updateFWDDashboard(year, month){
     const stats = await calculateMonthlyStatistics(year, month);
 
     currentStats = stats;
+
+    await saveDashboardSnapshot(
+
+    year,
+
+    month,
+
+    stats
+
+);
 
     console.log(stats);
 
