@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ryanair Engineering Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+    --blue:#07225B;
+    --yellow:#F1C400;
+    --background:#F4F6F8;
+    --card:#FFFFFF;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Montserrat,sans-serif;
+}
+
+body{
+
+    background:var(--background);
+
+}
+
+header{
+
+    background:var(--blue);
+
+    padding:25px;
+
+    display:flex;
+
+    justify-content:center;
+
+}
+
+header img{
+
+    height:65px;
+
+}
+
+.home{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin-top:80px;
+
+}
+
+.home h1{
+
+    color:var(--blue);
+
+    font-size:42px;
+
+    margin-bottom:15px;
+
+}
+
+.home p{
+
+    color:#666;
+
+    margin-bottom:60px;
+
+    font-size:18px;
+
+}
+
+.cards{
+
+    display:flex;
+
+    gap:50px;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+}
+
+.card{
+
+    width:340px;
+
+    height:230px;
+
+    background:white;
+
+    border-radius:15px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.card:hover{
+
+    transform:translateY(-10px);
+
+}
+
+.card h2{
+
+    color:var(--blue);
+
+    margin-bottom:20px;
+
+}
+
+.card button{
+
+    background:var(--yellow);
+
+    border:none;
+
+    padding:12px 35px;
+
+    border-radius:25px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+}
+
+.page{
+
+    display:none;
+
+}
+
+.back{
+
+    margin:25px;
+
+    background:var(--blue);
+
+    color:white;
+
+    border:none;
+
+    padding:12px 25px;
+
+    border-radius:25px;
+
+    cursor:pointer;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<img src="ryanair-logo-2.png">
+
+</header>
+
+<div id="home" class="home">
+
+<h1>Engineering Dashboard</h1>
+
+<p>Select the dashboard you want to access.</p>
+
+<div class="cards">
+
+<div class="card" onclick="openNoInfo()">
+
+<h2>No Info Delays</h2>
+
+<button>Open Dashboard</button>
+
+</div>
+
+<div class="card" onclick="openFWD()">
+
+<h2>First Wave Delays</h2>
+
+<button>Open Dashboard</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="noInfoPage" class="page">
+
+<button class="back" onclick="goHome()">← Home</button>
+
+<div id="noInfoContainer"></div>
+
+</div>
+
+<div id="fwdPage" class="page">
+
+<button class="back" onclick="goHome()">← Home</button>
+
+<div id="fwdContainer"></div>
+
+</div>
+
+<script>
+
+function openNoInfo(){
+
+document.getElementById("home").style.display="none";
+
+document.getElementById("noInfoPage").style.display="block";
+
+}
+
+function openFWD(){
+
+document.getElementById("home").style.display="none";
+
+document.getElementById("fwdPage").style.display="block";
+
+}
+
+function goHome(){
+
+document.getElementById("home").style.display="flex";
+
+document.getElementById("noInfoPage").style.display="none";
+
+document.getElementById("fwdPage").style.display="none";
+
+}
+
+</script>
+
+</body>
+
+</html>
