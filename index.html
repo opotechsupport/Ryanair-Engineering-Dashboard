@@ -1257,7 +1257,7 @@ window.loadDayFromFirebase = function(year, month, day){
 
     display:grid;
     gap:20px;
-
+margin-bottom:30px;
 }
 
 .exec-grid{
@@ -1674,9 +1674,13 @@ border-left:8px solid #F1C400;
 
 .chart-container{
 
-    width:100%;
+    display:flex;
 
-    overflow-x:auto;
+    justify-content:center;
+
+    align-items:flex-start;
+
+    gap:32px;
 
 }
 
@@ -2531,7 +2535,7 @@ min-height:165px;
 
     <div class="exec-header">
 
-        <h2>Executive Summary</h2>
+        <h2>SPMFB Region Summary</h2>
 
         <span>Overall monthly operational performance</span>
 
@@ -2550,7 +2554,7 @@ min-height:165px;
         </div>
 
         <div class="exec-card">
-            <div class="exec-title">FIRST WAVE RATE</div>
+            <div class="exec-title">FIRST WAVE DELAYS RATE</div>
             <div class="exec-value" id="fwdRate">-%</div>
         </div>
 
@@ -2575,7 +2579,7 @@ style="cursor:pointer;"
 onclick="openActiveDaysModal()">
 
     <div class="exec-title">
-        ACTIVE DAYS
+        ACCOUNTED DAYS
     </div>
 
     <div
@@ -2710,9 +2714,9 @@ onclick="openActiveDaysModal()">
 
     <div class="region-header">
 
-        <h2>Regional Overview</h2>
+        <h2>Country Overview</h2>
 
-        <span>Select the country and metric to analyse.</span>
+        <span>Select the country to analyse.</span>
 
     </div>
 
@@ -2721,7 +2725,7 @@ onclick="openActiveDaysModal()">
     <div class="selectedRegionCard">
 
         <div class="selectedRegionTitle">
-            SELECTED REGION
+            SELECTED COUNTRY
         </div>
 
         <div id="selectedCountryLabel" class="selectedRegionValue">
@@ -2754,7 +2758,7 @@ onclick="openActiveDaysModal()">
 
         <div class="region-card">
 
-            <div class="region-title">NIGHT STOPS</div>
+            <div class="region-title">TOTAL NIGHT STOPS</div>
 
             <div class="region-value" id="countryNS">-</div>
 
@@ -2785,40 +2789,52 @@ onclick="openActiveDaysModal()">
 <div class="region-chart">
 
     <div class="region-chart-header">
-
         Country Performance
-
     </div>
 
     <button
-id="resetCountry"
-style="
-padding:8px 18px;
-border:none;
-border-radius:10px;
-background:#073590;
-color:white;
-font-weight:700;
-cursor:pointer;
-">
-ALL COUNTRIES
-</button>
+        id="resetCountry"
+        style="
+            padding:8px 18px;
+            border:none;
+            border-radius:10px;
+            background:#073590;
+            color:white;
+            font-weight:700;
+            cursor:pointer;
+            margin-bottom:25px;
+        ">
+        ALL COUNTRIES
+    </button>
 
-    <div class="chart-container">
+    <!-- ================================================= -->
+    <!-- MAP + REGIONAL CHARTS -->
+    <!-- ================================================= -->
+
+    <div style="
+        display:grid;
+        grid-template-columns: 1.15fr 1.35fr;
+        gap:28px;
+        align-items:center;
+        margin-bottom:30px;
+    ">
+
+        <!-- MAP -->
 
         <div id="regionalMapContainer"
              style="
-                width:110%;
-                height:580px;
-                display:flex;
-                justify-content:center;
-                align-items:flex-start;
                 background:#FAFBFD;
-                border-radius:10px;
-                gap:10px;
+                border-radius:18px;
+                padding:20px;
+                height:620px;
+                display:flex;
+                justify-content:flex-start;
+                align-items:center;
+                padding-right: 20px;
+                margin-right: -200px;
             ">
 
-            <div id="regionalMap">
+            <div id="regionalMap" style="width:100%;height:100%;">
 
 <svg id="regionalSVG"
      xmlns="http://www.w3.org/2000/svg"
@@ -2844,82 +2860,87 @@ ALL COUNTRIES
 
 </div>
 
-<!-- ====================================== -->
-<!-- REGIONAL DELAY ANALYSIS -->
-<!-- ====================================== -->
-
-<div style="
-    display:grid;
-    grid-template-columns: 1.4fr 1.0fr;
-    gap:10px;
-    margin-bottom:15px;
-    margin-top: 30px;
-">
-
-
-    <!-- DELAY CODES -->
-
-    <div style="
-        background:white;
-        border-radius:18px;
-        padding:20px;
-        box-shadow:0 6px 18px rgba(0,0,0,.08);
-    ">
-
-        <h3 style="
-            color:#073590;
-            font-size:20px;
-            font-weight:700;
-            margin-bottom:20px;
-        ">
-            TOP STANDARD IATA DELAY CODES
-        </h3>
-
-
-        <div style="height:420px;">
-
-            <canvas id="regionalDelayCodesChart"></canvas>
-
-        </div>
-
-
-    </div>
-
-
-
-    <!-- DELAY GROUPS -->
-
-    <div style="
-        background:white;
-        border-radius:18px;
-        padding:20px;
-        box-shadow:0 6px 18px rgba(0,0,0,.08);
-    ">
-
-
-        <h3 style="
-            color:#073590;
-            font-size:20px;
-            font-weight:700;
-            margin-bottom:20px;
-        ">
-            DELAY GROUPS DISTRIBUTION
-        </h3>
-
-
-        <div style="height:420px;">
-
-            <canvas id="regionalDelayGroupsChart"></canvas>
-
-        </div>
-
-
-    </div>
-
-
 </div>
 
+ <!-- REGIONAL CHARTS -->
+
+        <div>
+
+            <div style="
+                display:grid;
+                grid-template-columns:2.5fr .7fr;
+                gap:18px;
+            ">
+
+                <!-- DELAY CODES -->
+
+                <div style="
+                    background:white;
+                    border-radius:18px;
+                    padding:20px;
+                    box-shadow:0 6px 18px rgba(0,0,0,.08);
+                ">
+
+                    <h3 style="
+                        color:#073590;
+                        font-size:20px;
+                        font-weight:700;
+                        margin-bottom:20px;
+                    ">
+                        TOP STANDARD IATA DELAY CODES
+                    </h3>
+
+                    <div style="
+    height:520px;
+    width:100%;
+    position:relative;
+">
+    <canvas
+        id="regionalDelayCodesChart"
+        style="
+            width:100% !important;
+            height:100% !important;
+        ">
+    </canvas>
+</div>
+
+                </div>
+
+                <!-- DELAY GROUPS -->
+
+                <div style="
+                    background:white;
+                    border-radius:18px;
+                    padding:20px;
+                    box-shadow:0 6px 18px rgba(0,0,0,.08);
+                ">
+
+                    <h3 style="
+                        color:#073590;
+                        font-size:20px;
+                        font-weight:700;
+                        margin-bottom:20px;
+                    ">
+                        DELAY GROUPS DISTRIBUTION
+                    </h3>
+
+                    <div style="height:520px;">
+
+                        <canvas id="regionalDelayGroupsChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
+    <!-- ================================================= -->
+    <!-- COUNTRY DONUTS -->
+    <!-- ================================================= -->
 
     <div class="regional-pies">
 
@@ -2988,10 +3009,68 @@ ALL COUNTRIES
 <option value="rate">FWD Rate</option>
 <option value="nightStops">Night Stops</option>
 <option value="nightStopsPerDay">Night Stops per Day</option>
+<option value="delayCode">Delay Code</option>
+<option value="delayGroup">Delay Group</option>
 
             </select>
 
         </div>
+
+        <div
+    id="delayCodeFilter"
+    style="display:none;"
+>
+
+    <label style="
+        display:block;
+        margin-bottom:8px;
+        font-weight:700;
+        color:#6B7280;
+        text-transform:uppercase;
+    ">
+        Delay Code
+    </label>
+
+    <select
+        id="delayCodeSelector"
+        style="
+            padding:12px 16px;
+            border-radius:12px;
+            min-width:260px;
+        "
+    >
+    </select>
+
+</div>
+
+
+<div
+    id="delayGroupFilter"
+    style="display:none;"
+>
+
+    <label style="
+        display:block;
+        margin-bottom:8px;
+        font-weight:700;
+        color:#6B7280;
+        text-transform:uppercase;
+    ">
+        Delay Group
+    </label>
+
+    <select
+        id="delayGroupSelector"
+        style="
+            padding:12px 16px;
+            border-radius:12px;
+            min-width:220px;
+        "
+    >
+    </select>
+
+</div>
+
 
     </div>
 
@@ -3138,6 +3217,79 @@ ALL COUNTRIES
         Position in Fleet
 
     </div>
+
+</div>
+
+<div class="analysis-card">
+
+    <div class="analysis-title">
+    MOST FREQUENT DELAY CODES
+</div>
+
+<div style="
+    margin-top:4px;
+    margin-bottom:18px;
+    color:#6B7280;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.3px;
+">
+    Top 3 delay codes for the selected base
+</div>
+
+    <table id="topDelayCodesTable" style="
+        width:100%;
+        border-collapse:collapse;
+        margin-top:18px;
+    ">
+
+        <thead>
+
+<tr style="
+    background:#07225B;
+    color:white;
+">
+
+    <th style="
+        padding:14px 14px;
+        text-align:left;
+        width:70px;
+        font-size:13px;
+        letter-spacing:.5px;
+    ">
+        CODE
+    </th>
+
+    <th style="
+        padding:14px;
+        text-align:left;
+        font-size:13px;
+        letter-spacing:.5px;
+    ">
+        DESCRIPTION
+    </th>
+
+    <th style="
+        padding:14px;
+        text-align:right;
+        width:110px;
+        font-size:13px;
+        letter-spacing:.5px;
+    ">
+        OCCURRENCES
+    </th>
+
+</tr>
+
+</thead>
+
+        <tbody id="topDelayCodesBody">
+
+        </tbody>
+
+    </table>
+
+</div>
 
 </div>
 
@@ -8025,8 +8177,12 @@ hoverBorderColor:"#FFFFFF"
     },
 
 layout:{
+    
     padding:{
-        left:40
+        left:-40,
+        right:10,
+        top:10,
+        bottom:0
     }
 },
 
@@ -8035,8 +8191,8 @@ layout:{
         x:{
 
             beginAtZero:true,
-
-            grace:"8%",
+suggestedMax:1.2,
+            grace:"2%",
 
             grid:{
     color:"rgba(15,23,42,.05)",
@@ -8054,18 +8210,26 @@ layout:{
         },
 
         y:{
-        ticks:{
-            padding:10,
-            color:"#073590",
-            font:{
-                size:13,
-                weight:"700"
-            }
-        },
-        grid:{
-            display:false
+    offset:false,
+
+    ticks:{
+
+        padding:4,
+
+        color:"#0B2E73",
+
+        font:{
+            size:15,
+            weight:"700"
         }
+
+    },
+
+    grid:{
+        display:false
     }
+
+},
 
     }
 
@@ -8145,8 +8309,8 @@ if(groupCanvas){
                 maintainAspectRatio:false,
 
 
-                cutout:"72%",
-radius:"88%",
+                cutout:"68%",
+radius:"96%",
 
 
                 animation:{
@@ -8166,7 +8330,7 @@ radius:"88%",
 
                     legend:{
 
-    position:"right",
+    position:"bottom",
 
     align:"center",
 
@@ -8176,11 +8340,11 @@ radius:"88%",
 
         pointStyle:"circle",
 
+        padding:16,
+
         boxWidth:12,
 
         boxHeight:12,
-
-        padding:18,
 
         color:"#073590",
 
@@ -8610,6 +8774,86 @@ document
 
 };
 
+function updateDelaySelectors(){
+
+    if(!currentStats) return;
+
+    // ==========================
+    // DELAY CODE
+    // ==========================
+
+    const delayCodeSelector =
+        document.getElementById("delayCodeSelector");
+
+    if(delayCodeSelector){
+
+        const previous =
+            delayCodeSelector.value;
+
+        delayCodeSelector.innerHTML = "";
+
+        Object.keys(IATA_DELAY_CODES)
+
+        .sort((a,b)=>Number(a)-Number(b))
+
+        .forEach(code=>{
+
+            const option =
+                document.createElement("option");
+
+            option.value = code;
+
+            option.textContent =
+                `${code} - ${IATA_DELAY_CODES[code]}`;
+
+            delayCodeSelector.appendChild(option);
+
+        });
+
+        if(previous)
+            delayCodeSelector.value = previous;
+
+    }
+
+
+    // ==========================
+    // DELAY GROUP
+    // ==========================
+
+    const delayGroupSelector =
+        document.getElementById("delayGroupSelector");
+
+    if(delayGroupSelector){
+
+        const previous =
+            delayGroupSelector.value;
+
+        delayGroupSelector.innerHTML = "";
+
+        Object.keys(currentStats.delayGroups || {})
+
+        .sort()
+
+        .forEach(group=>{
+
+            const option =
+                document.createElement("option");
+
+            option.value = group;
+
+            option.textContent = group;
+
+            delayGroupSelector.appendChild(option);
+
+        });
+
+        if(previous)
+            delayGroupSelector.value = previous;
+
+    }
+
+}
+
 // ======================================
 // BASE PERFORMANCE
 // ======================================
@@ -8625,6 +8869,18 @@ function updateBasePerformance(){
 
     const sortBy =
         document.getElementById("baseSort").value;
+
+    const selectedDelayCode =
+    document.getElementById("delayCodeSelector")?.value;
+
+const selectedDelayGroup =
+    document.getElementById("delayGroupSelector")?.value;
+
+    document.getElementById("delayCodeFilter").style.display =
+    sortBy === "delayCode" ? "block" : "none";
+
+document.getElementById("delayGroupFilter").style.display =
+    sortBy === "delayGroup" ? "block" : "none";
 
     let ranking = BASES.map(base => [
     base,
@@ -8660,6 +8916,20 @@ if(selectedCountry !== "ALL"){
             (b[1].activeDays ? b[1].nightStops / b[1].activeDays : 0) -
             (a[1].activeDays ? a[1].nightStops / a[1].activeDays : 0)
         );
+
+    case "delayCode":
+
+    return (
+        (b[1].delayCodes?.[selectedDelayCode] || 0) -
+        (a[1].delayCodes?.[selectedDelayCode] || 0)
+    );
+
+case "delayGroup":
+
+    return (
+        (b[1].delayGroups?.[selectedDelayGroup] || 0) -
+        (a[1].delayGroups?.[selectedDelayGroup] || 0)
+    );        
 
     default:
         return b[1].fwd - a[1].fwd;
@@ -8697,6 +8967,14 @@ if(selectedCountry !== "ALL"){
 
     case "rate":
         return Number(data.rate.toFixed(2));
+
+case "delayCode":
+
+    return data.delayCodes?.[selectedDelayCode] || 0;
+
+case "delayGroup":
+
+    return data.delayGroups?.[selectedDelayGroup] || 0;
 
     default:
         return data.fwd;
@@ -8935,7 +9213,20 @@ const baseSort =
 
 baseSort.onchange = () => {
 
+    updateDelaySelectors();
     updateBasePerformance();
+
+document.getElementById("delayCodeSelector").onchange = () => {
+
+    updateBasePerformance();
+
+};
+
+document.getElementById("delayGroupSelector").onchange = () => {
+
+    updateBasePerformance();
+
+};
 
 };
 
@@ -9164,6 +9455,73 @@ updateBasePerformance();
 updateBaseAnalysis();
 
 }
+
+function updateTopDelayCodes(){
+
+    if(!currentStats) return;
+
+    const base =
+        document.getElementById("analysisBase").value;
+
+    const body =
+        document.getElementById("topDelayCodesBody");
+
+    if(!body) return;
+
+    body.innerHTML = "";
+
+    const delayCodes =
+        currentStats.baseStats?.[base]?.delayCodes || {};
+
+    Object.entries(delayCodes)
+
+        .sort((a,b)=>b[1]-a[1])
+
+        .slice(0,3)
+
+        .forEach(([code,value])=>{
+
+            const row =
+                document.createElement("tr");
+
+            row.style.borderBottom =
+                "1px solid #EEF2F6";
+
+            row.innerHTML = `
+
+<td style="
+    padding:14px;
+    font-weight:700;
+    color:#07225B;
+">
+    ${code}
+</td>
+
+<td style="
+    padding:14px;
+    color:#374151;
+    font-weight:500;
+">
+    ${IATA_DELAY_CODES[code] || "Unknown"}
+</td>
+
+<td style="
+    padding:14px;
+    text-align:right;
+    font-weight:700;
+    color:#07225B;
+">
+    ${value}
+</td>
+
+`;
+
+            body.appendChild(row);
+
+        });
+
+}
+
 // ======================================
 // BASE ANALYSIS
 // ======================================
@@ -9262,6 +9620,8 @@ if(analysisBase){
         updateBaseAnalysis();
 
         updateBaseHistoryChart();
+
+        updateTopDelayCodes();
 
 });
 }
