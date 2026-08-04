@@ -2507,9 +2507,15 @@ min-height:165px;
     Analysis Period
 </label>
 
-<select id="dashboardPeriod"
-        style="padding:8px 14px;border-radius:8px;border:1px solid #ccc;min-width:220px;">
-
+<select
+    id="dashboardPeriod"
+    onchange="dashboardPeriod()"
+    style="
+        padding:8px 14px;
+        border-radius:8px;
+        border:1px solid #ccc;
+        min-width:220px;
+    ">
 </select>
 
     </div>
@@ -2583,19 +2589,14 @@ onclick="openActiveDaysModal()">
 </div>
 
         <div class="exec-card">
-            <div class="exec-title">AVERAGE FWD / BASE</div>
-            <div class="exec-value" id="fwdAverage">-</div>
+            <div class="exec-title">MOST FREQUENT DELAY CODE</div>
+            <div class="exec-value" id="topDelayCode">-</div>
         </div>
 
         <div class="exec-card">
-            <div class="exec-title">AVERAGE NS / BASE</div>
-            <div class="exec-value" id="averageNightStops">-</div>
+            <div class="exec-title">MAIN DELAY GROUP</div>
+            <div class="exec-value" id="topDelayGroup">-</div>
         </div>
-
-        <div class="exec-card">
-    <div class="exec-title">NS PER BASE / DAY</div>
-    <div class="exec-value" id="nsPerBaseDay">0.00</div>
-</div>
 
     </div>
 
@@ -2624,6 +2625,71 @@ onclick="openActiveDaysModal()">
     <div class="operationalSummaryCard">
         <h4 class="operationalSummaryTitle">FWD RATE - PORTUGAL</h4>
         <div id="portugalSummaryTable"></div>
+    </div>
+
+</div>
+
+<!-- ====================================== -->
+<!-- DELAY ANALYSIS -->
+<!-- ====================================== -->
+
+<div style="
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+    margin-top:30px;
+">
+
+    <!-- STANDARD IATA DELAY CODES -->
+
+    <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);
+    ">
+
+        <h3 style="
+            color:#073590;
+            font-size:20px;
+            font-weight:700;
+            margin-bottom:20px;
+        ">
+            TOP STANDARD IATA DELAY CODES
+        </h3>
+
+        <div style="height:420px;">
+
+            <canvas id="delayCodesChart"></canvas>
+
+        </div>
+
+    </div>
+
+    <!-- DELAY GROUPS -->
+
+    <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);
+    ">
+
+        <h3 style="
+            color:#073590;
+            font-size:20px;
+            font-weight:700;
+            margin-bottom:20px;
+        ">
+            DELAY GROUPS DISTRIBUTION
+        </h3>
+
+        <div style="height:420px;">
+
+            <canvas id="delayGroupsChart"></canvas>
+
+        </div>
+
     </div>
 
 </div>
@@ -2702,6 +2768,18 @@ onclick="openActiveDaysModal()">
 
         </div>
 
+<div class="exec-card">
+
+    <div class="exec-title">
+        MOST FREQUENT IATA DELAY CODE
+    </div>
+
+    <div class="exec-value" id="countryTopDelay">
+        -
+    </div>
+
+</div>
+
     </div>
 
 <div class="region-chart">
@@ -2712,17 +2790,32 @@ onclick="openActiveDaysModal()">
 
     </div>
 
+    <button
+id="resetCountry"
+style="
+padding:8px 18px;
+border:none;
+border-radius:10px;
+background:#073590;
+color:white;
+font-weight:700;
+cursor:pointer;
+">
+ALL COUNTRIES
+</button>
+
     <div class="chart-container">
 
         <div id="regionalMapContainer"
              style="
-                width:100%;
-                height:500px;
+                width:110%;
+                height:580px;
                 display:flex;
                 justify-content:center;
-                align-items:center;
+                align-items:flex-start;
                 background:#FAFBFD;
-                border-radius:16px;
+                border-radius:10px;
+                gap:10px;
             ">
 
             <div id="regionalMap">
@@ -2748,6 +2841,81 @@ onclick="openActiveDaysModal()">
 <path id="France" d="M1014.4 185 1015.5 185.5 1016.9 185.4 1019.3 187 1026.5 188.2 1024.1 192.4 1023.7 196.9 1022.4 198 1020.1 197.4 1020.3 199 1016.7 202.5 1016.7 205.4 1019.1 204.4 1020.9 207.1 1020.8 208.9 1022.3 211.3 1020.6 213.2 1022.1 218.1 1024.9 218.9 1024.4 221.6 1019.9 225.2 1009.7 223.5 1002.3 225.6 1001.7 229.4 995.8 230.2 990 227.3 988.1 228.7 978.6 225.8 976.6 223.4 979.3 219.6 980.3 207 975.2 200.4 971.5 197.2 963.9 194.8 963.5 190.2 970 188.9 978.3 190.5 976.8 183.4 981.5 186.1 992.9 181.3 994.4 176.2 998.6 174.9 999.4 177.1 1001.6 177.2 1004 179.7 1007.5 182.6 1010 182.1 1014.4 185z"/>
 
 </svg>
+
+</div>
+
+<!-- ====================================== -->
+<!-- REGIONAL DELAY ANALYSIS -->
+<!-- ====================================== -->
+
+<div style="
+    display:grid;
+    grid-template-columns: 1.4fr 1.0fr;
+    gap:10px;
+    margin-bottom:15px;
+    margin-top: 30px;
+">
+
+
+    <!-- DELAY CODES -->
+
+    <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);
+    ">
+
+        <h3 style="
+            color:#073590;
+            font-size:20px;
+            font-weight:700;
+            margin-bottom:20px;
+        ">
+            TOP STANDARD IATA DELAY CODES
+        </h3>
+
+
+        <div style="height:420px;">
+
+            <canvas id="regionalDelayCodesChart"></canvas>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- DELAY GROUPS -->
+
+    <div style="
+        background:white;
+        border-radius:18px;
+        padding:20px;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);
+    ">
+
+
+        <h3 style="
+            color:#073590;
+            font-size:20px;
+            font-weight:700;
+            margin-bottom:20px;
+        ">
+            DELAY GROUPS DISTRIBUTION
+        </h3>
+
+
+        <div style="height:420px;">
+
+            <canvas id="regionalDelayGroupsChart"></canvas>
+
+        </div>
+
+
+    </div>
+
 
 </div>
 
@@ -4089,27 +4257,41 @@ for(let row = 2; row <= lastRow; row += 2){
         const column =
             XLSX.utils.encode_col(index + 1);
 
-        const fwd = normalize(
-            worksheet[column + row]?.v
-        );
+        const fwdData = parseFWDCell(
 
-        const nightStop = normalize(
-            worksheet[column + (row + 1)]?.v
-        );
+    worksheet[column + row]?.v
 
-        if(fwd !== null || nightStop !== null){
+);
 
-            hasData = true;
+const nightStop = normalize(
 
-        }
+    worksheet[column + (row + 1)]?.v
 
-        dayData[base] = {
+);
 
-            fwd,
+if(
 
-            nightStop
+    fwdData.fwd !== null ||
 
-        };
+    nightStop !== null ||
+
+    fwdData.delayEvents.length
+
+){
+
+    hasData = true;
+
+}
+
+dayData[base] = {
+
+    fwd: fwdData.fwd,
+
+    nightStop,
+
+    delayEvents: fwdData.delayEvents
+
+};
 
     });
 
@@ -4143,6 +4325,69 @@ await compareImportWithFirebase();
     reader.readAsArrayBuffer(file);
 
     event.target.value="";
+}
+
+function parseFWDCell(value){
+
+    if(value === undefined || value === null){
+
+        return{
+
+            fwd:null,
+
+            delayEvents:[]
+
+        };
+
+    }
+
+    const text = String(value).trim();
+
+    if(text === "" || text === "-" || text === "/"){
+
+        return{
+
+            fwd:null,
+
+            delayEvents:[]
+
+        };
+
+    }
+
+    const match = text.match(/^(\d+)\s*(?:\((.*?)\))?$/);
+
+    if(!match){
+
+        return{
+
+            fwd:Number(text),
+
+            delayEvents:[]
+
+        };
+
+    }
+
+    return{
+
+        fwd:Number(match[1]),
+
+        delayEvents:match[2]
+
+            ? match[2]
+                .split(",")
+                .map(code=>({
+
+                    code:Number(code.trim())
+
+                }))
+                .filter(event=>!isNaN(event.code))
+
+            : []
+
+    };
+
 }
 
 function generateCalendar() {
@@ -4368,10 +4613,50 @@ let currentDay = null;
 let currentMonth = null;
 let currentYear = null;
 
+// ======================================
+// EXECUTIVE DASHBOARD COLORS
+// ======================================
 
-// ======================================================
-// RYANAIR BASES
-// ======================================================
+function getExecutiveColors(totalItems){
+
+    const background = [];
+    const hover = [];
+
+    for(let i=0;i<totalItems;i++){
+
+        if(i===0){
+
+            background.push("#FDB813");
+            hover.push("#E6A800");
+
+        }else if(i===1){
+
+            background.push("#FFD54F");
+            hover.push("#F4C430");
+
+        }else if(i===2){
+
+            background.push("#FFE082");
+            hover.push("#FFD54F");
+
+        }else{
+
+            background.push("#0B2E73");
+            hover.push("#174EA6");
+
+        }
+
+    }
+
+    return{
+
+        background,
+
+        hover
+
+    };
+
+}
 
 // ======================================================
 // RYANAIR BASES
@@ -4481,6 +4766,596 @@ let currentStats = null;
 
 let selectedCountry = "ALL";
 
+let stats = null;
+
+// ======================================
+// REGIONAL PIE CHARTS
+// ======================================
+
+let countryFwdChart = null;
+
+let countryNsChart = null;
+
+// ======================================
+// DELAY CHART INSTANCES
+// ======================================
+
+let delayCodesChart = null;
+let delayGroupsChart = null;
+
+// ======================================
+// REGIONAL DELAY CHARTS
+// ======================================
+
+let regionalDelayCodesChart = null;
+
+let regionalDelayGroupsChart = null;
+
+let operationalTrendChart = null;
+
+// ======================================
+// GLOBAL CHART STYLE
+// ======================================
+
+Chart.defaults.font.family =
+"'Segoe UI', 'Inter', 'Arial', sans-serif";
+
+Chart.defaults.color = "#4B5563";
+
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+Chart.defaults.plugins.legend.labels.pointStyle = "circle";
+
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+
+Chart.defaults.plugins.legend.labels.boxHeight = 10;
+
+Chart.defaults.plugins.tooltip.backgroundColor = "#07225B";
+
+Chart.defaults.plugins.tooltip.titleColor = "#FFFFFF";
+
+Chart.defaults.plugins.tooltip.bodyColor = "#FFFFFF";
+
+Chart.defaults.plugins.tooltip.cornerRadius = 12;
+
+Chart.defaults.plugins.tooltip.padding = 14;
+
+Chart.defaults.plugins.tooltip.displayColors = false;
+
+Chart.defaults.animation.duration = 900;
+
+Chart.defaults.animation.easing = "easeOutQuart";
+
+Chart.defaults.elements.bar.borderRadius = 12;
+
+Chart.defaults.elements.bar.borderSkipped = false;
+
+Chart.defaults.elements.arc.borderWidth = 3;
+
+Chart.defaults.elements.arc.borderColor = "#FFFFFF";
+
+// ======================================
+// UPDATE DELAY CHARTS
+// ======================================
+
+function updateDelayCharts(stats, mode="operational"){
+
+    let canvasID = "delayCodesChart";
+
+    if(mode==="regional"){
+        canvasID = "regionalDelayCodesChart";
+    }
+
+
+    const labels = [];
+    const values = [];
+    const percentages = [];
+
+
+const executiveColors = getExecutiveColors(labels.length);
+
+    const totalEvents =
+        Object.values(stats.delayCodes)
+        .reduce((sum,value)=>sum+value,0);
+
+
+
+    Object.entries(stats.delayCodes)
+    .sort((a,b)=>b[1]-a[1])
+    .forEach(([code,count])=>{
+
+        labels.push(
+            `${IATA_DELAY_CODES[code]} (${code})`
+        );
+
+        values.push(count);
+
+        percentages.push(
+            totalEvents
+            ? (count / totalEvents * 100)
+            : 0
+        );
+
+    });
+
+
+    let chartReference;
+
+
+    if(mode==="regional"){
+
+        if(
+            regionalDelayCodesChart &&
+            typeof regionalDelayCodesChart.destroy==="function"
+        ){
+            regionalDelayCodesChart.destroy();
+        }
+
+
+    }else{
+
+        if(
+            delayCodesChart &&
+            typeof delayCodesChart.destroy==="function"
+        ){
+            delayCodesChart.destroy();
+        }
+
+    }
+
+
+
+    chartReference = new Chart(
+
+        document.getElementById(canvasID),
+
+        {
+
+            type:"bar",
+
+
+            data:{
+
+                labels:labels,
+
+                datasets:[{
+
+    data:values,
+
+backgroundColor:"#FDB813",
+
+hoverBackgroundColor:"#073590",
+
+    borderRadius:8,
+borderSkipped:false,
+
+barThickness:18,
+maxBarThickness:18,
+
+categoryPercentage:0.72,
+barPercentage:0.88,
+
+hoverBorderWidth:2,
+hoverBorderColor:"#FFFFFF"
+
+}]
+
+            },
+
+
+            options:{
+
+    responsive:true,
+
+    maintainAspectRatio:false,
+
+    indexAxis:"y",
+
+    animation:{
+        duration:1000,
+        easing:"easeOutQuart"
+    },
+
+    interaction:{
+        mode:"nearest",
+        intersect:false
+    },
+
+    plugins:{
+
+        legend:{
+            display:false
+        },
+
+        tooltip:{
+
+            padding:14,
+
+            callbacks:{
+
+                title:(context)=>context[0].label,
+
+                label:(context)=>{
+
+    const dataset =
+        context.dataset.data;
+
+    const total =
+        dataset.reduce((a,b)=>a+b,0);
+
+    const percentage =
+        total > 0
+        ? ((context.raw / total) * 100).toFixed(1)
+        : 0;
+
+    return [
+
+        "Count: " + context.raw.toLocaleString(),
+
+        "Share: " + percentage + "%"
+
+    ];
+
+}
+
+            }
+
+        }
+
+    },
+
+    scales:{
+
+        x:{
+
+            beginAtZero:true,
+
+            grace:"8%",
+
+            grid:{
+    color:"rgba(15,23,42,.05)",
+    drawBorder:false
+},
+
+            ticks:{
+                color:"#64748B",
+                font:{
+                    weight:"600"
+                }
+            }
+
+        },
+
+        y:{
+
+            grid:{
+                display:false
+            },
+
+            ticks:{
+    color:"#0B2E73",
+    font:{
+        size:14,
+        weight:"600"
+    }
+}
+
+        }
+
+    }
+
+}
+
+}
+    );
+
+
+
+    if(mode==="regional"){
+
+        regionalDelayCodesChart = chartReference;
+
+    }else{
+
+        delayCodesChart = chartReference;
+
+    }
+
+
+}
+
+function updateDelayGroupsChart(stats, mode="operational"){
+
+
+    let canvasID = "delayGroupsChart";
+
+
+    if(mode==="regional"){
+
+        canvasID = "regionalDelayGroupsChart";
+
+    }
+
+
+
+    const labels = [];
+
+    const values = [];
+
+
+
+    const source =
+        stats.delayGroups || {};
+
+
+
+    Object.entries(source)
+
+    .sort((a,b)=>b[1]-a[1])
+
+    .forEach(([group,value])=>{
+
+
+        labels.push(group);
+
+        values.push(value);
+
+
+    });
+
+
+
+    let chartReference;
+
+
+
+    if(mode==="regional"){
+
+
+        if(
+            regionalDelayGroupsChart &&
+            typeof regionalDelayGroupsChart.destroy==="function"
+        ){
+
+            regionalDelayGroupsChart.destroy();
+
+        }
+
+
+    }else{
+
+
+        if(
+            delayGroupsChart &&
+            typeof delayGroupsChart.destroy==="function"
+        ){
+
+            delayGroupsChart.destroy();
+
+        }
+
+    }
+
+
+
+
+
+    chartReference = new Chart(
+
+
+        document.getElementById(canvasID),
+
+
+        {
+
+
+            type:"doughnut",
+
+
+
+            data:{
+
+
+                labels:labels,
+
+
+                datasets:[{
+
+    data:values,
+
+    backgroundColor:[
+        "#073590",
+        "#FDB813",
+        "#3B82F6",
+        "#60A5FA",
+        "#93C5FD",
+        "#BFDBFE",
+        "#E5E7EB",
+        "#CBD5E1"
+    ],
+
+    hoverOffset:18,
+
+    borderColor:"#FFFFFF",
+
+    borderWidth:3
+
+}]
+
+
+            },
+
+
+
+            options:{
+
+
+                responsive:true,
+
+
+                maintainAspectRatio:false,
+
+
+                cutout:"72%",
+radius:"88%",
+
+
+
+                animation:{
+
+
+                    duration:1200
+
+
+                },
+
+
+
+                plugins:{
+
+
+
+                    legend:{
+
+    position:"right",
+
+    align:"center",
+
+    labels:{
+
+        usePointStyle:true,
+
+        pointStyle:"circle",
+
+        boxWidth:12,
+
+        boxHeight:12,
+
+        padding:18,
+
+        color:"#073590",
+
+        font:{
+
+            size:13,
+
+            weight:"600"
+
+        }
+
+    }
+
+},
+
+
+
+                    datalabels:{
+
+
+                        color:"#FFFFFF",
+
+
+                        font:{
+
+
+                            weight:"bold"
+
+
+                        },
+
+
+                        formatter:function(value,context){
+
+
+                            const total =
+                            context.dataset.data
+                            .reduce((a,b)=>a+b,0);
+
+
+
+                            return (
+
+                                value /
+                                total *
+                                100
+
+                            )
+                            .toFixed(0)
+                            +"%";
+
+
+                        }
+
+
+                    },
+
+
+
+                    tooltip:{
+
+
+                        callbacks:{
+
+
+                            label:function(context){
+
+    const total =
+        context.dataset.data.reduce((a,b)=>a+b,0);
+
+    const percentage =
+        ((context.raw/total)*100).toFixed(1);
+
+    return [
+
+        context.label,
+
+        "Events: " + context.raw,
+
+        "Share: " + percentage + "%"
+
+    ];
+
+}
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+    );
+
+
+
+    if(mode==="regional"){
+
+
+        regionalDelayGroupsChart = chartReference;
+
+
+    }else{
+
+
+        delayGroupsChart = chartReference;
+
+
+    }
+
+
+}
+ 
+    
+
 // ======================================================
 // OPEN DAILY INPUT
 // ======================================================
@@ -4553,23 +5428,48 @@ document.getElementById("selectedDayTitle").innerHTML = `
     generateDailyForm();
 
     loadDayFromFirebase(currentYear, currentMonth + 1, currentDay)
-    .then(data => {
+.then(data => {
 
-        if(!data) return;
+    BASES.forEach(base => {
 
-        BASES.forEach(base => {
+        // Limpar sempre os campos primeiro
+        const ns = document.getElementById("ns_" + base);
 
-            if(!data[base]) return;
+        if(ns){
+            ns.value = "";
+        }
 
-            const ns = document.getElementById("ns_" + base);
-            const fwd = document.getElementById("fwd_" + base);
-
-            if(ns) ns.value = data[base].nightStop ?? "";
-            if(fwd) fwd.value = data[base].fwd ?? "";
-
-        });
+        // Limpar Delay Events
+        dailyDelayEvents[base] = [];
+        renderDelayEvents(base);
 
     });
+
+    // Se não existir informação, fica tudo vazio
+    if(!data){
+        return;
+    }
+
+    // Carregar dados da Firebase
+    BASES.forEach(base => {
+
+        if(!data[base]) return;
+
+        const ns = document.getElementById("ns_" + base);
+
+        if(ns){
+            ns.value = data[base].nightStop ?? "";
+        }
+
+        dailyDelayEvents[base] = Array.isArray(data[base].delayEvents)
+            ? [...data[base].delayEvents]
+            : [];
+
+        renderDelayEvents(base);
+
+    });
+
+});
 
 }
 
@@ -4601,61 +5501,162 @@ function generateDailyForm(){
 
         <div style="
             background:#f8f9fb;
-            border-radius:12px;
+            border-radius:14px;
             padding:18px;
             box-shadow:0 3px 10px rgba(0,0,0,.08);
+            display:flex;
+            flex-direction:column;
+            gap:16px;
         ">
 
             <h3 style="
                 color:#07225B;
-                margin-bottom:18px;
                 text-align:center;
+                margin:0;
             ">
                 ${base}
             </h3>
 
-            <label style="font-weight:bold;">
-                Night Stop
-            </label>
+            <!-- Night Stop -->
 
-            <input
-                type="number"
-                min="0"
-                id="ns_${base}"
-                value=""
-                style="
-                    width:100%;
-                    margin-top:6px;
-                    margin-bottom:14px;
-                    padding:10px;
-                    border-radius:8px;
-                    border:1px solid #ccc;
+            <div>
+
+                <label style="
+                    font-weight:600;
+                    color:#07225B;
                 ">
+                    Night Stops
+                </label>
 
-            <label style="font-weight:bold;">
-                FWD
-            </label>
+                <input
+                    type="number"
+                    min="0"
+                    id="ns_${base}"
+                    style="
+                        width:100%;
+                        margin-top:6px;
+                        padding:10px;
+                        border-radius:8px;
+                        border:1px solid #d6dbe5;
+                        font-size:14px;
+                    ">
 
-            <input
-                type="number"
-                min="0"
-                id="fwd_${base}"
-                value=""
-                style="
-                    width:100%;
-                    margin-top:6px;
-                    padding:10px;
-                    border-radius:8px;
-                    border:1px solid #ccc;
+            </div>
+
+            <!-- FWD -->
+
+            <div>
+
+                <label style="
+    font-weight:600;
+    color:#07225B;
+">
+
+    First Wave Delays
+
+</label>
+
+<div
+
+    id="fwdCounter_${base}"
+
+    style="
+        margin-top:6px;
+        padding:12px;
+        border-radius:10px;
+        background:#EEF3FB;
+        color:#07225B;
+        text-align:center;
+        font-size:24px;
+        font-weight:700;
+        border:1px solid #D8E2F0;
+    "
+
+>
+
+0
+
+</div>
+
+            </div>
+
+            <!-- Delay Events -->
+
+            <div>
+
+                <label style="
+                    font-weight:600;
+                    color:#07225B;
+                    display:block;
+                    margin-bottom:8px;
                 ">
+                    Delay Events
+                </label>
+
+                <input
+
+                    id="delaySearch_${base}"
+
+                    placeholder="Search code or description..."
+
+                    autocomplete="off"
+
+                    oninput="filterDelayCodes('${base}')"
+                    onfocus="filterDelayCodes('${base}')"
+
+                    style="
+                        width:100%;
+                        padding:10px;
+                        border-radius:8px;
+                        border:1px solid #d6dbe5;
+                        font-size:14px;
+                    "
+
+                >
+
+                <div
+
+                    id="delaySuggestions_${base}"
+
+                    style="
+                        display:none;
+                        max-height:180px;
+                        overflow:auto;
+                        background:white;
+                        border:1px solid #d6dbe5;
+                        border-radius:8px;
+                        margin-top:6px;
+                    "
+
+                ></div>
+
+                <div
+
+                    id="delayEvents_${base}"
+
+                    style="
+                        display:flex;
+                        flex-wrap:wrap;
+                        gap:8px;
+                        margin-top:12px;
+                    "
+
+                ></div>
+
+            </div>
 
         </div>
 
-        `;  
+        `;
 
     });
 
     container.innerHTML = html;
+    BASES.forEach(base=>{
+
+    initializeDelayEvents(base);
+
+});
 
 }
 
@@ -4663,30 +5664,45 @@ function generateDailyForm(){
 // CALCULATE DAY STATUS
 // ======================================================
 
+// ======================================================
+// CALCULATE DAY STATUS
+// ======================================================
+
 function calculateDayStatus(){
 
-    let emptyFields = 0;
+    let emptyBases = 0;
 
-    BASES.forEach(base=>{
+    BASES.forEach(base => {
 
-        const ns = document.getElementById("ns_"+base).value.trim();
-        const fwd = document.getElementById("fwd_"+base).value.trim();
+        const ns = document
+            .getElementById("ns_" + base)
+            .value
+            .trim();
 
-        if(ns==="" || fwd===""){
+        const delayEvents =
+            getDelayEvents(base);
 
-            emptyFields++;
+        const hasNightStop =
+            ns !== "";
+
+        const hasFWD =
+            delayEvents.length > 0;
+
+        if(!hasNightStop && !hasFWD){
+
+            emptyBases++;
 
         }
 
     });
 
-    if(emptyFields===BASES.length){
+    if(emptyBases === BASES.length){
 
         return "empty";
 
     }
 
-    if(emptyFields>0){
+    if(emptyBases > 0){
 
         return "partial";
 
@@ -4701,6 +5717,38 @@ function calculateDayStatus(){
 // ======================================================
 
 function saveDayData(){
+
+// ======================================
+// VALIDATE MANUAL INPUT
+// ======================================
+
+for(const base of BASES){
+
+    const ns =
+        document
+            .getElementById("ns_" + base)
+            .value
+            .trim();
+
+    const delayEvents =
+        getDelayEvents(base);
+
+    // Existem Delay Events mas não existem Night Stops
+    if(ns === "" && delayEvents.length > 0){
+
+        alert(
+
+            base +
+
+            "\n\nPlease enter the Night Stops before adding Delay Events."
+
+        );
+
+        return;
+
+    }
+
+}
 
     const key =
         `${currentYear}-${currentMonth+1}-${currentDay}`;
@@ -4718,12 +5766,22 @@ function saveDayData(){
     BASES.forEach(base=>{
 
         const ns = document.getElementById("ns_"+base).value.trim();
-        const fwd = document.getElementById("fwd_"+base).value.trim();
+        const delayEvents = getDelayEvents(base);
+        const fwd = delayEvents.length;
 
-        dayData[key][base] = {
+        dayData[key][base]={
 
-            nightStop: ns === "" ? null : Number(ns),
-            fwd: fwd === "" ? null : Number(fwd)
+    nightStop:
+
+        ns === ""
+
+        ? null
+
+        : Number(ns),
+
+    fwd,
+
+    delayEvents
 
 };
 
@@ -4759,6 +5817,361 @@ saveDayToFirebase(
 })
 
 }
+
+// =======================================================
+// DELAY EVENTS ENGINE
+// =======================================================
+
+const dailyDelayEvents = {};
+
+// ======================================
+// INITIALIZE
+// ======================================
+
+function initializeDelayEvents(base){
+
+    if(!dailyDelayEvents[base]){
+
+        dailyDelayEvents[base]=[];
+
+    }
+
+    renderDelayEvents(base);
+
+}
+
+// ======================================
+// ADD EVENT
+// ======================================
+
+function addDelayEvent(base,code){
+
+    code = Number(code);
+
+    if(isNaN(code)) return;
+
+    dailyDelayEvents[base].push({
+
+        code
+
+    });
+
+    renderDelayEvents(base);
+
+document
+.getElementById(
+    "delaySearch_"+base
+)
+.focus();
+
+}
+
+// ======================================
+// REMOVE EVENT
+// ======================================
+
+function removeDelayEvent(base,index){
+
+    dailyDelayEvents[base].splice(index,1);
+
+    renderDelayEvents(base);
+
+}
+
+// ======================================
+// GET EVENTS
+// ======================================
+
+function getDelayEvents(base){
+
+    return dailyDelayEvents[base] || [];
+
+}
+
+// ======================================
+// RENDER
+// ======================================
+
+function renderDelayEvents(base){
+
+    const container =
+        document.getElementById(
+            "delayEvents_"+base
+        );
+
+    if(!container) return;
+
+    container.innerHTML="";
+
+    const events =
+        getDelayEvents(base);
+
+    events.forEach((event,index)=>{
+
+        const pill =
+            document.createElement("div");
+
+        pill.style.display="flex";
+        pill.style.alignItems="center";
+        pill.style.gap="8px";
+        pill.style.padding="6px 10px";
+        pill.style.borderRadius="999px";
+        pill.style.fontSize="12px";
+        pill.style.fontWeight="600";
+        pill.style.cursor="default";
+        pill.style.color="white";
+        pill.style.background=
+            getDelayColour(event.code);
+
+        pill.innerHTML=`
+
+            <span>
+
+                ${event.code}
+
+                -
+
+                ${IATA_DELAY_CODES[event.code] || "Unknown"}
+
+            </span>
+
+            <span
+
+                style="
+                    cursor:pointer;
+                    font-weight:bold;
+                "
+
+                onclick="removeDelayEvent('${base}',${index})"
+
+            >
+
+                ✕
+
+            </span>
+
+        `;
+
+        container.appendChild(pill);
+
+    });
+
+
+const counter =
+document.getElementById(
+
+    "fwdCounter_"+base
+
+);
+
+if(counter){
+
+    counter.textContent =
+        events.length;
+
+}
+
+}
+
+// ======================================
+// COLOUR
+// ======================================
+
+function getDelayColour(code){
+
+    const group =
+        getIATADelayGroup(code);
+
+    switch(group){
+
+        case "Technical":
+
+            return "#C0392B";
+
+        case "Weather":
+
+            return "#2980B9";
+
+        case "ATFM":
+
+            return "#8E44AD";
+
+        case "Passenger":
+
+            return "#27AE60";
+
+        case "Crew":
+
+            return "#F39C12";
+
+        case "Airport":
+
+            return "#16A085";
+
+        default:
+
+            return "#34495E";
+
+    }
+
+}
+
+// ======================================
+// FILTER DELAY CODES
+// ======================================
+
+function filterDelayCodes(base){
+
+    const input =
+        document.getElementById(
+            "delaySearch_"+base
+        );
+
+    const list =
+        document.getElementById(
+            "delaySuggestions_"+base
+        );
+
+    const value =
+        input.value
+            .trim()
+            .toLowerCase();
+
+    list.innerHTML="";
+
+    if(value===""){
+
+        list.style.display="none";
+        return;
+
+    }
+
+    const matches=[];
+
+    Object.entries(IATA_DELAY_CODES).forEach(([code,description])=>{
+
+        const group =
+            getIATADelayGroup(code);
+
+        if(
+
+            code.includes(value)
+
+            ||
+
+            description
+                .toLowerCase()
+                .includes(value)
+
+            ||
+
+            group
+                .toLowerCase()
+                .includes(value)
+
+        ){
+
+            matches.push({
+
+                code:Number(code),
+
+                description,
+
+                group
+
+            });
+
+        }
+
+    });
+
+    matches
+        .sort((a,b)=>a.code-b.code);
+
+    matches.forEach(item=>{
+
+        const row =
+            document.createElement("div");
+
+        row.style.padding="10px";
+        row.style.cursor="pointer";
+        row.style.borderBottom=
+            "1px solid #ECECEC";
+
+        row.onmouseenter=()=>{
+
+            row.style.background="#F5F8FC";
+
+        };
+
+        row.onmouseleave=()=>{
+
+            row.style.background="white";
+
+        };
+
+        row.innerHTML=`
+
+            <div
+                style="
+                    font-weight:600;
+                    color:#07225B;
+                "
+            >
+
+                ${item.code}
+
+                -
+
+                ${item.description}
+
+            </div>
+
+            <div
+                style="
+                    font-size:11px;
+                    color:#777;
+                "
+            >
+
+                ${item.group}
+
+            </div>
+
+        `;
+
+        row.onclick=()=>{
+
+            addDelayEvent(
+
+                base,
+
+                item.code
+
+            );
+
+            input.value="";
+
+            list.innerHTML="";
+
+            list.style.display="none";
+
+        };
+
+        list.appendChild(row);
+
+    });
+
+    list.style.display=
+
+        matches.length
+
+            ? "block"
+
+            : "none";
+
+}
+
 function updateCalendarStatus(){
 
     const key =
@@ -4877,7 +6290,15 @@ function emptyStatistics(){
 
         countryStats:{},
 
-        topBases:[]
+        topBases:[],
+
+        // ======================================
+        // IATA DELAY ANALYSIS
+        // ======================================
+
+        delayCodes:{},
+
+        delayGroups:{}
 
     };
 
@@ -4928,6 +6349,236 @@ const BASE_COUNTRIES = {
 };
 
 // ======================================
+// STANDARD IATA DELAY CODES
+// ======================================
+
+const IATA_DELAY_CODES = {
+
+    6:"No Gate / Stand",
+
+    9:"Scheduled Ground Time",
+
+    11:"Late Check-in",
+
+    12:"Check-in Congestion",
+
+    13:"Check-in Error",
+
+    14:"Oversales",
+
+    15:"Boarding",
+
+    16:"Passenger Convenience",
+
+    17:"Catering Order",
+
+    18:"Baggage Processing",
+
+    19:"Reduced Mobility",
+
+    21:"Documentation",
+
+    22:"Late Positioning",
+
+    23:"Late Acceptance",
+
+    24:"Inadequate Packing",
+
+    25:"Oversales",
+
+    26:"Warehouse Preparation",
+
+    27:"Mail Documentation",
+
+    28:"Mail Positioning",
+
+    29:"Mail Acceptance",
+
+    31:"Aircraft Documentation",
+
+    32:"Loading / Unloading",
+
+    33:"Loading Equipment",
+
+    34:"Servicing Equipment",
+
+    35:"Aircraft Cleaning",
+
+    36:"Fuelling",
+
+    37:"Catering",
+
+    38:"ULD",
+
+    39:"Ground Equipment",
+
+    41:"Aircraft Defect",
+
+    42:"Scheduled Maintenance",
+
+    43:"Unscheduled Maintenance",
+
+    44:"Maintenance Equipment",
+
+    45:"AOG Spares",
+
+    46:"Aircraft Change",
+
+    47:"Stand-by Aircraft",
+
+    48:"Cabin Configuration",
+
+    51:"Damage During Flight",
+
+    52:"Ground Damage",
+
+    55:"Departure Control",
+
+    56:"Cargo Documentation",
+
+    57:"Flight Plans",
+
+    58:"Automated Systems",
+
+    61:"Flight Plan",
+
+    62:"Operational Requirements",
+
+    63:"Late Crew Boarding",
+
+    64:"Flight Deck Crew Shortage",
+
+    65:"Flight Deck Request",
+
+    66:"Cabin Crew Boarding",
+
+    67:"Cabin Crew Shortage",
+
+    68:"Cabin Crew Request",
+
+    69:"Captain Security Check",
+
+    71:"Weather Departure",
+
+    72:"Weather Destination",
+
+    73:"Weather En-route",
+
+    75:"De-icing",
+
+    76:"Snow Removal",
+
+    77:"Weather Ground Handling",
+
+    81:"ATFM En-route",
+
+    82:"ATFM Capacity",
+
+    83:"ATFM Destination",
+
+    84:"ATFM Weather",
+
+    85:"Security",
+
+    86:"Immigration / Customs",
+
+    87:"Airport Facilities",
+
+    88:"Destination Restrictions",
+
+    89:"Departure Restrictions",
+
+    91:"Load Connection",
+
+    92:"Through Check-in",
+
+    93:"Aircraft Rotation",
+
+    94:"Cabin Crew Rotation",
+
+    95:"Crew Rotation",
+
+    96:"Operations Control",
+
+    97:"Industrial Action",
+
+    98:"External Industrial Action",
+
+    99:"Other"
+
+};
+
+// ======================================
+// IATA DELAY CATEGORIES
+// ======================================
+
+const IATA_DELAY_GROUPS = {
+
+    Passenger: [
+        11,12,13,14,15,16,17,18,19
+    ],
+
+    Cargo: [
+        21,22,23,24,25,26,27,28,29
+    ],
+
+    GroundHandling: [
+        31,32,33,34,35,36,37,38,39
+    ],
+
+    Technical: [
+        41,42,43,44,45,46,47,48
+    ],
+
+    Damage: [
+        51,52,55,56,57,58
+    ],
+
+    Crew: [
+        61,62,63,64,65,66,67,68,69
+    ],
+
+    Weather: [
+        71,72,73,75,76,77
+    ],
+
+    ATFM: [
+        81,82,83,84,85,86,87,88,89
+    ],
+
+    Reactionary: [
+        91,92,93,94,95,96
+    ],
+
+    Other: [
+        6,9,97,98,99
+    ]
+
+};
+
+// ======================================
+// GET IATA GROUP
+// ======================================
+
+function getIATADelayGroup(code){
+
+    code = Number(code);
+
+    for(const [group,codes] of Object.entries(IATA_DELAY_GROUPS)){
+
+        if(codes.includes(code)){
+
+            return group;
+
+        }
+
+    }
+
+    return "Other";
+
+}
+
+// ======================================
 // CALCULATE MONTHLY STATISTICS
 // ======================================
 
@@ -4941,12 +6592,19 @@ async function calculateMonthlyStatistics(year, month){
 
     stats.baseStats[base]={
 
-        fwd:0,
-        nightStops:0,
-        activeDays:0,
-        rate:0
+    fwd:0,
 
-    };
+    nightStops:0,
+
+    activeDays:0,
+
+    rate:0,
+
+    delayCodes:{},
+
+    delayGroups:{}
+
+};
 
 });
 
@@ -4986,6 +6644,84 @@ if(completeDay){
 
             const fwd = Number(baseData.fwd) || 0;
             const ns = Number(baseData.nightStop) || 0;
+
+            // ======================================
+// IATA DELAY CODES
+// ======================================
+
+const delayEvents = baseData.delayEvents || [];
+
+delayEvents.forEach(event=>{
+
+    const code = event.code;
+
+    // ======================================
+    // GLOBAL
+    // ======================================
+
+    stats.delayCodes[code] =
+        (stats.delayCodes[code] || 0) + 1;
+
+    const group = getIATADelayGroup(code);
+
+    stats.delayGroups[group] =
+        (stats.delayGroups[group] || 0) + 1;
+
+    // ======================================
+    // BASE
+    // ======================================
+
+    stats.baseStats[base].delayCodes[code] =
+        (stats.baseStats[base].delayCodes[code] || 0) + 1;
+
+    stats.baseStats[base].delayGroups[group] =
+        (stats.baseStats[base].delayGroups[group] || 0) + 1;
+
+});
+
+// ======================================
+// COUNTRY DELAY CODES
+// ======================================
+
+const country = BASE_COUNTRIES[base];
+
+if(country){
+
+    if(!stats.countryStats[country]){
+
+        stats.countryStats[country]={
+
+            fwd:0,
+
+            nightStops:0,
+
+            bases:0,
+
+            delayCodes:{},
+
+            delayGroups:{}
+
+        };
+
+    }
+
+    delayEvents.forEach(event=>{
+
+    const code = event.code;
+
+    stats.countryStats[country].delayCodes[code] =
+
+        (stats.countryStats[country].delayCodes[code] || 0) + 1;
+
+    const group = getIATADelayGroup(code);
+
+    stats.countryStats[country].delayGroups[group] =
+
+        (stats.countryStats[country].delayGroups[group] || 0) + 1;
+
+});
+
+}
 
             stats.totalFWD += fwd;
             stats.totalNightStops += ns;
@@ -5089,15 +6825,21 @@ Object.entries(stats.baseStats).forEach(([base,data])=>{
 
     if(!stats.countryStats[country]){
 
-        stats.countryStats[country]={
+    stats.countryStats[country]={
 
-            fwd:0,
-            nightStops:0,
-            bases:0
+        fwd:0,
 
-        };
+        nightStops:0,
 
-    }
+        bases:0,
+
+        delayCodes:{},
+
+        delayGroups:{}
+
+    };
+
+}
 
     stats.countryStats[country].fwd += data.fwd;
 
@@ -5122,6 +6864,65 @@ Object.values(stats.countryStats).forEach(country=>{
 
 stats.countryRanking = Object.entries(stats.countryStats)
 .sort((a,b)=>b[1].fwd-a[1].fwd);
+
+// ======================================
+// DELAY SUMMARY
+// ======================================
+
+// Código mais frequente
+stats.topDelayCode = null;
+
+const delayRanking = Object.entries(stats.delayCodes)
+    .sort((a,b)=>b[1]-a[1]);
+
+if(delayRanking.length){
+
+    const [code,count] = delayRanking[0];
+
+    stats.topDelayCode = {
+
+    code,
+
+    description:
+        IATA_DELAY_CODES[code] || "Unknown",
+
+    group:
+        getIATADelayGroup(code),
+
+    count
+
+};
+
+}
+
+// Grupo mais frequente
+stats.topDelayGroup = null;
+
+const groupRanking = Object.entries(stats.delayGroups)
+    .sort((a,b)=>b[1]-a[1]);
+
+if(groupRanking.length){
+
+    const [group,count] = groupRanking[0];
+
+    const totalEvents =
+        Object.values(stats.delayGroups)
+            .reduce((a,b)=>a+b,0);
+
+    stats.topDelayGroup = {
+
+        group,
+
+        count,
+
+        percentage:
+            totalEvents
+                ? (count / totalEvents * 100)
+                : 0
+
+    };
+
+}
 
 return stats;
 
@@ -5203,11 +7004,12 @@ function calculateNSPerBasePerDay(stats){
 
 async function updateFWDDashboard(year, month){
 
-    console.log("updateFWDDashboard foi chamada");
 
-    const stats = await calculateMonthlyStatistics(year, month);
+    stats = await calculateMonthlyStatistics(year, month);
 
     currentStats = stats;
+
+    updateDelayCharts(stats);
 
     await saveDashboardSnapshot(
 
@@ -5314,13 +7116,19 @@ if(analysisBase && analysisBase.options.length <= 1){
 
         analysisBase.value = "OPO";
 
+    }        
 updateBaseAnalysis();
 
 updateBaseHistoryChart();
 
 updateOperationalTrends();
 
-}
+updateDelayCharts(stats);
+
+updateDelayGroupsChart(stats);
+
+updateRegionalChart(stats);
+
 
 // ======================================
 // REGIONAL OVERVIEW
@@ -5378,6 +7186,8 @@ const overallRate =
 // REGIONAL OVERVIEW CARDS
 // ======================================
 
+
+
 function updateRegionalCards(country){
 
     let bases = 0;
@@ -5424,68 +7234,132 @@ function updateRegionalCards(country){
     document.getElementById("countryRate").innerText =
         rate + "%";
 
+// ======================================
+// MOST FREQUENT IATA DELAY CODE
+// ======================================
+
+let delayStats = {};
+
+if(country === "ALL"){
+
+    Object.values(stats.countryStats)
+    .forEach(c=>{
+
+        Object.entries(c.delayCodes || {})
+        .forEach(([code,count])=>{
+
+            delayStats[code] =
+                (delayStats[code] || 0) + count;
+
+        });
+
+    });
+
+
+}else{
+
+    const c = stats.countryStats[country];
+
+    if(c && c.delayCodes){
+
+        delayStats = c.delayCodes;
+
+    }
+
+}
+
+
+const delayRanking =
+
+    Object.entries(delayStats)
+        .sort((a,b)=>b[1]-a[1]);
+
+
+const topDelay = delayRanking[0];
+
+
+document.getElementById("countryTopDelay").innerHTML =
+
+topDelay
+
+?
+
+`
+<div style="
+font-size:20px;
+font-weight:700;
+">
+
+${IATA_DELAY_CODES[topDelay[0]]}
+
+</div>
+
+<div style="
+font-size:14px;
+margin-top:6px;
+color:#073590;
+">
+
+IATA Code ${topDelay[0]}
+
+</div>
+
+<div style="
+font-size:13px;
+margin-top:5px;
+color:#7A8599;
+">
+
+${topDelay[1]} occurrences
+
+</div>
+`
+
+:
+
+"-";
+
 }
 
 // Primeira atualização
 updateRegionalCards("ALL");
 
-let countryFwdChart = null;
-let countryNsChart = null;
-
-function updateRegionalPieCharts(){
+function updateRegionalPieCharts(country = "ALL"){
 
     const labels = [];
     const fwdValues = [];
     const nsValues = [];
-    const colours = [];
 
-    const totalFwd =
-    Object.values(stats.countryStats)
-        .reduce((sum,c)=>sum+c.fwd,0);
+    let dataSource = {};
 
-const totalNS =
-    Object.values(stats.countryStats)
-        .reduce((sum,c)=>sum+c.nightStops,0);
+    if(country === "ALL"){
 
-    const palette = {
+        dataSource = stats.countryStats;
 
-        Portugal:"#8E44AD",
-        Spain:"#0B84A5",
-        France:"#3498DB",
-        Belgium:"#27AE60",
-        Morocco:"#F39C12"
+    }else{
 
-    };
+        if(stats.countryStats[country]){
 
-    const countries =
-        Object.entries(stats.countryStats)
-            .sort((a,b)=>b[1].fwd-a[1].fwd);
+            dataSource = {
+                [country]: stats.countryStats[country]
+            };
 
-    countries.forEach(([country,data])=>{
+        }
 
-        labels.push(country);
+    }
 
-        fwdValues.push(
 
-    totalFwd
-        ? ((data.fwd / totalFwd) * 100).toFixed(2)
-        : 0
+    Object.entries(dataSource).forEach(([name,data])=>{
 
-);
+        labels.push(name);
 
-nsValues.push(
+        fwdValues.push(data.fwd);
 
-    totalNS
-        ? ((data.nightStops / totalNS) * 100).toFixed(2)
-        : 0
-
-);
-
-        colours.push(
-            palette[country] || "#073590"
-        );
+        nsValues.push(data.nightStops);
 
     });
+
+
 
     if(countryFwdChart){
 
@@ -5493,11 +7367,14 @@ nsValues.push(
 
     }
 
+
     if(countryNsChart){
 
         countryNsChart.destroy();
 
     }
+
+
 
     countryFwdChart = new Chart(
 
@@ -5505,94 +7382,152 @@ nsValues.push(
 
         {
 
-            type:"pie",
+            type:"doughnut",
 
             data:{
 
-                labels,
+                labels:labels,
 
                 datasets:[{
 
-                    data:fwdValues,
-                    backgroundColor:colours,
-                    borderColor:"#FFFFFF",
-                    borderWidth:2
+    data:fwdValues,
 
-                }]
+    backgroundColor:[
+        "#073590",
+        "#1E4FB3",
+        "#3B82F6",
+        "#60A5FA",
+        "#FDB813"
+    ],
+
+    hoverOffset:18,
+
+    borderColor:"#FFFFFF",
+
+    borderWidth:3
+
+}]
 
             },
 
             options:{
 
-                responsive:true,
+    responsive:true,
 
-                maintainAspectRatio:false,
+    maintainAspectRatio:true,
 
-                animation:{
-                    duration:1200,
-                    easing:"easeOutQuart"
-                },
+    aspectRatio:1.6,
 
-                plugins:{
+    cutout:"68%",
 
-    legend:{
-        position:"bottom",
-        labels:{
-            color:"#073590",
-            padding:18,
-            font:{
-                weight:"600"
-            }
-        }
-    },
+    radius:"82%",
 
-    tooltip:{
+    animation:{
 
-        backgroundColor:"#07225B",
+        duration:1200,
 
-        titleColor:"#fff",
-
-        bodyColor:"#fff",
-
-        cornerRadius:10,
-
-        callbacks:{
-
-            label:function(context){
-
-                return context.label + ": " +
-                       Number(context.raw).toFixed(2) + "%";
-
-            }
-
-        }
+        easing:"easeOutQuart"
 
     },
 
-    datalabels:{
+    plugins:{
 
-        color:"#ffffff",
+        legend:{
 
-        formatter:function(value){
+            position:"bottom",
 
-            return Number(value).toFixed(1) + "%";
+            align:"center",
+
+            labels:{
+
+                usePointStyle:true,
+
+                pointStyle:"circle",
+
+                boxWidth:10,
+
+                boxHeight:10,
+
+                padding:18,
+
+                color:"#073590",
+
+                font:{
+
+                    size:13,
+
+                    weight:"600"
+
+                }
+
+            }
 
         },
 
-        font:{
-            weight:"bold",
-            size:14
+        tooltip:{
+
+            backgroundColor:"#07225B",
+
+            callbacks:{
+
+                label:function(context){
+
+                    const total =
+                        context.dataset.data.reduce((a,b)=>a+b,0);
+
+                    const percentage =
+                        ((context.raw/total)*100).toFixed(1);
+
+                    return [
+
+                        context.label,
+
+                        "Events: " + context.raw,
+
+                        "Share: " + percentage + "%"
+
+                    ];
+
+                }
+
+            }
+
+        },
+
+        datalabels:{
+
+            color:"#FFFFFF",
+
+            font:{
+
+                size:13,
+
+                weight:"700"
+
+            },
+
+            formatter:function(value,context){
+
+    if(value === 0) return "";
+
+    const total =
+        context.dataset.data.reduce((a,b)=>a+b,0);
+
+    return ((value/total)*100).toFixed(1)+"%";
+
+}
+
         }
 
     }
 
 }
 
-            }
-
         }
 
     );
+
+
 
     countryNsChart = new Chart(
 
@@ -5600,100 +7535,766 @@ nsValues.push(
 
         {
 
-            type:"pie",
+            type:"doughnut",
 
             data:{
 
-                labels,
+                labels:labels,
 
                 datasets:[{
 
-                    data:nsValues,
-                    backgroundColor:colours,
-                    borderColor:"#FFFFFF",
-                    borderWidth:2
+    data:nsValues,
 
-                }]
+    backgroundColor:[
+        "#073590",
+        "#1E4FB3",
+        "#3B82F6",
+        "#60A5FA",
+        "#FDB813"
+    ],
+
+    hoverOffset:18,
+
+    borderColor:"#FFFFFF",
+
+    borderWidth:3
+
+}]
 
             },
 
             options:{
 
-                responsive:true,
+    responsive:true,
 
-                maintainAspectRatio:false,
+    maintainAspectRatio:true,
 
-                animation:{
-                    duration:1200,
-                    easing:"easeOutQuart"
-                },
+    aspectRatio:1.6,
 
-                plugins:{
+    cutout:"68%",
 
-    legend:{
-        position:"bottom",
-        labels:{
-            color:"#073590",
-            padding:18,
-            font:{
-                weight:"600"
-            }
-        }
-    },
+    radius:"82%",
 
-    tooltip:{
+    animation:{
 
-        backgroundColor:"#07225B",
+        duration:1200,
 
-        titleColor:"#fff",
-
-        bodyColor:"#fff",
-
-        cornerRadius:10,
-
-        callbacks:{
-
-            label:function(context){
-
-                return context.label + ": " +
-                       Number(context.raw).toFixed(2) + "%";
-
-            }
-
-        }
+        easing:"easeOutQuart"
 
     },
 
-    datalabels:{
+    plugins:{
 
-        color:"#ffffff",
+        legend:{
 
-        formatter:function(value){
+            position:"bottom",
 
-            return Number(value).toFixed(1) + "%";
+            align:"center",
+
+            labels:{
+
+                usePointStyle:true,
+
+                pointStyle:"circle",
+
+                boxWidth:10,
+
+                boxHeight:10,
+
+                padding:18,
+
+                color:"#073590",
+
+                font:{
+
+                    size:13,
+
+                    weight:"600"
+
+                }
+
+            }
 
         },
 
-        font:{
-            weight:"bold",
-            size:14
+        tooltip:{
+
+            backgroundColor:"#07225B",
+
+            callbacks:{
+
+                label:function(context){
+
+                    const total =
+                        context.dataset.data.reduce((a,b)=>a+b,0);
+
+                    const percentage =
+                        ((context.raw/total)*100).toFixed(1);
+
+                    return [
+
+                        context.label,
+
+                        "Events: " + context.raw,
+
+                        "Share: " + percentage + "%"
+
+                    ];
+
+                }
+
+            }
+
+        },
+
+        datalabels:{
+
+            color:"#FFFFFF",
+
+            font:{
+
+                size:13,
+
+                weight:"700"
+
+            },
+
+            formatter:function(value,context){
+
+    if(value === 0) return "";
+
+    const total =
+        context.dataset.data.reduce((a,b)=>a+b,0);
+
+    return ((value/total)*100).toFixed(1)+"%";
+
+}
+
         }
 
     }
 
 }
 
-            }
-
         }
 
     );
+
+
+}
+
+window.dashboardPeriod = function(){
+
+    const selector = document.getElementById("dashboardPeriod");
+
+    console.log("Mudou!");
+    console.log(selector.value);
+
+    const [year, month] =
+        selector.value.split("-").map(Number);
+
+    updateFWDDashboard(year, month);
+
+};
+
+function getRegionalDelayStats(country){
+
+    const result = {
+
+        delayCodes:{},
+
+        delayGroups:{}
+
+    };
+
+
+    if(country==="ALL"){
+
+
+        Object.values(stats.countryStats)
+        .forEach(c=>{
+
+
+            Object.entries(c.delayCodes || {})
+            .forEach(([code,count])=>{
+
+                result.delayCodes[code] =
+                (result.delayCodes[code] || 0)+count;
+
+            });
+
+
+            Object.entries(c.delayGroups || {})
+            .forEach(([group,count])=>{
+
+                result.delayGroups[group] =
+                (result.delayGroups[group] || 0)+count;
+
+            });
+
+
+        });
+
+
+    }else{
+
+
+        const c = stats.countryStats[country];
+
+        if(c){
+
+            result.delayCodes =
+                c.delayCodes || {};
+
+            result.delayGroups =
+                c.delayGroups || {};
+
+        }
+
+    }
+
+
+    return result;
 
 }
 
 // ======================================
 // REGIONAL OVERVIEW CHART
 // ======================================
+
+// ======================================
+// UPDATE REGIONAL DELAY CHARTS
+// ======================================
+
+function updateRegionalDelayCharts(country = "ALL"){
+
+
+    // ===============================
+    // GET DATA SOURCE
+    // ===============================
+
+    let delayCodes = {};
+    let delayGroups = {};
+
+
+    if(country === "ALL"){
+
+
+        Object.values(stats.countryStats)
+        .forEach(c=>{
+
+
+            Object.entries(c.delayCodes || {})
+            .forEach(([code,value])=>{
+
+                delayCodes[code] =
+                    (delayCodes[code] || 0) + value;
+
+            });
+
+
+
+            Object.entries(c.delayGroups || {})
+            .forEach(([group,value])=>{
+
+                delayGroups[group] =
+                    (delayGroups[group] || 0) + value;
+
+            });
+
+
+        });
+
+
+    }else{
+
+
+        const countryData =
+            stats.countryStats[country];
+
+
+        if(countryData){
+
+
+            delayCodes =
+                countryData.delayCodes || {};
+
+
+            delayGroups =
+                countryData.delayGroups || {};
+
+
+        }
+
+    }
+
+
+
+    // ===============================
+    // DESTROY OLD CHARTS
+    // ===============================
+
+    if(
+        regionalDelayCodesChart &&
+        typeof regionalDelayCodesChart.destroy === "function"
+    ){
+
+        regionalDelayCodesChart.destroy();
+
+    }
+
+
+    if(
+        regionalDelayGroupsChart &&
+        typeof regionalDelayGroupsChart.destroy === "function"
+    ){
+
+        regionalDelayGroupsChart.destroy();
+
+    }
+
+
+
+    // ===============================
+    // DELAY CODE DATA
+    // ===============================
+
+    const codeLabels = [];
+    const codeValues = [];
+
+
+    Object.entries(delayCodes)
+
+    .sort((a,b)=>b[1]-a[1])
+
+    .forEach(([code,value])=>{
+
+
+        codeLabels.push(
+
+            `${IATA_DELAY_CODES[code] || "Unknown"} (${code})`
+
+        );
+
+
+        codeValues.push(value);
+
+
+    });
+
+
+
+    // ===============================
+    // DELAY GROUP DATA
+    // ===============================
+
+    const groupLabels = [];
+    const groupValues = [];
+
+
+    Object.entries(delayGroups)
+
+    .sort((a,b)=>b[1]-a[1])
+
+    .forEach(([group,value])=>{
+
+
+        groupLabels.push(group);
+
+        groupValues.push(value);
+
+
+    });
+
+// ======================================
+// REGIONAL DELAY CODES CHART
+// ======================================
+
+const executiveColors = getExecutiveColors(codeLabels.length);
+
+const codeCanvas =
+    document.getElementById(
+        "regionalDelayCodesChart"
+    );
+
+
+if(codeCanvas){
+
+
+    regionalDelayCodesChart = new Chart(
+
+        codeCanvas,
+
+        {
+
+
+            type:"bar",
+
+
+            data:{
+
+
+                labels:codeLabels,
+
+
+                datasets:[{
+
+    data:codeValues,
+
+backgroundColor:"#FDB813",
+
+hoverBackgroundColor:"#073590",
+
+    borderRadius:8,
+borderSkipped:false,
+
+barThickness:18,
+maxBarThickness:18,
+
+categoryPercentage:0.72,
+barPercentage:0.88,
+
+hoverBorderWidth:2,
+hoverBorderColor:"#FFFFFF"
+
+}]
+
+
+            },
+
+
+            options:{
+
+    responsive:true,
+
+    maintainAspectRatio:false,
+
+    indexAxis:"y",
+
+    animation:{
+        duration:1000,
+        easing:"easeOutQuart"
+    },
+
+    interaction:{
+        mode:"nearest",
+        intersect:false
+    },
+
+    plugins:{
+
+        legend:{
+            display:false
+        },
+
+        tooltip:{
+
+            padding:14,
+
+            callbacks:{
+
+                title:(context)=>context[0].label,
+
+                label:(context)=>{
+
+    const dataset =
+        context.dataset.data;
+
+    const total =
+        dataset.reduce((a,b)=>a+b,0);
+
+    const percentage =
+        total > 0
+        ? ((context.raw / total) * 100).toFixed(1)
+        : 0;
+
+    return [
+
+        "Count: " + context.raw.toLocaleString(),
+
+        "Share: " + percentage + "%"
+
+    ];
+
+}
+
+            }
+
+        }
+
+    },
+
+layout:{
+    padding:{
+        left:40
+    }
+},
+
+    scales:{
+
+        x:{
+
+            beginAtZero:true,
+
+            grace:"8%",
+
+            grid:{
+    color:"rgba(15,23,42,.05)",
+    drawBorder:false
+},
+
+            ticks:{
+    color:"#0B2E73",
+    font:{
+        size:14,
+        weight:"600"
+    }
+}
+
+        },
+
+        y:{
+        ticks:{
+            padding:10,
+            color:"#073590",
+            font:{
+                size:13,
+                weight:"700"
+            }
+        },
+        grid:{
+            display:false
+        }
+    }
+
+    }
+
+}
+
+
+        }
+
+    );
+
+
+}
+
+// ======================================
+// REGIONAL DELAY GROUPS CHART
+// ======================================
+
+
+const groupCanvas =
+    document.getElementById(
+        "regionalDelayGroupsChart"
+    );
+
+
+if(groupCanvas){
+
+
+    regionalDelayGroupsChart = new Chart(
+
+        groupCanvas,
+
+        {
+
+
+            type:"doughnut",
+
+
+            data:{
+
+
+                labels:groupLabels,
+
+
+                datasets:[{
+
+    data:groupValues,
+
+    backgroundColor:[
+        "#073590",
+        "#FDB813",
+        "#3B82F6",
+        "#60A5FA",
+        "#93C5FD",
+        "#BFDBFE",
+        "#E5E7EB",
+        "#CBD5E1"
+    ],
+
+    hoverOffset:18,
+
+    borderColor:"#FFFFFF",
+
+    borderWidth:3
+
+}]
+
+
+            },
+
+
+            options:{
+
+
+                responsive:true,
+
+
+                maintainAspectRatio:false,
+
+
+                cutout:"72%",
+radius:"88%",
+
+
+                animation:{
+
+
+                    duration:1200,
+
+
+                    easing:"easeOutQuart"
+
+
+                },
+
+
+                plugins:{
+
+
+                    legend:{
+
+    position:"right",
+
+    align:"center",
+
+    labels:{
+
+        usePointStyle:true,
+
+        pointStyle:"circle",
+
+        boxWidth:12,
+
+        boxHeight:12,
+
+        padding:18,
+
+        color:"#073590",
+
+        font:{
+
+            size:13,
+
+            weight:"600"
+
+        }
+
+    }
+
+},
+
+
+                    tooltip:{
+
+
+                        backgroundColor:"#07225B",
+
+
+                        callbacks:{
+
+
+                            label:function(context){
+
+    const total =
+        context.dataset.data.reduce((a,b)=>a+b,0);
+
+    const percentage =
+        ((context.raw/total)*100).toFixed(1);
+
+    return [
+
+        context.label,
+
+        "Events: " + context.raw,
+
+        "Share: " + percentage + "%"
+
+    ];
+
+}
+
+
+                        }
+
+
+                    },
+
+
+                    datalabels:{
+
+
+                        color:"#FFFFFF",
+
+
+                        font:{
+
+
+                            weight:"700",
+
+
+                            size:14
+
+
+                        },
+
+
+                        formatter:function(value,context){
+
+
+                            const total =
+                            context.dataset.data
+                            .reduce(
+                                (a,b)=>a+b,
+                                0
+                            );
+
+
+                            return (
+
+                                value /
+                                total *
+                                100
+
+                            )
+                            .toFixed(0)
+                            +
+                            "%";
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+
+            }
+
+
+        }
+
+    );
+
+
+}
+    
+
+}
 
 function updateRegionalChart(){
 
@@ -5788,9 +8389,17 @@ element.onmouseleave = () => {
 
 element.onclick = () => {
 
+
     selectedCountry = country;
 
+
     updateRegionalCards(country);
+
+
+    updateRegionalDelayCharts(country);
+
+
+    updateRegionalTopDelay(country);
 
     const label = document.getElementById("selectedCountryLabel");
 
@@ -5812,7 +8421,14 @@ element.onclick = () => {
     };
 
     paintMap();
-    updateRegionalPieCharts();
+
+updateRegionalPieCharts();
+
+updateRegionalDelayCharts("ALL");
+
+updateRegionalCards("ALL");
+
+updateRegionalTopDelay("ALL");
 
 }
 
@@ -5833,6 +8449,166 @@ updateRegionalChart();
 
         }))
     );
+
+// ======================================
+// UPDATE REGIONAL TOP DELAY CODE
+// ======================================
+
+function updateRegionalTopDelay(country){
+
+    let delayStats = {};
+
+
+    if(country === "ALL"){
+
+
+        Object.values(stats.countryStats)
+        .forEach(c=>{
+
+
+            Object.entries(c.delayCodes || {})
+            .forEach(([code,count])=>{
+
+
+                delayStats[code] =
+
+                    (delayStats[code] || 0) + count;
+
+
+            });
+
+
+        });
+
+
+    }else{
+
+
+        const data = stats.countryStats[country];
+
+
+        if(data && data.delayCodes){
+
+            delayStats = data.delayCodes;
+
+        }
+
+    }
+
+
+
+    const ranking =
+
+        Object.entries(delayStats)
+
+        .sort((a,b)=>b[1]-a[1]);
+
+
+
+    const top = ranking[0];
+
+
+
+    const element =
+        document.getElementById("countryTopDelay");
+
+
+
+    if(!element) return;
+
+
+
+    if(!top){
+
+        element.innerHTML = "-";
+
+        return;
+
+    }
+
+
+
+    element.innerHTML = `
+
+        <div style="
+            font-size:18px;
+            font-weight:700;
+        ">
+
+            ${IATA_DELAY_CODES[top[0]]}
+
+        </div>
+
+
+        <div style="
+            font-size:13px;
+            margin-top:5px;
+            color:#073590;
+        ">
+
+            IATA Code ${top[0]}
+
+        </div>
+
+
+        <div style="
+            font-size:12px;
+            margin-top:4px;
+            color:#7A8599;
+        ">
+
+            ${top[1]} occurrences
+
+        </div>
+
+    `;
+
+
+}
+
+// ======================================
+// RESET REGIONAL VIEW
+// ======================================
+
+document
+.getElementById("resetCountry")
+.onclick = () => {
+
+
+    selectedCountry = "ALL";
+
+
+    updateRegionalCards("ALL");
+
+
+    updateRegionalDelayCharts("ALL");
+
+
+    updateRegionalTopDelay("ALL");
+
+
+
+    const label =
+        document.getElementById("selectedCountryLabel");
+
+
+    if(label){
+
+        label.textContent =
+            "ALL COUNTRIES";
+
+    }
+
+    document.querySelectorAll("#map svg path").forEach(c=>{
+
+        c.style.stroke="#ffffff";
+
+        c.style.strokeWidth="0.8";
+
+    });
+
+
+};
 
 // ======================================
 // BASE PERFORMANCE
@@ -6182,11 +8958,77 @@ document.getElementById("activeBases").textContent =
 document.getElementById("activeDays").textContent =
     stats.activeDays;
 
-document.getElementById("fwdAverage").textContent =
-    stats.averageFWDPerBase.toFixed(2);
+// ======================================
+// MOST FREQUENT DELAY CODE
+// ======================================
 
-document.getElementById("averageNightStops").textContent =
-    stats.averageNightStopsPerBase.toFixed(2);
+document.getElementById("topDelayCode").innerHTML =
+
+    stats.topDelayCode
+
+        ? `
+            <div style="
+    font-size:22px;
+    font-weight:700;
+    line-height:1.3;
+">
+
+    ${stats.topDelayCode.description}
+
+</div>
+
+<div style="
+    font-size:15px;
+    margin-top:8px;
+    color:#073590;
+    font-weight:600;
+">
+
+    Code ${stats.topDelayCode.code} • ${stats.topDelayCode.group}
+
+</div>
+
+            <div style="
+                font-size:13px;
+                color:#7A8599;
+                margin-top:6px;
+            ">
+                ${stats.topDelayCode.count} occurrence(s)
+            </div>
+        `
+
+        : "-";
+
+// ======================================
+// MAIN DELAY GROUP
+// ======================================
+
+document.getElementById("topDelayGroup").innerHTML =
+
+    stats.topDelayGroup
+
+        ? `
+            <div style="font-size:24px;font-weight:700;">
+                ${stats.topDelayGroup.group}
+            </div>
+
+            <div style="
+                font-size:15px;
+                margin-top:8px;
+            ">
+                ${stats.topDelayGroup.percentage.toFixed(1)}%
+            </div>
+
+            <div style="
+                font-size:13px;
+                color:#7A8599;
+                margin-top:6px;
+            ">
+                ${stats.topDelayGroup.count} occurrence(s)
+            </div>
+        `
+
+        : "-";
 
 // ======================================
 // COUNTRY SUMMARY TABLE
@@ -6321,9 +9163,7 @@ updateBasePerformance();
 
 updateBaseAnalysis();
 
-
 }
-
 // ======================================
 // BASE ANALYSIS
 // ======================================
@@ -6674,8 +9514,6 @@ baseHistoryChart = new Chart(ctx,{
 // OPERATIONAL TRENDS
 // ======================================
 
-let trendChart = null;
-
 async function updateOperationalTrends(){
 
     const selector =
@@ -6829,13 +9667,13 @@ const ctx = document
 
 if(!ctx) return;
 
-if(trendChart){
+if(operationalTrendChart){
 
-    trendChart.destroy();
+    operationalTrendChart.destroy();
 
 }
 
-trendChart = new Chart(ctx,{
+operationalTrendChart = new Chart(ctx,{
 
     type:"line",
 
