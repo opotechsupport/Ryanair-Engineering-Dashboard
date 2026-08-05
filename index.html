@@ -233,6 +233,50 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<style>
+
+#regionalSVG g,
+#regionalSVG path{
+    cursor:pointer;
+    transition:.25s;
+    transform-box:fill-box;
+    transform-origin:center;
+}
+
+/* País selecionado */
+#regionalSVG .selected-country{
+
+    fill:#FDB813 !important;
+
+    stroke:#073590 !important;
+
+    stroke-width:2.8;
+
+    opacity:1 !important;
+
+}
+
+/* Restantes países */
+#regionalSVG .inactive-country{
+    fill:#DCE8F8 !important;
+    opacity:.45;
+}
+
+/* Hover */
+#regionalSVG g:hover{
+
+    filter:brightness(.95);
+
+}
+
+#regionalSVG path:hover{
+
+    filter:brightness(.95);
+
+}
+</style>
+
 </head>
 
 <body>
@@ -1191,7 +1235,7 @@ window.loadDayFromFirebase = function(year, month, day){
 .insight-section,
 .explorer-section{
 
-    margin-bottom:32px;
+    margin-bottom:22px;
 
 }
 
@@ -2064,7 +2108,7 @@ border-left:8px solid #F1C400;
 
     width:100%;
 
-    height:320px !important;
+    height:560px !important;
 
 }
 
@@ -2116,7 +2160,7 @@ border-left:8px solid #F1C400;
 
 #trendChart{
 
-    height:300px !important;
+    height:520px !important;
 
 }
 
@@ -2448,12 +2492,41 @@ min-height:165px;
 
 }
 
-.pie-card{
+.pie-card canvas{
 
-    background:#fff;
-    border-radius:18px;
-    padding:24px;
-    box-shadow:0 8px 20px rgba(7,53,144,.08);
+    width:100% !important;
+
+    max-width:360px;
+
+    aspect-ratio:1 / 1;
+
+    display:block;
+
+    margin:0 auto;
+
+}
+
+.pie-chart-wrapper{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    width:100%;
+
+    margin-top:20px;
+
+}
+
+.pie-chart-size{
+
+    width:380px;
+
+    height:380px;
+
+    max-width:100%;
 
 }
 
@@ -2469,8 +2542,116 @@ min-height:165px;
 
 .pie-card canvas{
 
-    height:360px !important;
     width:100% !important;
+
+}
+
+.zero-filter{
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:8px;
+
+    font-size:13px;
+    font-weight:600;
+    color:#6B778C;
+
+}
+
+.zero-filter input{
+
+    width:16px;
+    height:16px;
+    accent-color:#073590;
+    cursor:pointer;
+
+}
+
+.ranking-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:18px;
+
+}
+
+.ranking-title{
+
+    font-size:18px;
+    font-weight:700;
+    color:#07225B;
+
+}
+
+.zero-toggle{
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    font-size:13px;
+    font-weight:600;
+    color:#6B778C;
+
+    user-select:none;
+    cursor:pointer;
+
+}
+
+.zero-toggle input{
+
+    width:16px;
+    height:16px;
+
+    accent-color:#073590;
+}
+
+.base-header{
+
+    margin-top:32px;
+
+}
+
+.section-header{
+
+    margin-bottom:22px;
+
+}
+
+.section-header h2{
+
+    margin:0;
+    font-size:24px;
+    font-weight:700;
+    color:#07225B;
+
+}
+
+.section-header::after{
+
+    content:"";
+    display:block;
+
+    width:90px;
+    height:5px;
+
+    margin-top:10px;
+
+    background:#FDB813;
+    border-radius:10px;
+
+}
+
+.section-header span{
+
+    display:block;
+    margin-top:10px;
+
+    color:#7D8CA3;
+    font-size:15px;
 
 }
 
@@ -2710,7 +2891,7 @@ onclick="openActiveDaysModal()">
 <!-- REGIONAL OVERVIEW -->
 <!-- ===================================================== -->
 
-<section class="region-section">
+<section class="region-section" >
 
     <div class="region-header">
 
@@ -2813,9 +2994,9 @@ onclick="openActiveDaysModal()">
 
     <div style="
         display:grid;
-        grid-template-columns: 1.15fr 1.35fr;
+        grid-template-columns: 0.95fr 1.55fr;
         gap:28px;
-        align-items:center;
+        align-items:start;
         margin-bottom:30px;
     ">
 
@@ -2831,30 +3012,75 @@ onclick="openActiveDaysModal()">
                 justify-content:flex-start;
                 align-items:center;
                 padding-right: 20px;
-                margin-right: -200px;
+                margin-right: 0px;
             ">
 
-            <div id="regionalMap" style="width:100%;height:100%;">
+            <div id="regionalMap" style="width:88%;height:100%;margin:auto;">
 
 <svg id="regionalSVG"
      xmlns="http://www.w3.org/2000/svg"
      viewBox="935 165 120 210"
      preserveAspectRatio="xMidYMid meet"
      style="
-    width:100%;
-    height:100%;
+    width:92%;
+    height:92%;
     overflow:visible;
+    transform:translate(95px,-5px);
 ">
+
+<g
+fill="#FDB813"
+stroke="#FFFFFF"
+stroke-width="0.35">
 
 <path id="Belgium" d="M1016.5 177.1l-0.4 4.2-1.3 0.2-0.4 3.5-4.4-2.9-2.5 0.5-3.5-2.9-2.4-2.5-2.2-0.1-0.8-2.2 3.9-1.2 3.6 0.5 4.5-1.3 3.1 2.7 2.8 1.5z"/>
 
 <path id="Morocco" d="M974.8 276l1.9 4.1 0.3 3.9 1.9 6.8 1.4 1.4-1 2.5-7.1 1.1-2.5 2.3-3.1 0.6-0.3 4.8-6.4 2.5-2.1 3.2-4.5 1.7-5.4 1-8.9 4.8-0.1 7.6-0.9 0 0.1 3.4-3.4 0.2-1.8 1.5-2.5 0-2-0.9-4.6 0.7-1.9 5-1.8 0.5-2.7 8.1-7.9 6.9-2 8.9-2.4 2.9-0.7 2.3-12.5 0.5-0.1 0 0.3-3 2.2-1.7 1.9-3.4-0.3-2.2 2-4.5 3.2-4.1 1.9-1 1.6-3.7 0.2-3.5 2.1-3.9 3.8-2.4 3.6-6.5 0.1-0.1 2.9-2.5 5.1-0.7 4.4-4.4 2.8-1.7 4.7-5.4-1.2-7.9 2.2-5.6 0.9-3.4 3.6-4.3 5.4-2.9 4.1-2.7 3.7-6.6 1.8-4 3.9 0.1 3.1 2.7 5.1-0.4 5.5 1.4 2.4 0z"/>
 
-<path id="Portugal" d="M946.9 263.7l-2.2 1.6-2.8-0.9-2.7 0.7 0.9-5-0.3-3.9-2.4-0.6-1.1-2.4 0.5-4.2 2.2-2.3 0.5-2.6 1.2-3.8 0-2.7-0.9-2.3-0.2-2.2 1.9-1.6 2.2-0.9 1.2 3.1 3 0 0.9-0.8 3.1 0.2 1.3 3.2-2.4 1.7-0.3 5-0.8 0.9-0.3 3.1-2.3 0.5 2 3.8-1.6 4.2 1.8 1.9-0.8 1.7-2 2.4 0.4 2.2z"/>
+<g id="Portugal">
 
-<path id="Spain" d="M976.6 223.4l2 2.4 9.5 2.9 1.9-1.4 5.8 2.9 5.9-0.8 0.4 3.7-4.9 4.2-6.6 1.4-0.5 2.1-3.2 3.5-2 5.2 2 3.7-3 2.8-1.2 4.2-4 1.3-3.7 4.9-6.8 0.1-5-0.1-3.4 2.2-2.1 2.4-2.6-0.5-1.9-2.2-1.4-3.6-4.9-1-0.4-2.2 2-2.4 0.8-1.7-1.8-1.9 1.6-4.2-2-3.8 2.3-0.5 0.3-3.1 0.8-0.9 0.3-5 2.4-1.7-1.3-3.2-3.1-0.2-0.9 0.8-3 0-1.2-3.1-2.2 0.9-1.9 1.6 0.5-4.5-2-2.7 7.4-4.6 6.2 1.1 6.9 0 5.4 1.1 4.3-0.4 8.3 0.3z"/>
+<path d="M946.9 263.7l-2.2 1.6-2.8-0.9-2.7 0.7 0.9-5-0.3-3.9-2.4-0.6-1.1-2.4 0.5-4.2 2.2-2.3 0.5-2.6 1.2-3.8 0-2.7-0.9-2.3-0.2-2.2 1.9-1.6 2.2-0.9 1.2 3.1 3 0 0.9-0.8 3.1 0.2 1.3 3.2-2.4 1.7-0.3 5-0.8 0.9-0.3 3.1-2.3 0.5 2 3.8-1.6 4.2 1.8 1.9-0.8 1.7-2 2.4 0.4 2.2z"/>
 
-<path id="France" d="M1014.4 185 1015.5 185.5 1016.9 185.4 1019.3 187 1026.5 188.2 1024.1 192.4 1023.7 196.9 1022.4 198 1020.1 197.4 1020.3 199 1016.7 202.5 1016.7 205.4 1019.1 204.4 1020.9 207.1 1020.8 208.9 1022.3 211.3 1020.6 213.2 1022.1 218.1 1024.9 218.9 1024.4 221.6 1019.9 225.2 1009.7 223.5 1002.3 225.6 1001.7 229.4 995.8 230.2 990 227.3 988.1 228.7 978.6 225.8 976.6 223.4 979.3 219.6 980.3 207 975.2 200.4 971.5 197.2 963.9 194.8 963.5 190.2 970 188.9 978.3 190.5 976.8 183.4 981.5 186.1 992.9 181.3 994.4 176.2 998.6 174.9 999.4 177.1 1001.6 177.2 1004 179.7 1007.5 182.6 1010 182.1 1014.4 185z"/>
+<!-- Açores -->
+<ellipse cx="845" cy="246" rx="1.6" ry="0.8"/>
+<ellipse cx="850" cy="247" rx="1.3" ry="0.7"/>
+<ellipse cx="855" cy="248" rx="1.2" ry="0.7"/>
+<ellipse cx="861" cy="249" rx="1.5" ry="0.8"/>
+<ellipse cx="867" cy="250" rx="1.2" ry="0.6"/>
+
+<!-- Madeira -->
+<ellipse cx="936" cy="284" rx="1.8" ry="0.9"/>
+<ellipse cx="939" cy="285" rx="0.8" ry="0.5"/>
+</g>
+
+<g id="Spain">
+
+<path d="M976.6 223.4l2 2.4 9.5 2.9 1.9-1.4 5.8 2.9 5.9-0.8 0.4 3.7-4.9 4.2-6.6 1.4-0.5 2.1-3.2 3.5-2 5.2 2 3.7-3 2.8-1.2 4.2-4 1.3-3.7 4.9-6.8 0.1-5-0.1-3.4 2.2-2.1 2.4-2.6-0.5-1.9-2.2-1.4-3.6-4.9-1-0.4-2.2 2-2.4 0.8-1.7-1.8-1.9 1.6-4.2-2-3.8 2.3-0.5 0.3-3.1 0.8-0.9 0.3-5 2.4-1.7-1.3-3.2-3.1-0.2-0.9 0.8-3 0-1.2-3.1-2.2 0.9-1.9 1.6 0.5-4.5-2-2.7 7.4-4.6 6.2 1.1 6.9 0 5.4 1.1 4.3-0.4 8.3 0.3z"/>
+
+<!-- Baleares -->
+<ellipse cx="998" cy="259" rx="1.6" ry="0.8"/>
+<ellipse cx="1001" cy="261" rx="0.9" ry="0.6"/>
+<ellipse cx="1003" cy="258.5" rx="0.7" ry="0.4"/>
+
+<!-- Canárias -->
+<ellipse cx="892" cy="318" rx="1.6" ry="0.8"/>
+<ellipse cx="896" cy="319" rx="1.3" ry="0.8"/>
+<ellipse cx="900" cy="320" rx="1.2" ry="0.7"/>
+<ellipse cx="904" cy="319" rx="1.4" ry="0.8"/>
+<ellipse cx="908" cy="317" rx="1.2" ry="0.7"/>
+<ellipse cx="911" cy="316" rx="1.0" ry="0.6"/>
+<ellipse cx="914" cy="315" rx="0.8" ry="0.5"/>
+
+</g>
+
+<g id="France">
+
+<path d="M1014.4 185 1015.5 185.5 1016.9 185.4 1019.3 187 1026.5 188.2 1024.1 192.4 1023.7 196.9 1022.4 198 1020.1 197.4 1020.3 199 1016.7 202.5 1016.7 205.4 1019.1 204.4 1020.9 207.1 1020.8 208.9 1022.3 211.3 1020.6 213.2 1022.1 218.1 1024.9 218.9 1024.4 221.6 1019.9 225.2 1009.7 223.5 1002.3 225.6 1001.7 229.4 995.8 230.2 990 227.3 988.1 228.7 978.6 225.8 976.6 223.4 979.3 219.6 980.3 207 975.2 200.4 971.5 197.2 963.9 194.8 963.5 190.2 970 188.9 978.3 190.5 976.8 183.4 981.5 186.1 992.9 181.3 994.4 176.2 998.6 174.9 999.4 177.1 1001.6 177.2 1004 179.7 1007.5 182.6 1010 182.1 1014.4 185z"/>
+
+<!-- Córsega -->
+<ellipse cx="1018" cy="241" rx="1.7" ry="3.3"/>
+
+</g>
 
 </svg>
 
@@ -2870,6 +3096,7 @@ onclick="openActiveDaysModal()">
                 display:grid;
                 grid-template-columns:2.5fr .7fr;
                 gap:18px;
+                align-items:start;
             ">
 
                 <!-- DELAY CODES -->
@@ -2879,6 +3106,7 @@ onclick="openActiveDaysModal()">
                     border-radius:18px;
                     padding:20px;
                     box-shadow:0 6px 18px rgba(0,0,0,.08);
+                    align-self:start;
                 ">
 
                     <h3 style="
@@ -2890,18 +3118,25 @@ onclick="openActiveDaysModal()">
                         TOP STANDARD IATA DELAY CODES
                     </h3>
 
-                    <div style="
-    height:520px;
-    width:100%;
-    position:relative;
+<div
+id="regionalDelayCodesSubtitle"
+style="
+margin-top:-8px;
+margin-bottom:18px;
+font-size:13px;
+font-weight:500;
+color:#8A97A8;
+letter-spacing:.3px;
 ">
-    <canvas
-        id="regionalDelayCodesChart"
-        style="
-            width:100% !important;
-            height:100% !important;
-        ">
-    </canvas>
+Loading...
+</div>
+
+                    <div
+    id="regionalDelayCodesTable"
+    style="
+        width:100%;
+        height:auto;
+    ">
 </div>
 
                 </div>
@@ -2946,23 +3181,23 @@ onclick="openActiveDaysModal()">
 
         <div class="pie-card">
 
-            <div class="pie-title">
-                FWD PER COUNTRY (%)
-            </div>
+    <div class="pie-title">
+        FWD PER COUNTRY (%)
+    </div>
 
-            <canvas id="countryFwdChart"></canvas>
+    <canvas id="countryFwdChart"></canvas>
 
-        </div>
+</div>
 
-        <div class="pie-card">
+<div class="pie-card">
 
-            <div class="pie-title">
-                NIGHT-STOP AIRCRAFT PER COUNTRY (%)
-            </div>
+    <div class="pie-title">
+        NIGHT-STOP AIRCRAFT PER COUNTRY (%)
+    </div>
 
-            <canvas id="countryNsChart"></canvas>
+    <canvas id="countryNsChart"></canvas>
 
-        </div>
+</div>
 
     </div>
 
@@ -3076,11 +3311,23 @@ onclick="openActiveDaysModal()">
 
     <div class="base-chart">
 
-        <div class="base-chart-header">
+        <div class="ranking-header">
 
-            Base Ranking
+    <div class="ranking-title">
+        Base Ranking
+    </div>
 
-        </div>
+    <label class="zero-toggle">
+
+        <input
+            type="checkbox"
+            id="showZeroBases">
+
+        Show zero values
+
+    </label>
+
+</div>
 
         <div class="chart-container">
 
@@ -3180,7 +3427,7 @@ onclick="openActiveDaysModal()">
 
     <div class="analysis-title">
 
-        FLEET COMPARISON
+        AVERAGE COMPARISON
 
     </div>
 
@@ -3192,7 +3439,7 @@ onclick="openActiveDaysModal()">
 
     <div class="analysis-subtitle" id="analysisFleetText">
 
-        vs Fleet Average
+        vs SPMFB Region Average
 
     </div>
 
@@ -3214,7 +3461,7 @@ onclick="openActiveDaysModal()">
 
     <div class="analysis-subtitle">
 
-        Position in Fleet
+        Position in SPMFB Region
 
     </div>
 
@@ -3303,7 +3550,7 @@ onclick="openActiveDaysModal()">
 
     <div class="chart-container">
 
-        <div class="chart-wrapper">
+        <div class="chart-wrapper" style="height:520px;">
 
             <canvas id="baseHistoryChart"></canvas>
 
@@ -3319,19 +3566,17 @@ onclick="openActiveDaysModal()">
 <!-- OPERATIONAL TRENDS -->
 <!-- ===================================================== -->
 
+<div class="section-header">
+
+    <h2>Operational Trends</h2>
+
+    <span>Analyse the monthly operational evolution.</span>
+
+</div>
+
 <section class="trend-section">
 
-    <div class="trend-header">
-
-        <h2>Operational Trends</h2>
-
-        <span>Analyse the monthly operational evolution.</span>
-
-    </div>
-
     <div class="trend-filters">
-
-    <div class="trend-filter">
 
         <label>View</label>
 
@@ -3352,12 +3597,12 @@ onclick="openActiveDaysModal()">
     <div class="trend-chart">
 
     <div class="trend-chart-header">
-        Fleet Trend
+        SPMFB Region Trend
     </div>
 
     <div class="chart-container">
 
-        <div style="height:420px;">
+        <div style="height:500px;">
             <canvas id="trendChart"></canvas>
         </div>
 
@@ -3464,7 +3709,7 @@ SELECT REPORTING MONTH
 class="btn btn-green"
 onclick="openExcelImport()">
 
-📊 Excel Import
+Excel Import
 
 </button>
 
@@ -3674,6 +3919,25 @@ function closeImportPopup(){
 
 async function openActiveDaysModal(){
 
+    // Guarda os valores atuais do Import Data
+const monthSelect = document.getElementById("calendarMonth");
+const yearInput = document.getElementById("calendarYear");
+
+const previousMonth = monthSelect.value;
+const previousYear = yearInput.value;
+
+// O modal utiliza sempre o mês do report
+monthSelect.value = currentMonth;
+
+yearInput.value = currentYear;
+
+    if(currentStats?.reportYear){
+
+        yearInput.value = currentStats.reportYear;
+
+    }
+
+    // Gera o calendário para o mês do report
     generateCalendar();
 
     await new Promise(resolve => setTimeout(resolve,50));
@@ -3685,6 +3949,15 @@ async function openActiveDaysModal(){
         document.getElementById("calendarContainer");
 
     container.innerHTML = calendar.innerHTML;
+
+   const topControls = container.querySelector("div[style*='display:flex']");
+
+if(topControls){
+
+    // Esconde completamente a linha dos controlos
+    topControls.style.display = "none";
+
+}
 
     container.querySelectorAll("button").forEach(btn=>{
 
@@ -3703,7 +3976,11 @@ async function openActiveDaysModal(){
 
     });
 
-    document.getElementById("activeDaysModal").style.display="flex";
+    document.getElementById("activeDaysModal").style.display = "flex";
+
+    // Repõe os valores do Import Data
+    monthSelect.value = previousMonth;
+    yearInput.value = previousYear;
 
 }
 
@@ -3851,6 +4128,19 @@ async function toggleBase(code, active){
         await updateFWDDashboard(year,month);
 
     }
+
+}
+
+// ======================================
+// NUMBER FORMATTER
+// ======================================
+
+function formatNumber(value, decimals = 1){
+
+    if(value === null || value === undefined || isNaN(value))
+        return "0";
+
+    return Number(value).toFixed(decimals);
 
 }
 
@@ -5160,23 +5450,23 @@ hoverBorderColor:"#FFFFFF"
 
         x:{
 
-            beginAtZero:true,
+    beginAtZero:true,
 
-            grace:"8%",
+    ticks:{
 
-            grid:{
-    color:"rgba(15,23,42,.05)",
-    drawBorder:false
+        stepSize:1,
+
+        precision:0,
+
+        color:"#6B778C"
+
+    },
+
+    grid:{
+        color:"#EEF2F6"
+    }
+
 },
-
-            ticks:{
-                color:"#64748B",
-                font:{
-                    weight:"600"
-                }
-            }
-
-        },
 
         y:{
 
@@ -5389,9 +5679,9 @@ radius:"88%",
 
         font:{
 
-            size:13,
+            size:15,
 
-            weight:"600"
+            weight:"800"
 
         }
 
@@ -5403,7 +5693,10 @@ radius:"88%",
 
                     datalabels:{
 
+textStrokeColor:"#073590",
 
+textStrokeWidth:2,
+offset:-10,
                         color:"#FFFFFF",
 
 
@@ -7185,7 +7478,7 @@ const nsPerBaseDayElement = document.getElementById("nsPerBaseDay");
 
 if(nsPerBaseDayElement){
 
-    nsPerBaseDayElement.textContent = nsPerBasePerDay.toFixed(2);
+    nsPerBaseDayElement.textContent = nsPerBasePerDay.toFixed(1);
 
 }
 
@@ -7300,7 +7593,7 @@ Object.values(stats.countryStats).forEach(country => {
 
 const overallRate =
     totalCountryNightStops > 0
-        ? (totalCountryFWD / totalCountryNightStops * 100).toFixed(2)
+        ? (totalCountryFWD / totalCountryNightStops * 100).toFixed(1)
         : "0.00";
 
     console.clear();
@@ -7371,9 +7664,9 @@ function updateRegionalCards(country){
     }
 
     const rate =
-        nightStops > 0
-            ? ((fwd / nightStops) * 100).toFixed(2)
-            : "0.00";
+    nightStops > 0
+        ? formatNumber((fwd / nightStops) * 100)
+        : "0.0";
 
     document.getElementById("countryBases").innerText = bases;
 
@@ -7568,11 +7861,11 @@ function updateRegionalPieCharts(country = "ALL"){
 
     maintainAspectRatio:true,
 
-    aspectRatio:1.6,
+    aspectRatio:1,
 
     cutout:"68%",
 
-    radius:"82%",
+    radius:"95%",
 
     animation:{
 
@@ -7606,9 +7899,9 @@ function updateRegionalPieCharts(country = "ALL"){
 
                 font:{
 
-                    size:13,
+                    size:15,
 
-                    weight:"600"
+                    weight:"800"
 
                 }
 
@@ -7647,7 +7940,10 @@ function updateRegionalPieCharts(country = "ALL"){
         },
 
         datalabels:{
+            textStrokeColor:"#073590",
 
+textStrokeWidth:2,
+offset:-10,
             color:"#FFFFFF",
 
             font:{
@@ -7721,11 +8017,11 @@ function updateRegionalPieCharts(country = "ALL"){
 
     maintainAspectRatio:true,
 
-    aspectRatio:1.6,
+    aspectRatio:1,
 
     cutout:"68%",
 
-    radius:"82%",
+    radius:"95%",
 
     animation:{
 
@@ -7759,9 +8055,9 @@ function updateRegionalPieCharts(country = "ALL"){
 
                 font:{
 
-                    size:13,
+                    size:15,
 
-                    weight:"600"
+                    weight:"800"
 
                 }
 
@@ -7800,7 +8096,10 @@ function updateRegionalPieCharts(country = "ALL"){
         },
 
         datalabels:{
+textStrokeColor:"#073590",
 
+textStrokeWidth:2,
+offset:-10,
             color:"#FFFFFF",
 
             font:{
@@ -7839,8 +8138,6 @@ window.dashboardPeriod = function(){
 
     const selector = document.getElementById("dashboardPeriod");
 
-    console.log("Mudou!");
-    console.log(selector.value);
 
     const [year, month] =
         selector.value.split("-").map(Number);
@@ -7913,6 +8210,163 @@ function getRegionalDelayStats(country){
 // ======================================
 // REGIONAL OVERVIEW CHART
 // ======================================
+
+function updateRegionalDelayCodesTable(delayCodes){
+
+    const container =
+        document.getElementById("regionalDelayCodesTable");
+
+    if(!container) return;
+
+    const ranking = Object.entries(delayCodes)
+        .sort((a,b)=>b[1]-a[1]);
+
+    const subtitle =
+    document.getElementById(
+        "regionalDelayCodesSubtitle"
+    );
+
+if(subtitle){
+
+    subtitle.innerHTML =
+
+        `${ranking.length} different delay codes recorded`;
+
+}
+
+    let html = `
+
+<div style="
+border:1px solid #EEF2F6;
+border-radius:14px;
+background:white;
+overflow:hidden;
+">
+
+<table style="
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+">
+
+<thead style="
+position:sticky;
+top:0;
+z-index:10;
+">
+
+<tr style="
+background:linear-gradient(
+90deg,
+#07225B,
+#073590
+);
+color:white;
+">
+
+<th style="padding:14px 18px;text-align:left;width:90px;">
+CODE
+</th>
+
+<th style="padding:14px 18px;text-align:left;">
+DESCRIPTION
+</th>
+
+<th style="padding:14px 18px;text-align:right;width:120px;">
+EVENTS
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+`;
+
+    ranking.forEach(([code,count])=>{
+
+        html += `
+
+<tr
+style="
+border-bottom:1px solid #EEF2F6;
+transition:.2s;
+"
+onmouseover="this.style.background='#FFF9E6'"
+onmouseout="this.style.background='white'"
+>
+
+<td style="padding:12px 18px;">
+
+<span style="
+display:inline-block;
+background:#07225B;
+color:white;
+padding:5px 10px;
+border-radius:8px;
+font-weight:700;
+font-size:13px;
+min-width:42px;
+text-align:center;
+">
+
+${code}
+
+</span>
+
+</td>
+
+<td style="padding:12px 18px;">
+
+<div style="
+font-weight:600;
+color:#07225B;
+line-height:1.25;
+">
+
+${IATA_DELAY_CODES[code] || "Unknown"}
+
+</div>
+
+</td>
+
+<td style="
+padding:12px 18px;
+text-align:right;
+">
+
+<span style="
+font-weight:800;
+font-size:16px;
+color:#FDB813;
+">
+
+${count}
+
+</span>
+
+</td>
+
+</tr>
+
+`;
+
+    });
+
+    html += `
+
+</tbody>
+
+</table>
+
+</div>
+
+`;
+
+    container.innerHTML = html;
+
+}
+
 
 // ======================================
 // UPDATE REGIONAL DELAY CHARTS
@@ -8059,189 +8513,10 @@ function updateRegionalDelayCharts(country = "ALL"){
     });
 
 // ======================================
-// REGIONAL DELAY CODES CHART
+// REGIONAL DELAY CODES TABLE
 // ======================================
 
-const executiveColors = getExecutiveColors(codeLabels.length);
-
-const codeCanvas =
-    document.getElementById(
-        "regionalDelayCodesChart"
-    );
-
-
-if(codeCanvas){
-
-
-    regionalDelayCodesChart = new Chart(
-
-        codeCanvas,
-
-        {
-
-
-            type:"bar",
-
-
-            data:{
-
-
-                labels:codeLabels,
-
-
-                datasets:[{
-
-    data:codeValues,
-
-backgroundColor:"#FDB813",
-
-hoverBackgroundColor:"#073590",
-
-    borderRadius:8,
-borderSkipped:false,
-
-barThickness:18,
-maxBarThickness:18,
-
-categoryPercentage:0.72,
-barPercentage:0.88,
-
-hoverBorderWidth:2,
-hoverBorderColor:"#FFFFFF"
-
-}]
-
-
-            },
-
-
-            options:{
-
-    responsive:true,
-
-    maintainAspectRatio:false,
-
-    indexAxis:"y",
-
-    animation:{
-        duration:1000,
-        easing:"easeOutQuart"
-    },
-
-    interaction:{
-        mode:"nearest",
-        intersect:false
-    },
-
-    plugins:{
-
-        legend:{
-            display:false
-        },
-
-        tooltip:{
-
-            padding:14,
-
-            callbacks:{
-
-                title:(context)=>context[0].label,
-
-                label:(context)=>{
-
-    const dataset =
-        context.dataset.data;
-
-    const total =
-        dataset.reduce((a,b)=>a+b,0);
-
-    const percentage =
-        total > 0
-        ? ((context.raw / total) * 100).toFixed(1)
-        : 0;
-
-    return [
-
-        "Count: " + context.raw.toLocaleString(),
-
-        "Share: " + percentage + "%"
-
-    ];
-
-}
-
-            }
-
-        }
-
-    },
-
-layout:{
-    
-    padding:{
-        left:-40,
-        right:10,
-        top:10,
-        bottom:0
-    }
-},
-
-    scales:{
-
-        x:{
-
-            beginAtZero:true,
-suggestedMax:1.2,
-            grace:"2%",
-
-            grid:{
-    color:"rgba(15,23,42,.05)",
-    drawBorder:false
-},
-
-            ticks:{
-    color:"#0B2E73",
-    font:{
-        size:14,
-        weight:"600"
-    }
-}
-
-        },
-
-        y:{
-    offset:false,
-
-    ticks:{
-
-        padding:4,
-
-        color:"#0B2E73",
-
-        font:{
-            size:15,
-            weight:"700"
-        }
-
-    },
-
-    grid:{
-        display:false
-    }
-
-},
-
-    }
-
-}
-
-
-        }
-
-    );
-
-
-}
+updateRegionalDelayCodesTable(delayCodes);
 
 // ======================================
 // REGIONAL DELAY GROUPS CHART
@@ -8350,9 +8625,9 @@ radius:"96%",
 
         font:{
 
-            size:13,
+            size:15,
 
-            weight:"600"
+            weight:"800"
 
         }
 
@@ -8398,7 +8673,10 @@ radius:"96%",
 
 
                     datalabels:{
+textStrokeColor:"#073590",
 
+textStrokeWidth:2,
+offset:-10,
 
                         color:"#FFFFFF",
 
@@ -8462,19 +8740,13 @@ radius:"96%",
 
 function updateRegionalChart(){
 
-    console.log("updateRegionalChart executada");
-
     const svg = document.getElementById("regionalSVG");
 
 if(!svg) return;
 
 const paintMap = () => {
 
-console.log(svg);
-console.log(svg.getElementById("Portugal"));
-console.log(svg.getElementById("Spain"));
 
-        console.log(stats);
         const metric = null;
 
         let maxValue = 0;
@@ -8504,9 +8776,15 @@ console.log(svg.getElementById("Spain"));
 
         Object.entries(stats.countryStats).forEach(([country,data])=>{
 
-            const element = svg.getElementById(country);
+    const element = svg.getElementById(country);
 
-            if(!element) return;
+    if(!element) return;
+
+    // Se for um grupo (<g>) aplica a todos os elementos internos
+    const shapes =
+        element.tagName.toLowerCase() === "g"
+            ? element.querySelectorAll("path, ellipse")
+            : [element];
 
             let value = 0;
 
@@ -8532,52 +8810,78 @@ element.setAttribute("fill", "#FFC300");
 element.style.transition = "fill .35s ease, opacity .2s ease";
 element.style.cursor = "pointer";
 
-element.onmouseenter = () => {
+element.onmouseenter = ()=>{
 
-    element.style.opacity = "0.9";
-    element.setAttribute("fill", "#E6B000");
-    element.style.stroke = "#073590";
-    element.style.strokeWidth = "2.5";
+    if(element.classList.contains("selected-country"))
+        return;
+
+    element.style.opacity = "0.82";
+
+    element.style.filter =
+        "brightness(1.05)";
 
 };
 
-element.onmouseleave = () => {
+element.onmouseleave = ()=>{
 
-    element.style.opacity = "1";
-    element.setAttribute("fill", "#FFC300");
+    if(element.classList.contains("selected-country"))
+        return;
 
-    element.style.stroke = "#ffffff";
-    element.style.strokeWidth = "0.8";
+    element.style.opacity = "";
+
+    element.style.filter = "";
 
 };
 
 element.onclick = () => {
 
-
     selectedCountry = country;
 
+    updateMapSelection(country);
 
     updateRegionalCards(country);
 
-
     updateRegionalDelayCharts(country);
-
 
     updateRegionalTopDelay(country);
 
-    const label = document.getElementById("selectedCountryLabel");
+    const label =
+        document.getElementById("selectedCountryLabel");
 
     if(label){
-        label.textContent = country.toUpperCase();
+
+        label.textContent =
+            country.toUpperCase();
+
     }
 
-    svg.querySelectorAll("path").forEach(c => {
-        c.style.stroke = "#ffffff";
-        c.style.strokeWidth = "0.8";
+    // Limpa estados anteriores
+    svg.querySelectorAll("#regionalSVG g, #regionalSVG path")
+        .forEach(el=>{
+
+            el.classList.remove("selected-country");
+            el.classList.remove("inactive-country");
+
+        });
+
+    // Todos ficam cinzentos
+    Object.keys(stats.countryStats).forEach(c=>{
+
+        const e = svg.getElementById(c);
+
+        if(e){
+
+            e.classList.add("inactive-country");
+
+        }
+
     });
 
-    element.style.stroke = "#073590";
-    element.style.strokeWidth = "3";
+    // País selecionado
+    element.classList.remove("inactive-country");
+
+    element.classList.add("selected-country");
+
 };
 
         });
@@ -8593,6 +8897,8 @@ updateRegionalDelayCharts("ALL");
 updateRegionalCards("ALL");
 
 updateRegionalTopDelay("ALL");
+
+updateMapSelection("ALL");
 
 }
 
@@ -8613,6 +8919,73 @@ updateRegionalChart();
 
         }))
     );
+
+function updateMapSelection(country = "ALL") {
+
+    const svg = document.getElementById("regionalSVG");
+
+    if (!svg) return;
+
+    Object.keys(stats.countryStats).forEach(name => {
+
+        const element = svg.getElementById(name);
+
+        if (!element) return;
+
+        element.classList.remove("selected-country");
+element.classList.remove("inactive-country");
+
+        const shapes =
+            element.tagName.toLowerCase() === "g"
+                ? element.querySelectorAll("path, ellipse")
+                : [element];
+
+        shapes.forEach(shape => {
+
+            // Estado base
+            shape.classList.remove("selected-country");
+            shape.classList.remove("inactive-country");
+
+            shape.style.filter = "";
+            shape.style.transform = "";
+
+            if (country === "ALL") {
+
+    shape.classList.remove("selected-country");
+    shape.classList.remove("inactive-country");
+
+    shape.style.fill = "#FDB813";
+    shape.style.stroke = "#FFFFFF";
+    shape.style.strokeWidth = "0.8";
+    shape.style.opacity = "1";
+    shape.style.filter = "";
+    shape.style.transform = "";
+
+} else if (name === country) {
+
+                shape.style.fill = "#FDB813";
+                shape.style.stroke = "#073590";
+                shape.style.strokeWidth = "2.8";
+                shape.style.opacity = "1";
+
+                shape.classList.add("selected-country");
+
+            } else {
+
+                shape.style.fill = "#9DBBEF";
+                shape.style.stroke = "#FFFFFF";
+                shape.style.strokeWidth = "0.8";
+                shape.style.opacity = "0.60";
+
+                shape.classList.add("inactive-country");
+
+            }
+
+        });
+
+    });
+
+}
 
 // ======================================
 // UPDATE REGIONAL TOP DELAY CODE
@@ -8741,6 +9114,8 @@ document
 
     selectedCountry = "ALL";
 
+    updateMapSelection("ALL");
+
 
     updateRegionalCards("ALL");
 
@@ -8763,13 +9138,14 @@ document
 
     }
 
-    document.querySelectorAll("#map svg path").forEach(c=>{
+    svg.querySelectorAll("#regionalSVG g, #regionalSVG path")
+.forEach(el=>{
 
-        c.style.stroke="#ffffff";
+    el.classList.remove("selected-country");
 
-        c.style.strokeWidth="0.8";
+    el.classList.remove("inactive-country");
 
-    });
+});
 
 
 };
@@ -8882,10 +9258,51 @@ const selectedDelayGroup =
 document.getElementById("delayGroupFilter").style.display =
     sortBy === "delayGroup" ? "block" : "none";
 
+
+
     let ranking = BASES.map(base => [
     base,
     stats.baseStats[base]
 ]);
+
+const showZero =
+    document.getElementById("showZeroBases").checked;
+
+if(!showZero){
+
+    ranking = ranking.filter(([base,data])=>{
+
+        switch(sortBy){
+
+            case "fwd":
+                return data.fwd > 0;
+
+            case "fwdPerDay":
+                return (data.activeDays ? data.fwd/data.activeDays : 0) > 0;
+
+            case "rate":
+                return data.rate > 0;
+
+            case "nightStops":
+                return data.nightStops > 0;
+
+            case "nightStopsPerDay":
+                return (data.activeDays ? data.nightStops/data.activeDays : 0) > 0;
+
+            case "delayCode":
+                return (data.delayCodes?.[selectedDelayCode] || 0) > 0;
+
+            case "delayGroup":
+                return (data.delayGroups?.[selectedDelayGroup] || 0) > 0;
+
+            default:
+                return true;
+
+        }
+
+    });
+
+}
 
 if(selectedCountry !== "ALL"){
 
@@ -8955,18 +9372,20 @@ case "delayGroup":
                 data.activeDays
                     ? data.fwd / data.activeDays
                     : 0
-            ).toFixed(2)
+            ).toFixed(1)
         );
 
     case "nightStopsPerDay":
-    return Math.round(
-        data.activeDays
-            ? data.nightStops / data.activeDays
-            : 0
-    );
+        return Number(
+            (
+                data.activeDays
+                    ? data.nightStops / data.activeDays
+                    : 0
+            ).toFixed(1)
+        );
 
     case "rate":
-        return Number(data.rate.toFixed(2));
+        return Number(formatNumber(data.rate));
 
 case "delayCode":
 
@@ -9129,16 +9548,25 @@ layout:{
     padding:14,
     cornerRadius:10,
 
-    callbacks:{
-        label:function(context){
+    label:function(context){
 
-            if(document.getElementById("baseSort").value === "nightStopsPerDay"){
-                return Math.round(context.raw);
-            }
+    const metric = document.getElementById("baseSort").value;
+    const value = context.raw;
 
-            return context.formattedValue;
-        }
+    switch(metric){
+
+        case "rate":
+            return value.toFixed(1) + "%";
+
+        case "fwdPerDay":
+        case "nightStopsPerDay":
+            return value.toFixed(1);
+
+        default:
+            return Math.round(value);
     }
+
+}
 },
 
                 datalabels:{
@@ -9153,7 +9581,22 @@ layout:{
     },
 
     formatter:function(value){
-    return Math.round(value);
+
+    const metric = document.getElementById("baseSort").value;
+
+    switch(metric){
+
+        case "rate":
+            return value.toFixed(1) + "%";
+
+        case "fwdPerDay":
+        case "nightStopsPerDay":
+            return value.toFixed(1);
+
+        default:
+            return Math.round(value);
+    }
+
 }
 
 }
@@ -9165,6 +9608,9 @@ layout:{
                 x:{
 
                     beginAtZero:true,
+                    suggestedMax: function(context){
+    return Math.max(...context.chart.data.datasets[0].data) * 1.03;
+},
 
                     grid:{
                         color:"#EEF2F6"
@@ -9198,6 +9644,13 @@ layout:{
     });
 
 }
+
+document
+.getElementById("showZeroBases")
+.addEventListener("change",()=>{
+
+    updateBasePerformance()
+});
 
 const baseCountryFilter =
     document.getElementById("baseCountryFilter");
@@ -9241,7 +9694,7 @@ document.getElementById("totalNightStops").textContent =
     stats.totalNightStops;
 
 document.getElementById("fwdRate").textContent =
-    stats.fwdPercentage.toFixed(2) + "%";
+    formatNumber(stats.fwdPercentage) + "%";
 
 document.getElementById("activeBases").textContent =
     stats.activeBases;
@@ -9577,17 +10030,17 @@ const fleetText = document.getElementById("analysisFleetText");
 
 if (performance > 0) {
 
-    fleetText.textContent = "Better than Fleet Average";
+    fleetText.textContent = "Better than SPMFB Region Average";
     fleetText.style.color = "#22c55e";
 
 } else if (performance < 0) {
 
-    fleetText.textContent = "Below Fleet Average";
+    fleetText.textContent = "Below SPMFB Region Average";
     fleetText.style.color = "#ef4444";
 
 } else {
 
-    fleetText.textContent = "Fleet Average";
+    fleetText.textContent = "SPMFB Region Average";
     fleetText.style.color = "#facc15";
 
 }
@@ -9599,7 +10052,7 @@ if (performance > 0) {
         data.nightStops;
 
     document.getElementById("analysisRate").textContent =
-        data.rate.toFixed(2) + "%";
+        data.rate.toFixed(1) + "%";
 
     document.getElementById("analysisFleetDiff").textContent =
     (performance >= 0 ? "+" : "") +
@@ -9692,7 +10145,7 @@ async function updateBaseHistoryChart(){
 
             rates.push(
                 ns
-                    ? Number(((fw/ns)*100).toFixed(2))
+                    ? Number(((fw/ns)*100).toFixed(1))
                     : 0
             );
 
@@ -9718,100 +10171,327 @@ baseHistoryChart = new Chart(ctx,{
 
         datasets:[
 
-            {
+    {
 
-                type:"bar",
+        order:1,
 
-                label:"Night Stops",
+        type:"bar",
 
-                data:nightStops,
+        label:"Night Stops",
 
-                yAxisID:"y",
+        data:nightStops,
 
-                backgroundColor:"#D9E8F5",
+        yAxisID:"y",
 
-                borderColor:"#D9E8F5"
+        backgroundColor:"rgba(7,59,116,0.18)",
 
-            },
+        borderColor:"rgba(7,59,116,0.18)",
 
-            {
+        borderRadius:12,
 
-                type:"bar",
+        borderSkipped:false,
 
-                label:"FWD",
+        categoryPercentage:0.78,
 
-                data:fwd,
+        barPercentage:0.95,
 
-                yAxisID:"y",
+        barThickness:30,
 
-                backgroundColor:"#073B74",
+maxBarThickness:36
 
-                borderColor:"#073B74"
+    },
 
-            },
+    {
 
-            {
+        order:2,
 
-                type:"line",
+        type:"bar",
 
-                label:"FWD Rate",
+        label:"FWD",
 
-                data:rates,
+        data:fwd,
 
-                yAxisID:"y1",
+        yAxisID:"y",
 
-                borderColor:"#F4A100",
+        backgroundColor:"#073590",
 
-                backgroundColor:"#F4A100",
+        borderColor:"#073590",
 
-                borderWidth:3,
+        borderRadius:12,
 
-                tension:.35,
+        borderSkipped:false,
 
-                fill:false,
+        categoryPercentage:0.50,
 
-                pointRadius:4
+        barPercentage:0.55,
 
-            }
+        barThickness:16,
 
-        ]
+        maxBarThickness:20
+
+    },
+
+    {
+
+        order:99,
+
+        type:"line",
+
+        label:"FWD Rate",
+
+        data:rates,
+
+        yAxisID:"y1",
+
+        borderColor:"#FDB813",
+
+        backgroundColor:"#FDB813",
+
+        borderWidth:2.5,
+
+tension:.45,
+
+fill:false,
+
+cubicInterpolationMode:"monotone",
+
+pointRadius:4,
+
+pointHoverRadius:6,
+
+pointHitRadius:6,
+
+pointBackgroundColor:"#FDB813",
+
+pointBorderColor:"#FFFFFF",
+
+pointBorderWidth:3,
+
+hoverBorderWidth:4
+    }
+
+]
 
     },
 
     options:{
 
-        responsive:true,
+    responsive:true,
 
-        maintainAspectRatio:false,
+    maintainAspectRatio:false,
 
-        interaction:{
+    layout:{
 
-            mode:"index",
+    padding:{
+        top:5,
+        bottom:0,
+        left:0,
+        right:10
+    }
 
-            intersect:false
+},
+
+    interaction:{
+
+        mode:"index",
+
+        intersect:false
+
+    },
+
+    plugins:{
+
+        legend:{
+
+    position:"bottom",
+
+    align:"center",
+
+    fullsize:false,
+
+    labels:{
+
+        usePointStyle:true,
+
+        pointStyle:"circle",
+
+        boxWidth:10,
+
+        boxHeight:10,
+
+        padding:12,
+
+        color:"#07225B",
+
+        font:{
+
+            size:12,
+
+            weight:"600"
+
+        }
+
+    }
+
+},
+
+tooltip:{
+
+    backgroundColor:"#07225B",
+
+    titleColor:"#FFFFFF",
+
+    bodyColor:"#FFFFFF",
+
+    cornerRadius:10,
+
+    padding:12,
+
+    displayColors:true,
+
+    titleFont:{
+    size:14,
+    weight:"700"
+},
+
+bodyFont:{
+    size:13
+},
+
+caretSize:8
+
+},
+
+datalabels:{
+
+    display:function(context){
+
+        return context.dataset.type !== "bar";
+
+    },
+
+    color:"#F4A100",
+
+    align:"top",
+
+    anchor:"end",
+
+    offset:8,
+
+    clip:false,
+
+    font:{
+
+        size:12,
+
+        weight:"700"
+
+    },
+
+    formatter:(value)=>{
+
+    if(value===0)
+        return "";
+
+    return formatNumber(value) + "%";
+
+}
+
+}
+
+    },
+
+    elements:{
+
+        bar:{
+
+            borderRadius:10,
+
+            borderSkipped:false
 
         },
 
-        plugins:{
+        line:{
 
-            legend:{
+            borderWidth:4,
 
-                position:"bottom"
+            tension:0.35
+
+        },
+
+        point:{
+
+            radius:5,
+
+            hoverRadius:8,
+
+            borderWidth:2,
+
+            backgroundColor:"#F4A100",
+
+            borderColor:"#FFFFFF"
+
+        }
+
+    },
+
+    scales:{
+
+        x:{
+
+            grid:{
+
+    color:"rgba(7,59,116,0.06)",
+
+    drawBorder:false
+
+},
+
+            ticks:{
+
+                color:"#5B667A",
+
+                font:{
+
+                    weight:"600"
+
+                }
+
+            },
+
+            title:{
+
+                display:true,
+
+                text:"Days",
+
+                color:"#07225B",
+
+                font:{
+
+                    size:13,
+
+                    weight:"700"
+
+                }
 
             }
 
         },
 
-        scales:{
+        y:{
 
+    beginAtZero:true,
 
-            x:{
+    grid:{
 
-    title:{
+        display:false,
 
-        display:true,
+        drawBorder:false
 
-        text:"Days",
+    },
+
+    ticks:{
 
         color:"#07225B",
 
@@ -9819,44 +10499,65 @@ baseHistoryChart = new Chart(ctx,{
 
             size:13,
 
-            weight:"bold"
+            weight:"600"
+
+        }
+
+    },
+
+    title:{
+
+        display:true,
+
+        text:"Flights",
+
+        color:"#07225B",
+
+        font:{
+
+            weight:"600"
 
         }
 
     }
 
 },
-            y:{
 
-                beginAtZero:true,
+        y1:{
 
-                title:{
+            position:"right",
 
-                    display:true,
+            beginAtZero:true,
 
-                    text:"Flights"
+            grid:{
 
-                }
+                drawOnChartArea:false
 
             },
 
-            y1:{
+            ticks:{
 
-                position:"right",
+    color:"#5B667A",
 
-                beginAtZero:true,
+    callback:function(value){
 
-                grid:{
+        return value + "%";
 
-                    drawOnChartArea:false
+    }
 
-                },
+},
 
-                title:{
+            title:{
 
-                    display:true,
+                display:true,
 
-                    text:"FWD Rate (%)"
+                text:"FWD Rate (%)",
+
+                color:"#07225B",
+
+                font:{
+
+                    weight:"600"
 
                 }
 
@@ -9865,6 +10566,8 @@ baseHistoryChart = new Chart(ctx,{
         }
 
     }
+
+}
 
 });
 
@@ -9967,7 +10670,7 @@ async function updateOperationalTrends(){
 
         rates.push(
             Number(
-                stats.fwdPercentage.toFixed(2)
+                stats.fwdPercentage.toFixed(1)
             )
         );
 
@@ -9997,13 +10700,24 @@ for(let i = 0; i < rates.length; i++){
 
     rollingAverage.push(
 
-        Number(avg.toFixed(2))
+        Number(avg.toFixed(1))
 
     );
 
 }
 
-    console.log("Operational Trends");
+
+// ========================================
+// HISTORICAL AVERAGE (TARGET LINE)
+// ========================================
+
+const averageRate =
+
+    rates.reduce((sum, value) => sum + value, 0) / rates.length;
+
+const targetLine =
+
+    labels.map(() => Number(averageRate.toFixed(1)));
 
     console.table(
 
@@ -10043,33 +10757,86 @@ operationalTrendChart = new Chart(ctx,{
 
         datasets:[
 
+        
 {
 
-    label:"Fleet FWD Rate",
+    label:"SPMFB Region FWD Rate",
 
     data:rates,
 
-    borderColor:"#2563eb",
+    borderColor:"#2563EB",
 
-    backgroundColor:"rgba(37,99,235,.10)",
+    backgroundColor:"transparent",
 
-    borderWidth: labels.length > 1 ? 3 : 0,
+    borderWidth:4,
 
-    showLine: labels.length > 1,
+    showLine:labels.length>1,
 
-    fill: labels.length > 1,
+    fill:false,
 
-    tension:.35,
+    tension:.45,
 
-    pointRadius: labels.length > 1 ? 5 : 10,
+    pointRadius:7,
 
-    pointHoverRadius:12,
+    pointHoverRadius:10,
 
     pointBorderWidth:3,
 
-    pointBackgroundColor:"#2563eb",
+    pointBackgroundColor:"#2563EB",
 
-    pointBorderColor:"#ffffff"
+    pointBorderColor:"#FFFFFF",
+
+    pointHoverBorderWidth:4,
+
+    pointHoverBackgroundColor:"#2563EB",
+
+    pointHoverBorderColor:"#FFFFFF",
+
+    datalabels:{
+
+        display:labels.length>1,
+
+        align:"top",
+
+        anchor:"end",
+
+        offset:8,
+
+        color:"#2563EB",
+
+        font:{
+
+            weight:"700",
+
+            size:12
+
+        },
+
+        formatter:(value)=>`${formatNumber(value)}%`
+
+    }
+
+},
+
+{
+
+    label:"Historical Average",
+
+    data:targetLine,
+
+    borderColor:"#F4A100",
+
+    borderWidth:2,
+
+    borderDash:[10,6],
+
+    pointRadius:0,
+
+    pointHoverRadius:0,
+
+    tension:0,
+
+    fill:false
 
 },
 
@@ -10104,6 +10871,19 @@ operationalTrendChart = new Chart(ctx,{
 
         maintainAspectRatio:false,
 
+        layout:{
+
+    padding:{
+
+        top:30,
+        right:35,
+        left:25,
+        bottom:20
+
+    }
+
+},
+
         interaction:{
 
             mode:"index",
@@ -10116,41 +10896,115 @@ operationalTrendChart = new Chart(ctx,{
 
     tooltip:{
 
+backgroundColor:"#07225B",
+
+    titleColor:"#FFFFFF",
+
+    bodyColor:"#FFFFFF",
+
+    cornerRadius:14,
+
+    padding:16,
+
+    caretSize:8,
+
+    displayColors:false,
+
+    bodySpacing:6,
+
+    titleMarginBottom:10,
+
+    boxPadding:6,
+
+    titleFont:{
+        size:16,
+        weight:"700"
+    },
+
+    bodyFont:{
+        size:13,
+        weight:"500"
+    },
+
+    displayColors:false,
+
+    titleFont:{
+        size:15,
+        weight:"700"
+    },
+
+    bodyFont:{
+        size:13
+    },
+
+
         callbacks:{
 
-            title:(context)=>context[0].label,
+    title:(context)=>context[0].label,
 
-            label:(context)=>{
+    label:(context)=>{
 
-                const i = context.dataIndex;
+        const i = context.dataIndex;
 
-                return [
-                    `Fleet FWD Rate: ${rates[i]}%`,
-                    `FWD Events: ${fwdTotals[i]}`,
-                    `Night Stops: ${nsTotals[i]}`
-                ];
-
-            }
-
+        if(context.dataset.label==="Historical Average"){
+            return null;
         }
+
+        if(context.dataset.label==="3-Month Average"){
+            return null;
+        }
+
+        return [
+
+            `SPMFB Region FWD Rate   ${formatNumber(rates[i])}%`,
+            `FWD Events       ${fwdTotals[i]}`,
+            `Night Stops      ${nsTotals[i]}`,
+            `Historical Avg   ${formatNumber(averageRate)}%`,
+            rates[i] <= averageRate
+                ? "Status          Better than Average"
+                : "Status          Above Average"
+
+        ];
+
+    }
+
+}
 
     },
 
     legend:{
 
-        display: labels.length > 1,
+    display:labels.length>1,
 
-        labels:{
+    position:"top",
 
-            usePointStyle:true,
+    align:"center",
 
-            pointStyle:"circle",
+    labels:{
 
-            padding:20
+        usePointStyle:true,
+
+        pointStyle:"circle",
+
+        boxWidth:12,
+
+        boxHeight:12,
+
+        padding:30,
+
+        color:"#334155",
+
+        font:{
+
+            size:13,
+
+            weight:"600"
 
         }
 
     }
+
+}
 
 },
 
@@ -10165,9 +11019,11 @@ operationalTrendChart = new Chart(ctx,{
 
     grid:{
 
-        color:"rgba(148,163,184,.12)"
+    color:"rgba(148,163,184,.08)",
 
-    },
+    lineWidth:1
+
+},
 
     ticks:{
 
@@ -10179,7 +11035,7 @@ operationalTrendChart = new Chart(ctx,{
 
         display:true,
 
-        text:"Fleet FWD Rate (%)"
+        text:"SPMFB Region FWD Rate (%)"
 
     }
 
@@ -10191,9 +11047,9 @@ operationalTrendChart = new Chart(ctx,{
 
     grid:{
 
-        display: labels.length > 1
+    display:false
 
-    },
+},
 
     ticks:{
 
@@ -10292,8 +11148,8 @@ gap:18px;
 ">
 
     <div class="trend-kpi-card">
-        <div class="trend-kpi-title">Current Rate</div>
-        <div class="trend-kpi-value">${latestRate}%</div>
+        <div class="trend-kpi-title">AVERAGE PERIOD FWD RATE</div>
+        <div class="trend-kpi-value">${formatNumber(averageRate)}%</div>
     </div>
 
     <div class="trend-kpi-card">
@@ -10317,7 +11173,7 @@ gap:18px;
             ${bestMonth}
         </div>
         <div class="trend-kpi-subtitle">
-            ${bestRate.toFixed(2)}%
+            ${bestRate.toFixed(1)}%
         </div>
     </div>
 
@@ -10327,7 +11183,7 @@ gap:18px;
             ${worstMonth}
         </div>
         <div class="trend-kpi-subtitle">
-            ${worstRate.toFixed(2)}%
+            ${worstRate.toFixed(1)}%
         </div>
     </div>
 
@@ -10679,11 +11535,14 @@ z-index:999999;
 <div
 style="
 background:white;
-width:950px;
-max-width:95%;
-border-radius:16px;
-padding:30px;
+width:760px;
+max-width:90vw;
+border-radius:18px;
+padding:28px 32px;
 box-shadow:0 20px 50px rgba(0,0,0,.25);
+max-height:85vh;
+overflow-y:auto;
+overflow-x:hidden;
 ">
 
     <div
@@ -10691,10 +11550,15 @@ box-shadow:0 20px 50px rgba(0,0,0,.25);
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:25px;
+    margin-bottom:18px;
     ">
 
-        <h2 style="margin:0;color:#07225B;">
+        <h2 style="
+margin:0;
+font-size:34px;
+font-weight:700;
+color:#07225B;
+">
             Active Days
         </h2>
 
