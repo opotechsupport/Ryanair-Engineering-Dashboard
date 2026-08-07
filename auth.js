@@ -1481,7 +1481,7 @@ document.addEventListener("keydown",(event)=>{
 });
 
 // ======================================================
-// NOTIFICATION ENGINE
+// SHOW NOTIFICATION
 // ======================================================
 
 function showNotification(title,message,type="info"){
@@ -1489,53 +1489,85 @@ function showNotification(title,message,type="info"){
     const modal =
         document.getElementById("notificationModal");
 
-    document.getElementById("notificationTitle").textContent =
-        title;
+    const titleEl =
+        document.getElementById("notificationTitle");
 
-    document.getElementById("notificationMessage").textContent =
-        message;
+    const messageEl =
+        document.getElementById("notificationMessage");
 
     const icon =
         document.getElementById("notificationIcon");
+
+    if(
+
+        !modal ||
+
+        !titleEl ||
+
+        !messageEl ||
+
+        !icon
+
+    ){
+
+        alert(`${title}\n\n${message}`);
+
+        return;
+
+    }
+
+    titleEl.textContent = title;
+
+    messageEl.textContent = message;
 
     switch(type){
 
         case "success":
 
-            icon.innerHTML="✅";
+            icon.innerHTML = "✅";
+
+            icon.style.color = "#2ECC71";
 
             break;
 
         case "error":
 
-            icon.innerHTML="❌";
+            icon.innerHTML = "❌";
+
+            icon.style.color = "#E74C3C";
 
             break;
 
         case "warning":
 
-            icon.innerHTML="⚠️";
+            icon.innerHTML = "⚠️";
+
+            icon.style.color = "#F39C12";
 
             break;
 
         default:
 
-            icon.innerHTML="ℹ️";
+            icon.innerHTML = "ℹ️";
+
+            icon.style.color = "#3498DB";
 
     }
 
-    modal.style.display="flex";
+    modal.style.display = "flex";
 
 }
 
 
 
+// ======================================================
+// CLOSE NOTIFICATION
+// ======================================================
+
 function closeNotification(){
 
     document
-
         .getElementById("notificationModal")
-
         .style.display="none";
 
 }
@@ -1556,8 +1588,6 @@ function showSuccess(title,message){
 
 }
 
-
-
 function showError(title,message){
 
     showNotification(
@@ -1572,8 +1602,6 @@ function showError(title,message){
 
 }
 
-
-
 function showWarning(title,message){
 
     showNotification(
@@ -1587,6 +1615,7 @@ function showWarning(title,message){
     );
 
 }
+
 
 // ======================================================
 // LOGIN MODAL
@@ -3873,5 +3902,908 @@ worksheet["!cols"] = [
         "Activity Logs exported successfully."
 
     );
+
+}
+
+// ======================================================
+// CLOSE NOTIFICATION EVENTS
+// ======================================================
+
+window.addEventListener("keydown",event=>{
+
+    if(event.key==="Escape"){
+
+        closeNotification();
+
+    }
+
+});
+
+document
+.getElementById("notificationModal")
+?.addEventListener("click",event=>{
+
+    if(event.target.id==="notificationModal"){
+
+        closeNotification();
+
+    }
+
+});
+
+// ======================================================
+// SETTINGS
+// ======================================================
+
+function openSettings(){
+
+    renderSettings();
+
+    document
+        .getElementById("settingsModal")
+        .style.display="flex";
+
+}
+
+function closeSettings(){
+
+    document
+        .getElementById("settingsModal")
+        .style.display="none";
+
+}
+
+function renderSettings(){
+
+    document
+        .getElementById("settingsContent")
+        .innerHTML = `
+
+<div class="settingsGrid">
+
+<div class="settingsCard">
+
+    <h3>
+
+        👤 My Account
+
+    </h3>
+
+    <label class="input-label">
+
+        Full Name
+
+    </label>
+
+    <input
+
+    id="settingsFullName"
+
+    class="auth-input"
+
+    value="${CURRENT_USER.profile.fullName}">
+
+    <label
+    class="input-label"
+    style="margin-top:15px;">
+
+        Username
+
+    </label>
+
+    <input
+
+    class="auth-input"
+
+    value="${CURRENT_USER.profile.username}"
+
+    disabled>
+
+    <label
+    class="input-label"
+    style="margin-top:15px;">
+
+        Role
+
+    </label>
+
+    <input
+
+    class="auth-input"
+
+    value="${CURRENT_USER.profile.role}"
+
+    disabled>
+
+    <div
+    style="
+    display:flex;
+    justify-content:flex-end;
+    margin-top:20px;
+    ">
+
+        <button
+
+        class="btn btn-yellow"
+
+        onclick="saveMyProfile()">
+
+            💾 Save Profile
+
+        </button>
+
+    </div>
+
+</div>
+
+<div class="settingsCard">
+
+    <h3>
+
+        🔐 Security
+
+    </h3>
+
+    <label class="input-label">
+
+        Current Password
+
+    </label>
+
+    <input
+
+    id="currentPassword"
+
+    class="auth-input"
+
+    type="password">
+
+    <label
+    class="input-label"
+    style="margin-top:15px;">
+
+        New Password
+
+    </label>
+
+    <input
+
+    id="newPassword"
+
+    class="auth-input"
+
+    type="password">
+
+    <label
+    class="input-label"
+    style="margin-top:15px;">
+
+        Confirm Password
+
+    </label>
+
+    <input
+
+    id="confirmNewPassword"
+
+    class="auth-input"
+
+    type="password">
+
+    <div
+    style="
+    display:flex;
+    justify-content:flex-end;
+    margin-top:20px;
+    ">
+
+        <button
+
+        class="btn btn-yellow"
+
+        onclick="changeMyPassword()">
+
+            🔑 Change Password
+
+        </button>
+
+    </div>
+
+</div>
+
+<div class="settingsCard">
+
+    <h3>
+
+        🎨 Appearance
+
+    </h3>
+
+    <label>
+
+        Theme
+
+    </label>
+
+    <select
+    id="themeSelector"
+    class="auth-input">
+
+        <option value="light">
+
+            Light
+
+        </option>
+
+        <option value="dark">
+
+            Dark (Coming Soon)
+
+        </option>
+
+    </select>
+
+    <label
+    style="margin-top:18px;display:block;">
+
+        Dashboard Density
+
+    </label>
+
+    <select
+    id="densitySelector"
+    class="auth-input">
+
+        <option>
+
+            Comfortable
+
+        </option>
+
+        <option>
+
+            Compact
+
+        </option>
+
+    </select>
+
+    <button
+
+    class="btn btn-yellow"
+
+    style="margin-top:20px;"
+
+    onclick="saveAppearance()">
+
+        Save Appearance
+
+    </button>
+
+</div>
+
+<div class="settingsCard">
+
+    <h3>
+
+        📊 Session Information
+
+    </h3>
+
+    <p>
+
+        <strong>Current Role</strong>
+
+    </p>
+
+    <div class="settingsValue">
+
+        ${CURRENT_USER.profile.role}
+
+    </div>
+
+    <p style="margin-top:18px;">
+
+        <strong>Last Login</strong>
+
+    </p>
+
+    <div class="settingsValue">
+
+        ${
+            CURRENT_USER.metadata.lastLogin
+
+            ?
+
+            new Date(
+                CURRENT_USER.metadata.lastLogin
+            ).toLocaleString()
+
+            :
+
+            "First Login"
+
+        }
+
+    </div>
+
+    <p style="margin-top:18px;">
+
+        <strong>Session Status</strong>
+
+    </p>
+
+    <div class="settingsStatus">
+
+        🟢 Connected
+
+    </div>
+
+</div>
+
+<div class="settingsCard">
+
+<h3>
+
+📊 Dashboard
+
+</h3>
+
+<label>
+
+Default Landing Page
+
+</label>
+
+<select
+class="auth-input">
+
+<option>
+
+Home
+
+</option>
+
+<option>
+
+No Info Delays
+
+</option>
+
+<option>
+
+First Wave Delays
+
+</option>
+
+</select>
+
+<label
+style="margin-top:18px;display:block;">
+
+Auto Refresh
+
+</label>
+
+<select
+class="auth-input">
+
+<option>
+
+Disabled
+
+</option>
+
+<option>
+
+30 seconds
+
+</option>
+
+<option>
+
+60 seconds
+
+</option>
+
+<option>
+
+5 minutes
+
+</option>
+
+</select>
+
+<button
+
+class="btn btn-yellow"
+
+style="margin-top:20px;"
+
+onclick="showSuccess('Dashboard','Dashboard preferences saved.')">
+
+Save Dashboard
+
+</button>
+
+</div>
+
+${
+CURRENT_USER.profile.role==="admin"
+
+?
+
+`
+
+<div class="settingsCard">
+
+<h3>
+
+🛠 System
+
+</h3>
+
+<p>
+
+Dashboard Version
+
+</p>
+
+<strong>
+
+2.0.0
+
+</strong>
+
+<hr>
+
+<p>
+
+Firebase
+
+</p>
+
+<span
+class="settingsStatus">
+
+🟢 Connected
+
+</span>
+
+<hr>
+
+<button
+
+class="btn btn-yellow"
+
+onclick="openActivityLogs()">
+
+Activity Logs
+
+</button>
+
+<br><br>
+
+<button
+
+class="btn btn-green"
+
+onclick="exportAuditLogs()">
+
+Export Logs
+
+</button>
+
+</div>
+
+`
+
+:
+
+""
+}
+
+<div class="settingsCard">
+
+<h3>
+
+ℹ About
+
+</h3>
+
+<p>
+
+<strong>
+
+No Info Delays Dashboard
+
+</strong>
+
+</p>
+
+<p>
+
+Version 2.0
+
+</p>
+
+<p>
+
+Developed for
+
+Ryanair
+
+</p>
+
+<p>
+
+© 2026
+
+</p>
+
+</div>
+
+`;
+
+}
+
+// ======================================================
+// SAVE MY PROFILE
+// ======================================================
+
+async function saveMyProfile(){
+
+    try{
+
+        const fullName =
+
+            document
+                .getElementById("settingsFullName")
+                .value
+                .trim();
+
+        if(fullName===""){
+
+            showError(
+
+                "Invalid Name",
+
+                "Please enter your full name."
+
+            );
+
+            return;
+
+        }
+
+        await firebaseUpdate(
+
+            firebaseRef(
+
+                database,
+
+                `${AUTH_COLLECTION}/${CURRENT_USER.profile.username}`
+
+            ),
+
+            {
+
+                profile:{
+
+                    ...CURRENT_USER.profile,
+
+                    fullName
+
+                }
+
+            }
+
+        );
+
+        CURRENT_USER.profile.fullName = fullName;
+
+        updateUserInterface();
+
+        await writeAuditLog(
+
+            "UPDATE_PROFILE",
+
+            "Updated own profile."
+
+        );
+
+        showSuccess(
+
+            "Profile Updated",
+
+            "Your profile has been updated successfully."
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        showError(
+
+            "Settings",
+
+            "Unable to save profile."
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// CHANGE MY PASSWORD
+// ======================================================
+
+async function changeMyPassword(){
+
+    const currentPassword =
+        document.getElementById(
+            "currentPassword"
+        ).value;
+
+    const newPassword =
+        document.getElementById(
+            "newPassword"
+        ).value;
+
+    const confirmPassword =
+        document.getElementById(
+            "confirmNewPassword"
+        ).value;
+
+    if(
+
+        currentPassword==="" ||
+
+        newPassword==="" ||
+
+        confirmPassword===""
+
+    ){
+
+        showWarning(
+
+            "Missing Information",
+
+            "Please complete all password fields."
+
+        );
+
+        return;
+
+    }
+
+    if(newPassword!==confirmPassword){
+
+        showError(
+
+            "Password Error",
+
+            "The new passwords do not match."
+
+        );
+
+        return;
+
+    }
+
+    const currentHash =
+
+    await hashPassword(
+
+        currentPassword,
+
+        CURRENT_USER.credentials.salt
+
+    );
+
+if(
+
+    currentHash !==
+
+    CURRENT_USER.credentials.passwordHash
+
+){
+
+    showError(
+
+        "Invalid Password",
+
+        "The current password is incorrect."
+
+    );
+
+    return;
+
+}
+
+const newSalt =
+    generateSalt();
+
+const newHash =
+
+    await hashPassword(
+
+        newPassword,
+
+        newSalt
+
+    );
+
+await firebaseUpdate(
+
+    firebaseRef(
+
+        database,
+
+        `${AUTH_COLLECTION}/${CURRENT_USER.profile.username}`
+
+    ),
+
+    {
+
+        credentials:{
+
+            salt:newSalt,
+
+            passwordHash:newHash
+
+        }
+
+    }
+
+);
+
+CURRENT_USER.credentials.salt =
+
+    newSalt;
+
+CURRENT_USER.credentials.passwordHash =
+
+    newHash;
+
+await writeAuditLog(
+
+    "CHANGE_PASSWORD",
+
+    "User changed account password."
+
+);
+
+showSuccess(
+
+    "Password Updated",
+
+    "Your password has been changed successfully."
+
+);
+
+document.getElementById("currentPassword").value = "";
+
+document.getElementById("newPassword").value = "";
+
+document.getElementById("confirmNewPassword").value = "";
+
+}
+
+async function saveAppearance(){
+
+    showSuccess(
+
+        "Appearance",
+
+        "Appearance settings saved."
+
+    );
+
+}
+
+// ======================================================
+// USER SETTINGS
+// ======================================================
+
+function openUserSettings(){
+
+    openSettings();
+
+}
+
+function openNoInfoEditVisuals(){
+
+    requestPermission(
+
+        PERMISSIONS.EDIT_VISUALS,
+
+        ()=>{
+
+            openModal();
+
+        }
+
+    );
+
+}
+
+function openNoInfoImportData(){
+
+    requestPermission(
+
+        PERMISSIONS.IMPORT_DATA,
+
+        ()=>{
+
+            importData();
+
+        }
+
+    );
+
+}
+
+function openNoInfoResetData(){
+
+    requestPermission(
+
+        PERMISSIONS.RESET_DASHBOARD,
+
+        ()=>{
+
+            resetData();
+
+        }
+
+    );
+
+}
+
+// ======================================================
+// RESET CENTER
+// ======================================================
+
+let CURRENT_RESET_CALLBACK = null;
+
+function openResetCenter(callback){
+
+    CURRENT_RESET_CALLBACK = callback;
+
+    document.getElementById("resetCenterModal").style.display="flex";
+
+}
+
+function closeResetCenter(){
+
+    document.getElementById("resetCenterModal").style.display="none";
+
+}
+
+function resetDashboardOnly(){
+
+    closeResetCenter();
+
+    if(CURRENT_RESET_CALLBACK){
+
+        CURRENT_RESET_CALLBACK(false);
+
+    }
+
+}
+
+function resetDashboardFirebase(){
+
+    closeResetCenter();
+
+    if(CURRENT_RESET_CALLBACK){
+
+        CURRENT_RESET_CALLBACK(true);
+
+    }
 
 }
