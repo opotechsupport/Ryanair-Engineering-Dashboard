@@ -22,7 +22,7 @@ const AUTH_COLLECTION = "users";
 
 const LOGS_COLLECTION = "logs";
 
-
+const FWD_DATA_COLLECTION = "dashboardData/FWD";
 
 // ======================================================
 // LOCAL SESSION
@@ -137,6 +137,280 @@ function hideLoading(){
 }
 
 // ======================================================
+// STARTUP WELCOME
+// ======================================================
+
+function showStartupWelcome(){
+
+    const modal =
+        document.getElementById("welcomeModal");
+
+    if(!modal)
+        return;
+
+
+    const avatar =
+        document.getElementById("welcomeAvatar");
+
+    const title =
+        document.getElementById("welcomeTitle");
+
+    const userName =
+        document.getElementById("welcomeUserName");
+
+    const userRole =
+        document.getElementById("welcomeUserRole");
+
+    const message =
+        document.getElementById("welcomeMessage");
+
+    const loginButton =
+        document.getElementById("welcomeLoginButton");
+
+    const guestButton =
+        document.getElementById("welcomeGuestButton");
+
+    const continueButton =
+        document.getElementById("welcomeContinueButton");
+
+
+    // =====================================
+    // LOGGED USER
+    // =====================================
+
+    if(CURRENT_USER){
+
+        const fullName =
+            CURRENT_USER.profile.fullName;
+
+        const role =
+            CURRENT_USER.profile.role;
+
+        let roleText = "Viewer";
+
+        switch(role){
+
+            case "admin":
+                roleText = "Administrator";
+                break;
+
+            case "supervisor":
+                roleText = "Supervisor";
+                break;
+
+            default:
+                roleText = "Viewer";
+
+        }
+
+
+        // Avatar
+
+        // =====================================
+// AVATAR
+// =====================================
+
+if(CURRENT_USER.profile.photo){
+
+    avatar.innerHTML = `
+
+        <img
+            src="${CURRENT_USER.profile.photo}"
+            alt="${fullName}"
+            style="
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                border-radius:50%;
+                display:block;
+            "
+        >
+
+    `;
+
+}else{
+
+    const initials =
+        fullName
+            .split(" ")
+            .filter(word => word.length > 0)
+            .map(word => word[0].toUpperCase());
+
+    const avatarText =
+        initials.length >= 2
+            ? initials[0] + initials[initials.length - 1]
+            : initials[0];
+
+    avatar.textContent =
+        avatarText;
+
+}
+
+
+        title.textContent =
+            "Welcome back";
+
+
+        userName.textContent =
+            fullName;
+
+
+        userRole.textContent =
+            roleText;
+
+
+        message.textContent =
+            "Welcome back to the Ryanair Engineering Dashboard.";
+
+
+        loginButton.style.display =
+            "none";
+
+        guestButton.style.display =
+            "none";
+
+        continueButton.style.display =
+            "inline-flex";
+
+    }
+
+
+    // =====================================
+    // GUEST
+    // =====================================
+
+    else{
+
+        avatar.textContent =
+            "👋";
+
+
+        title.textContent =
+            "Welcome";
+
+
+        userName.textContent =
+            "Ryanair Engineering Dashboard";
+
+
+        userRole.textContent =
+            "";
+
+
+        message.textContent =
+            "Please sign in to access your profile, or continue as a guest.";
+
+
+        loginButton.style.display =
+            "inline-flex";
+
+        guestButton.style.display =
+            "inline-flex";
+
+        continueButton.style.display =
+            "none";
+
+    }
+
+
+   // =====================================
+// HIDE HOME WHILE WELCOME IS OPEN
+// =====================================
+
+const homeScreen =
+    document.getElementById("homeScreen");
+
+if(homeScreen){
+
+    homeScreen.style.visibility =
+        "hidden";
+
+}
+
+
+// =====================================
+// SHOW WELCOME
+// =====================================
+
+modal.style.display =
+    "flex";
+
+modal.style.zIndex =
+    "2000000";
+
+}
+
+
+// ======================================================
+// STARTUP LOGIN
+// ======================================================
+
+function startupLogin(){
+
+    restoreAppBackground();
+
+    closeWelcomeModal();
+
+    openLoginModal();
+
+}
+
+
+// ======================================================
+// CONTINUE AS GUEST
+// ======================================================
+
+function continueAsGuest(){
+
+    CURRENT_USER = null;
+
+    localStorage.removeItem(
+        SESSION_STORAGE_KEY
+    );
+
+    updateUserInterface();
+
+    closeWelcomeModal();
+
+}
+
+
+// ======================================================
+// CLOSE STARTUP WELCOME
+// ======================================================
+
+function closeWelcomeModal(){
+
+    const modal =
+        document.getElementById("welcomeModal");
+
+    if(modal){
+
+        modal.style.display =
+            "none";
+
+    }
+
+
+    // =====================================
+    // SHOW HOME AGAIN
+    // =====================================
+
+    const homeScreen =
+        document.getElementById("homeScreen");
+
+    if(homeScreen){
+
+        homeScreen.style.visibility =
+            "visible";
+
+    }
+
+restoreAppBackground();
+
+}
+
+// ======================================================
 // APPLICATION STARTUP
 // ======================================================
 
@@ -245,21 +519,27 @@ document
 
 await new Promise(r=>setTimeout(r,500));
 
-document
-    .getElementById("app-loading")
-    .remove();
-
 // ======================================
 // FIRST INSTALL
 // ======================================
 
 if(!hasUsers){
 
+    document
+        .getElementById("app-loading")
+        .classList.add("hidden");
+
+    await new Promise(r=>setTimeout(r,500));
+
+    document
+        .getElementById("app-loading")
+        .remove();
+
     startSystemSetup();
 
     return;
-
 }
+
 
 // ======================================
 // NORMAL START
@@ -267,11 +547,11 @@ if(!hasUsers){
 
 updateUserInterface();
 
-    }catch(error){
+showStartupWelcome();
+
+}catch(error){
 
         console.error(error);
-
-        hideLoading();
 
         showError(
 
@@ -282,6 +562,20 @@ updateUserInterface();
         );
 
     }
+
+// ======================================
+// REMOVE LOADING
+// ======================================
+
+document
+    .getElementById("app-loading")
+    .classList.add("hidden");
+
+await new Promise(r=>setTimeout(r,500));
+
+document
+    .getElementById("app-loading")
+    .remove();
 
 }
 
@@ -954,7 +1248,9 @@ async function createUser({
 
     role,
 
-    createdBy
+    createdBy,
+
+    photo = null
 
 }){
 
@@ -1000,15 +1296,17 @@ async function createUser({
 
         profile:{
 
-            username,
+    username,
 
-            fullName,
+    fullName,
 
-            role,
+    role,
 
-            active:true
+    active:true,
 
-        },
+    photo
+
+},
 
         credentials:{
 
@@ -1407,7 +1705,9 @@ function updateUserInterface(){
 // USER MENU
 // ======================================================
 
-function toggleUserMenu(){
+function toggleUserMenu(event){
+
+    event.stopPropagation();
 
     const menu =
         document.getElementById("userMenu");
@@ -1415,44 +1715,78 @@ function toggleUserMenu(){
     if(menu.style.display === "block"){
 
         closeUserMenu();
-
         return;
 
     }
 
     menu.style.display = "block";
+    menu.style.position = "fixed";
+    menu.style.zIndex = "999999999";
+
+    if(event){
+
+        const rect =
+            event.currentTarget.getBoundingClientRect();
+
+        menu.style.top =
+            (rect.bottom + 12) + "px";
+
+        menu.style.right =
+            (window.innerWidth - rect.right) + "px";
+
+        menu.style.left = "auto";
+
+    }else{
+
+        menu.style.top = "72px";
+        menu.style.right = "25px";
+        menu.style.left = "auto";
+
+    }
 
 }
-
 
 
 function closeUserMenu(){
 
-    document
-        .getElementById("userMenu")
-        .style.display = "none";
+    const menu =
+        document.getElementById("userMenu");
+
+    if(menu){
+
+        menu.style.display = "none";
+
+    }
 
 }
-
-
 
 // ======================================
 // CLICK OUTSIDE
 // ======================================
 
-document.addEventListener("click",(event)=>{
+document.addEventListener("click", function(event){
 
-    const profile =
+    const menu = document.getElementById("userMenu");
+
+    const navbarProfile =
         document.getElementById("userProfile");
 
-    const menu =
-        document.getElementById("userMenu");
+    const homeProfile =
+        document.querySelector(".home-user-card");
+
+    const clickedTrigger =
+
+        (navbarProfile && navbarProfile.contains(event.target))
+
+        ||
+
+        (homeProfile && homeProfile.contains(event.target));
 
     if(
 
-        !profile.contains(event.target)
+        !clickedTrigger &&
 
-        &&
+        menu &&
 
         !menu.contains(event.target)
 
@@ -1555,9 +1889,149 @@ function showNotification(title,message,type="info"){
     }
 
     modal.style.display = "flex";
+modal.style.zIndex = "1000000";
 
 }
 
+function showPasswordResetNotification(password){
+
+    const modal =
+        document.getElementById("notificationModal");
+
+    const titleEl =
+        document.getElementById("notificationTitle");
+
+    const messageEl =
+        document.getElementById("notificationMessage");
+
+    const icon =
+        document.getElementById("notificationIcon");
+
+    if(
+
+        !modal ||
+        !titleEl ||
+        !messageEl ||
+        !icon
+
+    ){
+
+        alert(
+            `Password Reset\n\nTemporary password: ${password}`
+        );
+
+        return;
+
+    }
+
+    titleEl.textContent =
+        "Password Reset";
+
+    icon.innerHTML =
+        "✅";
+
+    icon.style.color =
+        "#2ECC71";
+
+
+    messageEl.innerHTML = `
+
+        <div class="passwordResetMessage">
+
+            <div class="passwordResetInfo">
+
+                A new temporary password has been generated.
+
+            </div>
+
+            <div class="passwordResetBox">
+
+                <span id="temporaryPasswordValue">
+
+                    ${password}
+
+                </span>
+
+                <button
+                    type="button"
+                    class="copyPasswordButton"
+                    onclick="copyTemporaryPassword()">
+
+                    📋 Copy
+
+                </button>
+
+            </div>
+
+            <div class="passwordResetWarning">
+
+                Make sure you save this password
+                before closing this window.
+
+            </div>
+
+        </div>
+
+    `;
+
+    modal.style.display =
+    "flex";
+
+modal.style.zIndex =
+    "1000000";
+
+}
+
+async function copyTemporaryPassword(){
+
+    const passwordElement =
+        document.getElementById(
+            "temporaryPasswordValue"
+        );
+
+    if(!passwordElement)
+        return;
+
+    const password =
+        passwordElement.textContent.trim();
+
+    try{
+
+        await navigator.clipboard.writeText(
+            password
+        );
+
+        const button =
+            document.querySelector(
+                ".copyPasswordButton"
+            );
+
+        if(button){
+
+            button.textContent =
+                "✅ Copied";
+
+            setTimeout(()=>{
+
+                button.textContent =
+                    "📋 Copy";
+
+            },1500);
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Copy Password Error:",
+            error
+        );
+
+    }
+
+}
 
 
 // ======================================================
@@ -1572,7 +2046,99 @@ function closeNotification(){
 
 }
 
+/* ======================================================
+   CONFIRMATION MODAL
+====================================================== */
 
+let CONFIRM_CALLBACK = null;
+
+function showConfirmation(
+    title,
+    message,
+    callback,
+    confirmText = "Confirm"
+){
+
+    document.getElementById("confirmationTitle").textContent = title;
+
+    document.getElementById("confirmationMessage").textContent = message;
+
+    document.getElementById("confirmationButton").textContent = confirmText;
+
+    CONFIRM_CALLBACK = callback;
+
+    document.getElementById("confirmationModal").style.display = "flex";
+
+}
+
+function closeConfirmation(){
+
+    document.getElementById("confirmationModal").style.display = "none";
+
+}
+
+function confirmCancel(){
+
+    CONFIRM_CALLBACK = null;
+
+    closeConfirmation();
+
+}
+
+async function confirmYes(){
+
+    closeConfirmation();
+
+
+    const callback =
+        CONFIRM_CALLBACK;
+
+
+    CONFIRM_CALLBACK = null;
+
+
+    if(
+        typeof callback ===
+        "function"
+    ){
+
+        await callback();
+
+    }
+
+}
+
+function showPDFLoading(){
+
+    document.getElementById("pdfProgressBar").style.width = "0%";
+
+    document.getElementById("pdfProgressText").textContent =
+        "Preparing...";
+
+    document.getElementById("pdfLoadingMessage").textContent =
+        "Please wait while the dashboard is being prepared.";
+
+    document.getElementById("pdfLoadingModal").style.display = "flex";
+
+}
+
+function updatePDFLoading(current,total){
+
+    const percent = Math.round((current/total)*100);
+
+    document.getElementById("pdfProgressBar").style.width =
+        percent + "%";
+
+    document.getElementById("pdfProgressText").textContent =
+        `Preparing page ${current} of ${total}...`;
+
+}
+
+function hidePDFLoading(){
+
+    document.getElementById("pdfLoadingModal").style.display = "none";
+
+}
 
 function showSuccess(title,message){
 
@@ -1994,23 +2560,9 @@ function resetDashboardProtected(){
 
         async ()=>{
 
-    showWarning(
+            resetFwdData();
 
-        "Coming Soon",
-
-        "Reset Dashboard is under development."
-
-    );
-
-},
-
-        {
-
-            action:"RESET_DASHBOARD",
-
-            details:"Manual dashboard reset"
-
-        }
+        },
 
     );
 
@@ -2024,45 +2576,262 @@ function updateHeaderUser(){
 
     const logged = isLogged();
 
+    // =====================================
+// GREETING
+// =====================================
+
+const hour = new Date().getHours();
+
+let greeting = "Welcome,";
+
+if(hour >= 5 && hour < 12){
+
+    greeting = "Good Morning,";
+
+}else if(hour >= 12 && hour < 18){
+
+    greeting = "Good Afternoon,";
+
+}else{
+
+    greeting = "Good Evening,";
+
+}
+
     const fullName =
 
         logged
-
             ? CURRENT_USER.profile.fullName
+            : "Guest User";
 
-            : "Guest";
+    // =====================================
+// USER INITIALS
+// =====================================
+
+const initials = fullName
+    .split(" ")
+    .filter(word => word.length > 0)
+    .map(word => word[0].toUpperCase());
+
+const avatarText =
+    initials.length >= 2
+        ? initials[0] + initials[initials.length - 1]
+        : initials[0];        
 
     const role =
 
         logged
-
             ? CURRENT_USER.profile.role
-
             : "Viewer";
 
-    document.getElementById(
+    // =====================================
+    // NAVBAR
+    // =====================================
 
-        "currentUserName"
+    document.getElementById("currentUserName").textContent =
+        fullName;
 
-    ).textContent = fullName;
+    document.getElementById("currentUserRole").textContent =
+        role;
 
-    document.getElementById(
+    document.getElementById("menuFullName").textContent =
+        fullName;
 
-        "currentUserRole"
+    document.getElementById("menuRole").textContent =
+        role;
 
-    ).textContent = role;
+    const greetingElement =
+    document.getElementById("homeUserGreeting");
 
-    document.getElementById(
+if(greetingElement){
 
-        "menuFullName"
+    greetingElement.textContent = greeting;
 
-    ).textContent = fullName;
+}
 
-    document.getElementById(
+    // =====================================
+    // HOME SCREEN
+    // =====================================
 
-        "menuRole"
+    const homeName =
+        document.getElementById("homeUserName");
 
-    ).textContent = role;
+    const homeRole =
+        document.getElementById("homeUserRole");
+
+    const homeStatus =
+        document.getElementById("homeUserStatus");
+
+    if(homeName)
+        homeName.textContent = fullName;
+
+    if(homeRole){
+
+        switch(role){
+
+            case "admin":
+                homeRole.textContent = "Administrator";
+                break;
+
+            case "supervisor":
+                homeRole.textContent = "Supervisor";
+                break;
+
+            default:
+                homeRole.textContent = "Viewer";
+
+        }
+
+    }
+
+    if(homeStatus){
+
+        homeStatus.innerHTML =
+            logged
+            ? "🟢 Connected"
+            : "🟡 Guest Session";
+
+    }
+
+// =====================================
+// HOME LAST LOGIN
+// =====================================
+
+const lastLogin =
+    document.getElementById("homeUserLastLogin");
+
+if(lastLogin){
+
+    if(logged){
+
+        if(CURRENT_USER.metadata?.lastLogin){
+
+            lastLogin.textContent =
+                new Date(
+                    CURRENT_USER.metadata.lastLogin
+                ).toLocaleString(
+                    "en-GB",
+                    {
+                        day:"2-digit",
+                        month:"short",
+                        year:"numeric",
+                        hour:"2-digit",
+                        minute:"2-digit"
+                    }
+                );
+
+        }else{
+
+            lastLogin.textContent = "First Login";
+
+        }
+
+    }else{
+
+        lastLogin.textContent = "Guest Session";
+
+    }
+
+}
+
+// =====================================
+// HOME AVATAR
+// =====================================
+
+const avatar =
+    document.getElementById("homeUserAvatar");
+
+if(avatar){
+
+    if(
+        logged &&
+        CURRENT_USER.profile.photo
+    ){
+
+        avatar.innerHTML = `
+
+            <img
+                src="${CURRENT_USER.profile.photo}"
+                alt="${fullName}"
+                class="homeUserAvatarImage">
+
+        `;
+
+    }else{
+
+        avatar.textContent = avatarText;
+
+    }
+
+}
+
+// =====================================
+// NAVBAR AVATAR
+// =====================================
+
+const navbarAvatar =
+    document.querySelector(
+        "#userProfile .userAvatar"
+    );
+
+if(navbarAvatar){
+
+    if(
+        logged &&
+        CURRENT_USER.profile.photo
+    ){
+
+        navbarAvatar.innerHTML = `
+
+            <img
+                src="${CURRENT_USER.profile.photo}"
+                alt="${fullName}"
+                class="currentUserAvatarImage">
+
+        `;
+
+    }else{
+
+        navbarAvatar.textContent =
+            avatarText;
+
+    }
+
+}
+
+// =====================================
+// USER MENU AVATAR
+// =====================================
+
+const menuAvatar =
+    document.querySelector(
+        "#userMenu .userMenuAvatar"
+    );
+
+if(menuAvatar){
+
+    if(
+        logged &&
+        CURRENT_USER.profile.photo
+    ){
+
+        menuAvatar.innerHTML = `
+
+            <img
+                src="${CURRENT_USER.profile.photo}"
+                alt="${fullName}"
+                class="userMenuAvatarImage">
+
+        `;
+
+    }else{
+
+        menuAvatar.textContent =
+            avatarText;
+
+    }
+
+}
 
 }
 
@@ -2693,9 +3462,11 @@ function renderUserManagement(){
 
 modal.style.display="flex";
 
-    renderUserStats();
+    
 
-renderUsersTable();
+renderUserStats();
+
+    renderUsersTable();
 }
 
 function closeUserManagement(){
@@ -2724,8 +3495,21 @@ function renderUsersTable(){
             .trim()
             .toLowerCase();
 
-    let users =
-        USERS_CACHE;
+    const roleFilter =
+        document
+            .getElementById("roleFilter")
+            .value;
+
+    const statusFilter =
+        document
+            .getElementById("statusFilter")
+            .value;
+
+    let users = USERS_CACHE;
+
+    // ===============================
+    // Search
+    // ===============================
 
     if(search !== ""){
 
@@ -2745,6 +3529,38 @@ function renderUsersTable(){
 
     }
 
+    // ===============================
+    // Role Filter
+    // ===============================
+
+    if(roleFilter !== ""){
+
+        users = users.filter(
+
+            user => user.profile.role === roleFilter
+
+        );
+
+    }
+
+    // ===============================
+    // Status Filter
+    // ===============================
+
+    if(statusFilter !== ""){
+
+        users = users.filter(user =>
+
+            statusFilter === "active"
+
+                ? user.profile.active
+
+                : !user.profile.active
+
+        );
+
+    }
+
     let html = `
 
         <table class="usersTable">
@@ -2753,9 +3569,7 @@ function renderUsersTable(){
 
                 <tr>
 
-                    <th>Name</th>
-
-                    <th>Username</th>
+                    <th>User</th>
 
                     <th>Role</th>
 
@@ -2773,9 +3587,9 @@ function renderUsersTable(){
 
     users.forEach(user=>{
 
-    html += createUserRow(user);
+        html += createUserRow(user);
 
-});
+    });
 
     html += `
 
@@ -2791,19 +3605,56 @@ function renderUsersTable(){
 
 function createUserRow(user){
 
+    const initials = user.profile.fullName
+        .split(" ")
+        .map(n => n.charAt(0))
+        .slice(0,2)
+        .join("")
+        .toUpperCase();
+
+    const avatarContent =
+        user.profile.photo
+        ?
+        `
+        <img
+            src="${user.profile.photo}"
+            alt="${user.profile.fullName}"
+            class="userAvatarImage">
+        `
+        :
+        initials;
+
     return `
 
         <tr>
 
             <td>
 
-                👤 ${user.profile.fullName}
+                <div class="userInfo">
 
-            </td>
+                    <div class="userAvatar">
 
-            <td>
+                        ${avatarContent}
 
-                ${user.profile.username}
+                    </div>
+
+                    <div>
+
+                        <div class="userName">
+
+                            ${user.profile.fullName}
+
+                        </div>
+
+                        <div class="userUsername">
+
+                            @${user.profile.username}
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </td>
 
@@ -2816,58 +3667,52 @@ function createUserRow(user){
             <td>
 
                 ${
-
                     user.profile.active
-
                     ?
-
                     '<span class="statusActive">🟢 Active</span>'
-
                     :
-
                     '<span class="statusInactive">🔴 Disabled</span>'
-
                 }
 
             </td>
 
             <td>
 
-    <div class="userActions">
+                <div class="userActions">
 
-        <button
-        class="btn btn-white"
-        onclick="editUser('${user.profile.username}')">
+                    <button
+                        class="btn btn-white"
+                        onclick="editUser('${user.profile.username}')">
 
-            ✏️ Edit
+                        ✏ Edit
 
-        </button>
+                    </button>
 
-        <button
-        class="btn btn-white"
-        onclick="toggleUserStatus('${user.profile.username}')">
+                    <button
+                        class="btn btn-white"
+                        onclick="toggleUserStatus('${user.profile.username}')">
 
-            ${
-                user.profile.active
-                ?
-                "🔒 Disable"
-                :
-                "🟢 Enable"
-            }
+                        ${
+                            user.profile.active
+                            ?
+                            "🔒 Disable"
+                            :
+                            "🟢 Enable"
+                        }
 
-        </button>
+                    </button>
 
-        <button
-        class="btn btn-white"
-        onclick="resetUserPassword('${user.profile.username}')">
+                    <button
+                        class="btn btn-white"
+                        onclick="resetUserPassword('${user.profile.username}')">
 
-            🔑 Reset Password
+                        🔑 Reset
 
-        </button>
+                    </button>
 
-    </div>
+                </div>
 
-</td>
+            </td>
 
         </tr>
 
@@ -2999,13 +3844,199 @@ renderUserStats();
 
 function resetUserPassword(username){
 
-    showWarning(
+    const user =
+        USERS_CACHE.find(
 
-        "Coming Soon",
+            u => u.profile.username === username
 
-        `Reset password for ${username}`
+        );
+
+    if(!user){
+
+        showError(
+
+            "User Management",
+
+            "User not found."
+
+        );
+
+        return;
+
+    }
+
+    showConfirmation(
+
+        "Reset Password",
+
+        `Are you sure you want to reset the password for ${user.profile.fullName} (@${username})?`,
+
+        async ()=>{
+
+            await confirmResetUserPassword(username);
+
+        },
+
+        "Reset Password"
 
     );
+
+}
+
+// ======================================================
+// CONFIRM RESET USER PASSWORD
+// ======================================================
+
+async function confirmResetUserPassword(username){
+
+    try{
+
+        const user =
+            USERS_CACHE.find(
+
+                u => u.profile.username === username
+
+            );
+
+        if(!user){
+
+            showError(
+
+                "User Management",
+
+                "User not found."
+
+            );
+
+            return;
+
+        }
+
+
+        // =====================================
+        // GENERATE NEW PASSWORD
+        // =====================================
+
+        const newPassword =
+            generateTemporaryPassword();
+
+        const salt =
+            generateSalt();
+
+        const passwordHash =
+            await hashPassword(
+
+                newPassword,
+
+                salt
+
+            );
+
+
+        // =====================================
+        // UPDATE FIREBASE
+        // =====================================
+
+        await firebaseUpdate(
+
+            firebaseRef(
+
+                database,
+
+                `${AUTH_COLLECTION}/${username}`
+
+            ),
+
+            {
+
+                credentials:{
+
+                    ...user.credentials,
+
+                    salt,
+
+                    passwordHash
+
+                }
+
+            }
+
+        );
+
+
+        // =====================================
+        // UPDATE CACHE
+        // =====================================
+
+        user.credentials = {
+
+            ...user.credentials,
+
+            salt,
+
+            passwordHash
+
+        };
+
+
+        // =====================================
+        // AUDIT LOG
+        // =====================================
+
+        await writeAuditLog(
+
+            "RESET_PASSWORD",
+
+            `Reset password for ${username}`
+
+        );
+
+
+        // =====================================
+        // SUCCESS
+        // =====================================
+
+        showPasswordResetNotification(
+    newPassword
+);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        showError(
+
+            "User Management",
+
+            "Unable to reset password."
+
+        );
+
+    }
+
+}
+
+function generateTemporaryPassword(){
+
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+
+    let password = "";
+
+    for(let i = 0; i < 10; i++){
+
+        password +=
+            chars.charAt(
+                Math.floor(
+                    Math.random() * chars.length
+                )
+            );
+
+    }
+
+    return password;
 
 }
 
@@ -3016,6 +4047,8 @@ let EDITING_USER = null
 // ======================================================
 
 function editUser(username){
+
+    closeUserManagement();
 
     const user = USERS_CACHE.find(
 
@@ -3040,27 +4073,64 @@ function editUser(username){
     EDITING_USER = user;
 
     document.getElementById(
-
         "editUserFullName"
-
     ).value = user.profile.fullName;
 
     document.getElementById(
-
         "editUserUsername"
-
     ).value = user.profile.username;
 
     document.getElementById(
-
         "editUserRole"
-
     ).value = user.profile.role;
 
     document.getElementById(
+        "editUserPassword"
+    ).value = "";
 
+    document.getElementById(
+        "editUserPhotoInput"
+    ).value = "";
+
+    const editPhotoPreview =
+        document.getElementById(
+            "editUserPhotoPreview"
+        );
+
+    const editPhotoPlaceholder =
+        document.getElementById(
+            "editUserPhotoPlaceholder"
+        );
+
+    if(user.profile.photo){
+
+        editPhotoPreview.src =
+            user.profile.photo;
+
+        editPhotoPreview.style.display =
+            "block";
+
+        editPhotoPlaceholder.style.display =
+            "none";
+
+    }else{
+
+        editPhotoPreview.src = "";
+
+        editPhotoPreview.style.display =
+            "none";
+
+        editPhotoPlaceholder.style.display =
+            "flex";
+
+        updateEditUserInitials(
+            user.profile.fullName
+        );
+
+    }
+
+    document.getElementById(
         "editUserModal"
-
     ).style.display = "flex";
 
 }
@@ -3074,6 +4144,8 @@ function closeEditUser(){
         "editUserModal"
 
     ).style.display = "none";
+
+    renderUserManagement()
 
 }
 
@@ -3099,6 +4171,12 @@ async function saveUser(){
                 .getElementById("editUserRole")
                 .value;
 
+        const newPassword =
+            document
+                .getElementById("editUserPassword")
+                .value
+                .trim();
+
         if(fullName===""){
 
             showError(
@@ -3116,6 +4194,107 @@ async function saveUser(){
         const username =
             EDITING_USER.profile.username;
 
+
+        // =====================================
+        // PHOTO
+        // =====================================
+
+        const photoFile =
+            document
+                .getElementById("editUserPhotoInput")
+                .files[0];
+
+        let photo =
+            EDITING_USER.profile.photo || null;
+
+        if(photoFile){
+
+            photo = await new Promise((resolve,reject)=>{
+
+                const reader =
+                    new FileReader();
+
+                reader.onload = function(e){
+
+                    resolve(e.target.result);
+
+                };
+
+                reader.onerror = function(){
+
+                    reject(
+                        new Error("PHOTO_READ_FAILED")
+                    );
+
+                };
+
+                reader.readAsDataURL(photoFile);
+
+            });
+
+        }
+
+
+        // =====================================
+        // UPDATE DATA
+        // =====================================
+
+        const updateData = {
+
+            profile:{
+
+                ...EDITING_USER.profile,
+
+                fullName,
+
+                role,
+
+                photo
+
+            },
+
+            permissions:
+
+                createPermissions(role)
+
+        };
+
+
+        // =====================================
+        // PASSWORD
+        // =====================================
+
+        if(newPassword !== ""){
+
+            const salt =
+                generateSalt();
+
+            const passwordHash =
+                await hashPassword(
+
+                    newPassword,
+
+                    salt
+
+                );
+
+            updateData.credentials = {
+
+                ...EDITING_USER.credentials,
+
+                salt,
+
+                passwordHash
+
+            };
+
+        }
+
+
+        // =====================================
+        // SAVE FIREBASE
+        // =====================================
+
         await firebaseUpdate(
 
             firebaseRef(
@@ -3126,25 +4305,10 @@ async function saveUser(){
 
             ),
 
-            {
-
-                profile:{
-
-                    ...EDITING_USER.profile,
-
-                    fullName,
-
-                    role
-
-                },
-
-                permissions:
-
-                    createPermissions(role)
-
-            }
+            updateData
 
         );
+
 
         // =====================================
         // UPDATE CACHE
@@ -3156,8 +4320,12 @@ async function saveUser(){
         EDITING_USER.profile.role =
             role;
 
+        EDITING_USER.profile.photo =
+            photo;
+
         EDITING_USER.permissions =
             createPermissions(role);
+
 
         // =====================================
         // UPDATE CURRENT USER
@@ -3177,12 +4345,16 @@ async function saveUser(){
             CURRENT_USER.profile.role =
                 role;
 
+            CURRENT_USER.profile.photo =
+                photo;
+
             CURRENT_USER.permissions =
                 createPermissions(role);
 
             updateUserInterface();
 
         }
+
 
         // =====================================
         // AUDIT
@@ -3196,9 +4368,17 @@ async function saveUser(){
 
         );
 
+
+        // =====================================
+        // REFRESH
+        // =====================================
+
         renderUsersTable();
-renderUserStats();
+
+        renderUserStats();
+
         closeEditUser();
+
 
         showSuccess(
 
@@ -3225,36 +4405,43 @@ renderUserStats();
     }
 
 }
-
 // ======================================================
 // CREATE USER MODAL
 // ======================================================
 
 function openCreateUserModal(){
 
-    document.getElementById("newUserFullName").value="";
+    closeUserManagement();
 
-    document.getElementById("newUserUsername").value="";
+    document.getElementById("newUserFullName").value = "";
 
-    document.getElementById("newUserPassword").value="";
+    document.getElementById("newUserUsername").value = "";
 
-    document.getElementById("newUserRole").value="viewer";
+    document.getElementById("newUserPassword").value = "";
 
-    document.getElementById(
+    document.getElementById("newUserRole").value = "viewer";
 
-        "createUserModal"
+    document.getElementById("createUserPhotoInput").value = "";
 
-    ).style.display="flex";
+    document.getElementById("createUserPhotoPreview").src = "";
+
+    document.getElementById("createUserPhotoPreview").style.display = "none";
+
+    document.getElementById("createUserPhotoPlaceholder").style.display = "flex";
+
+    updateCreateUserInitials();
+
+    document.getElementById("createUserModal").style.display = "flex";
 
 }
 
 function closeCreateUserModal(){
 
     document.getElementById(
-
         "createUserModal"
+    ).style.display = "none";
 
-    ).style.display="none";
+openUserManagement()
 
 }
 
@@ -3267,16 +4454,69 @@ async function createDashboardUser(){
     try{
 
         const fullName =
-            document.getElementById("newUserFullName").value.trim();
+            document
+                .getElementById("newUserFullName")
+                .value
+                .trim();
 
         const username =
-            document.getElementById("newUserUsername").value.trim().toLowerCase();
+            document
+                .getElementById("newUserUsername")
+                .value
+                .trim()
+                .toLowerCase();
 
         const password =
-            document.getElementById("newUserPassword").value;
+            document
+                .getElementById("newUserPassword")
+                .value;
 
         const role =
-            document.getElementById("newUserRole").value;
+            document
+                .getElementById("newUserRole")
+                .value;
+
+        /* =====================================
+           PHOTO
+        ===================================== */
+
+        const photoFile =
+            document
+                .getElementById("createUserPhotoInput")
+                .files[0];
+
+        let photo = null;
+
+        if(photoFile){
+
+            photo = await new Promise((resolve,reject)=>{
+
+                const reader =
+                    new FileReader();
+
+                reader.onload = function(e){
+
+                    resolve(e.target.result);
+
+                };
+
+                reader.onerror = function(){
+
+                    reject(
+                        new Error("PHOTO_READ_FAILED")
+                    );
+
+                };
+
+                reader.readAsDataURL(photoFile);
+
+            });
+
+        }
+
+        /* =====================================
+           VALIDATION
+        ===================================== */
 
         if(
 
@@ -3300,6 +4540,10 @@ async function createDashboardUser(){
 
         }
 
+        /* =====================================
+           CREATE USER
+        ===================================== */
+
         await createUser({
 
             fullName,
@@ -3310,9 +4554,15 @@ async function createDashboardUser(){
 
             role,
 
-            createdBy:getCurrentUsername()
+            createdBy:getCurrentUsername(),
+
+            photo
 
         });
+
+        /* =====================================
+           AUDIT
+        ===================================== */
 
         await writeAuditLog(
 
@@ -3322,11 +4572,55 @@ async function createDashboardUser(){
 
         );
 
+        /* =====================================
+           REFRESH
+        ===================================== */
+
         await loadAllUsers();
 
         renderUsersTable();
 
-renderUserStats();
+        renderUserStats();
+
+        /* =====================================
+           RESET FORM
+        ===================================== */
+
+        document
+            .getElementById("newUserFullName")
+            .value="";
+
+        document
+            .getElementById("newUserUsername")
+            .value="";
+
+        document
+            .getElementById("newUserPassword")
+            .value="";
+
+        document
+            .getElementById("newUserRole")
+            .value="viewer";
+
+        document
+            .getElementById("createUserPhotoInput")
+            .value="";
+
+        document
+            .getElementById("createUserPhotoPreview")
+            .src="";
+
+        document
+            .getElementById("createUserPhotoPreview")
+            .style.display="none";
+
+        document
+            .getElementById("createUserPhotoPlaceholder")
+            .style.display="flex";
+
+        /* =====================================
+           CLOSE
+        ===================================== */
 
         closeCreateUserModal();
 
@@ -3371,6 +4665,42 @@ renderUserStats();
         );
 
     }
+
+}
+function updateCreateUserInitials(){
+
+    const input =
+        document.getElementById("newUserFullName");
+
+    const avatar =
+        document.getElementById("createUserPhotoPlaceholder");
+
+    const name =
+        input.value.trim();
+
+    if(name === ""){
+
+        avatar.textContent = "??";
+
+        return;
+
+    }
+
+    const parts =
+        name.split(/\s+/);
+
+    let initials =
+        parts[0][0];
+
+    if(parts.length > 1){
+
+        initials +=
+            parts[parts.length-1][0];
+
+    }
+
+    avatar.textContent =
+        initials.toUpperCase();
 
 }
 
@@ -3419,32 +4749,15 @@ function createStatCard(title,value){
 
     return `
 
-        <div
-        style="
-        background:#F8FAFC;
-        border-radius:14px;
-        padding:18px;
-        text-align:center;
-        border:1px solid #E5E7EB;
-        ">
+        <div class="statCard">
 
-            <div
-            style="
-            font-size:14px;
-            color:#6B7280;
-            ">
+            <div class="statTitle">
 
                 ${title}
 
             </div>
 
-            <div
-            style="
-            font-size:30px;
-            font-weight:800;
-            color:#07225B;
-            margin-top:8px;
-            ">
+            <div class="statValue">
 
                 ${value}
 
@@ -3754,26 +5067,33 @@ function getActionBadge(action){
 
     const colours={
 
-        LOGIN:"#27AE60",
+    LOGIN:"#27AE60",
 
-        LOGOUT:"#95A5A6",
+    LOGOUT:"#95A5A6",
 
-        CREATE_USER:"#3498DB",
+    CREATE_USER:"#3498DB",
 
-        UPDATE_USER:"#F39C12",
+    UPDATE_USER:"#F39C12",
 
-        ENABLE_USER:"#2ECC71",
+    DELETE_USER:"#C0392B",
 
-        DISABLE_USER:"#E74C3C",
+    ENABLE_USER:"#2ECC71",
 
-        OPEN_IMPORT_DATA:"#8E44AD",
+    DISABLE_USER:"#E74C3C",
 
-        OPEN_VISUAL_EDITOR:"#2980B9",
+    RESET_PASSWORD:"#8E44AD",
 
-        RESET_DASHBOARD:"#C0392B"
+    CHANGE_PASSWORD:"#8E44AD",
 
-    };
+    UPDATE_PROFILE:"#2980B9",
 
+    OPEN_IMPORT_DATA:"#8E44AD",
+
+    OPEN_VISUAL_EDITOR:"#2980B9",
+
+    RESET_DASHBOARD:"#C0392B"
+
+};
     const colour =
 
         colours[action] ||
@@ -4803,6 +6123,4108 @@ function resetDashboardFirebase(){
     if(CURRENT_RESET_CALLBACK){
 
         CURRENT_RESET_CALLBACK(true);
+
+    }
+
+}
+
+function previewCreateUserPhoto(event){
+
+    const file = event.target.files[0];
+
+    if(!file){
+
+        document.getElementById(
+            "createUserPhotoPreview"
+        ).style.display = "none";
+
+        document.getElementById(
+            "createUserPhotoPlaceholder"
+        ).style.display = "flex";
+
+        return;
+
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        const preview =
+            document.getElementById(
+                "createUserPhotoPreview"
+            );
+
+        preview.src = e.target.result;
+
+        preview.style.display = "block";
+
+        document.getElementById(
+            "createUserPhotoPlaceholder"
+        ).style.display = "none";
+
+    };
+
+    reader.readAsDataURL(file);
+
+}
+
+function toggleEditPassword(){
+
+    const input =
+        document.getElementById("editUserPassword");
+
+    input.type =
+        input.type === "password"
+        ? "text"
+        : "password";
+
+}
+
+function updateEditUserInitials(name){
+
+    const avatar =
+        document.getElementById(
+            "editUserPhotoPlaceholder"
+        );
+
+    if(!name || name.trim()===""){
+
+        avatar.textContent="??";
+        return;
+
+    }
+
+    const parts =
+        name.trim().split(/\s+/);
+
+    let initials =
+        parts[0][0];
+
+    if(parts.length>1){
+
+        initials +=
+            parts[parts.length-1][0];
+
+    }
+
+    avatar.textContent =
+        initials.toUpperCase();
+
+}
+
+function previewEditUserPhoto(event){
+
+    const file =
+        event.target.files[0];
+
+    if(!file){
+
+        document.getElementById(
+            "editUserPhotoPreview"
+        ).style.display="none";
+
+        document.getElementById(
+            "editUserPhotoPlaceholder"
+        ).style.display="flex";
+
+        return;
+
+    }
+
+    const reader =
+        new FileReader();
+
+    reader.onload=function(e){
+
+        document.getElementById(
+            "editUserPhotoPreview"
+        ).src=e.target.result;
+
+        document.getElementById(
+            "editUserPhotoPreview"
+        ).style.display="block";
+
+        document.getElementById(
+            "editUserPhotoPlaceholder"
+        ).style.display="none";
+
+    };
+
+    reader.readAsDataURL(file);
+
+}
+
+// ======================================================
+// DELETE USER
+// ======================================================
+
+function deleteUser(){
+
+    if(!EDITING_USER)
+        return;
+
+    const username =
+        EDITING_USER.profile.username;
+
+    const fullName =
+        EDITING_USER.profile.fullName;
+
+
+    // =====================================
+    // PREVENT SELF DELETE
+    // =====================================
+
+    if(
+
+        CURRENT_USER &&
+
+        CURRENT_USER.profile.username === username
+
+    ){
+
+        showWarning(
+
+            "Operation Not Allowed",
+
+            "You cannot delete your own account."
+
+        );
+
+        return;
+
+    }
+
+
+    // =====================================
+    // CONFIRMATION
+    // =====================================
+
+    showConfirmation(
+
+        "Delete User",
+
+        `Are you sure you want to permanently delete ${fullName} (@${username})? This action cannot be undone.`,
+
+        async ()=>{
+
+            await confirmDeleteUser();
+
+        },
+
+        "Delete User"
+
+    );
+
+}
+
+// ======================================================
+// CONFIRM DELETE USER
+// ======================================================
+
+async function confirmDeleteUser(){
+
+    if(!EDITING_USER)
+        return;
+
+    try{
+
+        const username =
+            EDITING_USER.profile.username;
+
+        const fullName =
+            EDITING_USER.profile.fullName;
+
+
+        // =====================================
+        // DELETE FROM FIREBASE
+        // =====================================
+
+        await firebaseRemove(
+
+            firebaseRef(
+
+                database,
+
+                `${AUTH_COLLECTION}/${username}`
+
+            )
+
+        );
+
+
+        // =====================================
+        // AUDIT LOG
+        // =====================================
+
+        await writeAuditLog(
+
+            "DELETE_USER",
+
+            `Deleted user ${username}`
+
+        );
+
+
+        // =====================================
+        // REMOVE FROM CACHE
+        // =====================================
+
+        USERS_CACHE =
+            USERS_CACHE.filter(
+
+                user =>
+                    user.profile.username !== username
+
+            );
+
+
+        // =====================================
+        // RESET EDITING USER
+        // =====================================
+
+        EDITING_USER = null;
+
+
+        // =====================================
+        // REFRESH USER MANAGEMENT
+        // =====================================
+
+        renderUsersTable();
+
+        renderUserStats();
+
+
+        // =====================================
+        // CLOSE EDIT USER
+        // =====================================
+
+        closeEditUser();
+
+
+        // =====================================
+        // OPEN USER MANAGEMENT
+        // =====================================
+
+        openUserManagement();
+
+
+        // =====================================
+        // SUCCESS
+        // =====================================
+
+        showSuccess(
+
+            "User Deleted",
+
+            `${fullName} has been permanently deleted.`
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        showError(
+
+            "User Management",
+
+            "Unable to delete user."
+
+        );
+
+    }
+
+}
+
+function restoreAppBackground(){
+
+    document.documentElement.style.background =
+        "#FFFFFF";
+
+    document.body.style.background =
+        "#FFFFFF";
+
+}
+
+// ======================================================
+// FWD PDF EXPORT
+// ======================================================
+
+function openFwdExportModal(){
+
+    const modal =
+        document.getElementById(
+            "fwdExportModal"
+        );
+
+    if(!modal)
+        return;
+
+
+    populateFwdExportPeriod();
+
+    populateFwdExportCountry();
+
+    populateFwdExportSort();
+
+    populateFwdExportDelaySelectors();
+
+    updateFwdExportBases();
+
+
+    modal.style.display =
+        "flex";
+
+}
+
+
+function closeFwdExportModal(){
+
+    const modal =
+        document.getElementById(
+            "fwdExportModal"
+        );
+
+    if(modal){
+
+        modal.style.display =
+            "none";
+
+    }
+
+}
+
+
+// ======================================================
+// PERIOD
+// ======================================================
+
+function populateFwdExportPeriod(){
+
+    const source =
+        document.getElementById(
+            "dashboardPeriod"
+        );
+
+    const target =
+        document.getElementById(
+            "fwdExportPeriod"
+        );
+
+    if(!source || !target)
+        return;
+
+
+    target.innerHTML = "";
+
+    Array.from(source.options)
+        .forEach(option=>{
+
+            const clone =
+                document.createElement(
+                    "option"
+                );
+
+            clone.value =
+                option.value;
+
+            clone.textContent =
+                option.textContent;
+
+            target.appendChild(
+                clone
+            );
+
+        });
+
+
+    target.value =
+        source.value;
+
+}
+
+
+// ======================================================
+// COUNTRY
+// ======================================================
+
+function populateFwdExportCountry(){
+
+    const source =
+        document.getElementById(
+            "baseCountryFilter"
+        );
+
+    const target =
+        document.getElementById(
+            "fwdExportCountry"
+        );
+
+    if(!source || !target)
+        return;
+
+
+    target.innerHTML = "";
+
+    Array.from(source.options)
+        .forEach(option=>{
+
+            const clone =
+                document.createElement(
+                    "option"
+                );
+
+            clone.value =
+                option.value;
+
+            clone.textContent =
+                option.textContent;
+
+            target.appendChild(
+                clone
+            );
+
+        });
+
+
+    target.value =
+        source.value || "ALL";
+
+}
+
+
+// ======================================================
+// SORT
+// ======================================================
+
+function populateFwdExportSort(){
+
+    const source =
+        document.getElementById(
+            "baseSort"
+        );
+
+    const target =
+        document.getElementById(
+            "fwdExportSort"
+        );
+
+    if(!source || !target)
+        return;
+
+
+    target.innerHTML = "";
+
+    Array.from(source.options)
+        .forEach(option=>{
+
+            const clone =
+                document.createElement(
+                    "option"
+                );
+
+            clone.value =
+                option.value;
+
+            clone.textContent =
+                option.textContent;
+
+            target.appendChild(
+                clone
+            );
+
+        });
+
+
+    target.value =
+        source.value;
+
+    updateFwdExportSortFields();
+
+    target.onchange =
+        updateFwdExportSortFields;
+
+}
+
+
+// ======================================================
+// SORT EXTRA FIELDS
+// ======================================================
+
+function updateFwdExportSortFields(){
+
+    const sort =
+        document.getElementById(
+            "fwdExportSort"
+        )?.value;
+
+
+    const codeField =
+        document.getElementById(
+            "fwdExportDelayCodeField"
+        );
+
+    const groupField =
+        document.getElementById(
+            "fwdExportDelayGroupField"
+        );
+
+
+    if(codeField){
+
+        codeField.style.display =
+            sort === "delayCode"
+                ? "block"
+                : "none";
+
+    }
+
+
+    if(groupField){
+
+        groupField.style.display =
+            sort === "delayGroup"
+                ? "block"
+                : "none";
+
+    }
+
+}
+
+
+// ======================================================
+// DELAY SELECTORS
+// ======================================================
+
+function populateFwdExportDelaySelectors(){
+
+    const sourceCode =
+        document.getElementById(
+            "delayCodeSelector"
+        );
+
+    const targetCode =
+        document.getElementById(
+            "fwdExportDelayCode"
+        );
+
+
+    if(sourceCode && targetCode){
+
+        targetCode.innerHTML = "";
+
+        Array.from(
+            sourceCode.options
+        )
+        .forEach(option=>{
+
+            const clone =
+                document.createElement(
+                    "option"
+                );
+
+            clone.value =
+                option.value;
+
+            clone.textContent =
+                option.textContent;
+
+            targetCode.appendChild(
+                clone
+            );
+
+        });
+
+        targetCode.value =
+            sourceCode.value;
+
+    }
+
+
+    const sourceGroup =
+        document.getElementById(
+            "delayGroupSelector"
+        );
+
+    const targetGroup =
+        document.getElementById(
+            "fwdExportDelayGroup"
+        );
+
+
+    if(sourceGroup && targetGroup){
+
+        targetGroup.innerHTML = "";
+
+        Array.from(
+            sourceGroup.options
+        )
+        .forEach(option=>{
+
+            const clone =
+                document.createElement(
+                    "option"
+                );
+
+            clone.value =
+                option.value;
+
+            clone.textContent =
+                option.textContent;
+
+            targetGroup.appendChild(
+                clone
+            );
+
+        });
+
+        targetGroup.value =
+            sourceGroup.value;
+
+    }
+
+}
+
+
+// ======================================================
+// BASE LIST
+// ======================================================
+
+function updateFwdExportBases(){
+
+    const country =
+        document.getElementById(
+            "fwdExportCountry"
+        )?.value || "ALL";
+
+
+    const target =
+        document.getElementById(
+            "fwdExportBase"
+        );
+
+    if(!target)
+        return;
+
+
+    const currentBase =
+        document.getElementById(
+            "analysisBase"
+        )?.value;
+
+
+    target.innerHTML = "";
+
+
+    const availableBases =
+        BASES
+            .filter(base=>{
+
+                if(country === "ALL")
+                    return true;
+
+                return BASE_COUNTRIES[base] === country;
+
+            })
+            .sort((a,b)=>{
+
+                const ca =
+                    BASE_COUNTRIES[a] || "";
+
+                const cb =
+                    BASE_COUNTRIES[b] || "";
+
+                if(ca === cb)
+                    return a.localeCompare(b);
+
+                return ca.localeCompare(cb);
+
+            });
+
+
+    availableBases.forEach(base=>{
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value =
+            base;
+
+        option.textContent =
+            `${BASE_COUNTRIES[base]} — ${base}`;
+
+        target.appendChild(
+            option
+        );
+
+    });
+
+
+    if(
+        currentBase &&
+        availableBases.includes(currentBase)
+    ){
+
+        target.value =
+            currentBase;
+
+    }else if(
+        availableBases.includes("OPO")
+    ){
+
+        target.value =
+            "OPO";
+
+    }else if(
+        availableBases.length
+    ){
+
+        target.value =
+            availableBases[0];
+
+    }
+
+}
+
+
+// ======================================================
+// APPLY EXPORT FILTERS
+// ======================================================
+
+async function applyFwdExportFilters(){
+
+    const period =
+        document.getElementById(
+            "fwdExportPeriod"
+        )?.value;
+
+
+    const country =
+        document.getElementById(
+            "fwdExportCountry"
+        )?.value || "ALL";
+
+
+    const sort =
+        document.getElementById(
+            "fwdExportSort"
+        )?.value;
+
+
+    const base =
+        document.getElementById(
+            "fwdExportBase"
+        )?.value;
+
+
+    const delayCode =
+        document.getElementById(
+            "fwdExportDelayCode"
+        )?.value;
+
+
+    const delayGroup =
+        document.getElementById(
+            "fwdExportDelayGroup"
+        )?.value;
+
+
+    // ======================================
+    // PERIOD
+    // ======================================
+
+    const dashboardPeriod =
+        document.getElementById(
+            "dashboardPeriod"
+        );
+
+
+    if(
+        dashboardPeriod &&
+        period &&
+        dashboardPeriod.value !== period
+    ){
+
+        dashboardPeriod.value =
+            period;
+
+
+        const [year,month] =
+            period
+                .split("-")
+                .map(Number);
+
+
+        await updateFWDDashboard(
+            year,
+            month
+        );
+
+    }
+
+
+    // ======================================
+    // COUNTRY
+    // ======================================
+
+    const baseCountryFilter =
+        document.getElementById(
+            "baseCountryFilter"
+        );
+
+
+    if(baseCountryFilter){
+
+        baseCountryFilter.value =
+            country;
+
+    }
+
+
+    const countrySelector =
+        document.getElementById(
+            "countrySelector"
+        );
+
+
+    if(countrySelector){
+
+        countrySelector.value =
+            country;
+
+    }
+
+
+    // ======================================
+    // SORT
+    // ======================================
+
+    const baseSort =
+        document.getElementById(
+            "baseSort"
+        );
+
+
+    if(baseSort){
+
+        baseSort.value =
+            sort;
+
+    }
+
+
+    // ======================================
+    // DELAY FILTERS
+    // ======================================
+
+    const delayCodeSelector =
+        document.getElementById(
+            "delayCodeSelector"
+        );
+
+
+    if(delayCodeSelector && delayCode){
+
+        delayCodeSelector.value =
+            delayCode;
+
+    }
+
+
+    const delayGroupSelector =
+        document.getElementById(
+            "delayGroupSelector"
+        );
+
+
+    if(delayGroupSelector && delayGroup){
+
+        delayGroupSelector.value =
+            delayGroup;
+
+    }
+
+
+    // ======================================
+    // ALWAYS SHOW ZERO BASES
+    // ======================================
+
+    const showZeroBases =
+        document.getElementById(
+            "showZeroBases"
+        );
+
+
+    if(showZeroBases){
+
+        showZeroBases.checked =
+            true;
+
+    }
+
+
+    // ======================================
+    // REFRESH BASE PERFORMANCE
+    // ======================================
+
+    if(
+    typeof updateBasePerformance ===
+    "function"
+){
+
+    updateBasePerformance();
+
+}
+
+
+// ==============================================
+// WAIT FOR BASE CHART TO FULLY REFRESH
+// ==============================================
+
+if(
+    typeof baseRankingChart !==
+    "undefined" &&
+    baseRankingChart
+){
+
+    baseRankingChart.update(
+        "none"
+    );
+
+}
+
+
+await new Promise(
+    resolve =>
+        requestAnimationFrame(
+            ()=>resolve()
+        )
+);
+
+
+await new Promise(
+    resolve =>
+        setTimeout(
+            resolve,
+            500
+        )
+);
+
+
+// ======================================
+// REGIONAL VIEW
+// ======================================
+
+// Guardar também o país globalmente
+selectedCountry =
+    country;
+
+
+// ======================================
+// COUNTRY KPI CARDS
+// ======================================
+
+if(
+    typeof updateRegionalCards ===
+    "function"
+){
+
+    updateRegionalCards(
+        country
+    );
+
+}
+
+
+// ======================================
+// COUNTRY DONUT CHARTS
+// ======================================
+
+if(
+    typeof updateRegionalPieCharts ===
+    "function"
+){
+
+    updateRegionalPieCharts(
+        country
+    );
+
+}
+
+
+// ======================================
+// DELAY CODES + DELAY GROUPS
+// ======================================
+
+if(
+    typeof updateRegionalDelayCharts ===
+    "function"
+){
+
+    updateRegionalDelayCharts(
+        country
+    );
+
+}
+
+
+// ======================================
+// TOP DELAY
+// ======================================
+
+if(
+    typeof updateRegionalTopDelay ===
+    "function"
+){
+
+    updateRegionalTopDelay(
+        country
+    );
+
+}
+
+
+// ======================================
+// COUNTRY LABEL
+// ======================================
+
+const countryLabel =
+    document.getElementById(
+        "selectedCountryLabel"
+    );
+
+
+if(countryLabel){
+
+    countryLabel.textContent =
+        country === "ALL"
+            ? "ALL COUNTRIES"
+            : country.toUpperCase();
+
+}
+
+
+// ======================================
+// MAP
+// ======================================
+
+if(
+    typeof updateMapSelection ===
+    "function"
+){
+
+    updateMapSelection(
+        country
+    );
+
+}
+   
+
+
+    // ======================================
+    // BASE ANALYSIS
+    // ======================================
+
+    const analysisBase =
+        document.getElementById(
+            "analysisBase"
+        );
+
+
+    if(analysisBase && base){
+
+        analysisBase.value =
+            base;
+
+    }
+
+
+    if(
+    typeof updateBaseAnalysis ===
+    "function"
+){
+
+    updateBaseAnalysis();
+
+}
+
+
+if(
+    typeof updateBaseHistoryChart ===
+    "function"
+){
+
+    updateBaseHistoryChart();
+
+}
+
+
+// ======================================
+// UPDATE TOP DELAY CODES TABLE
+// ======================================
+
+if(
+    typeof updateTopDelayCodes ===
+    "function"
+){
+
+    updateTopDelayCodes();
+
+}
+
+
+    if(
+        typeof updateOperationalTrends ===
+        "function"
+    ){
+
+        updateOperationalTrends();
+
+    }
+
+
+    if(
+        typeof updateDelayCharts ===
+        "function"
+    ){
+
+        updateDelayCharts(
+            currentStats
+        );
+
+    }
+
+
+    if(
+        typeof updateDelayGroupsChart ===
+        "function"
+    ){
+
+        updateDelayGroupsChart(
+            currentStats
+        );
+
+    }
+
+
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                700
+            )
+    );
+
+}
+
+
+// ======================================================
+// SAVE CURRENT UI STATE
+// ======================================================
+
+function getFwdExportOriginalState(){
+
+    return {
+
+        period:
+            document.getElementById(
+                "dashboardPeriod"
+            )?.value,
+
+        country:
+            document.getElementById(
+                "baseCountryFilter"
+            )?.value,
+
+        sort:
+            document.getElementById(
+                "baseSort"
+            )?.value,
+
+        delayCode:
+            document.getElementById(
+                "delayCodeSelector"
+            )?.value,
+
+        delayGroup:
+            document.getElementById(
+                "delayGroupSelector"
+            )?.value,
+
+        analysisBase:
+            document.getElementById(
+                "analysisBase"
+            )?.value,
+
+        showZero:
+            document.getElementById(
+                "showZeroBases"
+            )?.checked
+
+    };
+
+}
+
+
+// ======================================================
+// RESTORE CURRENT UI STATE
+// ======================================================
+
+async function restoreFwdExportOriginalState(
+    state
+){
+
+    if(!state)
+        return;
+
+
+    const period =
+        document.getElementById(
+            "dashboardPeriod"
+        );
+
+
+    if(
+        period &&
+        state.period &&
+        period.value !== state.period
+    ){
+
+        period.value =
+            state.period;
+
+
+        const [year,month] =
+            state.period
+                .split("-")
+                .map(Number);
+
+
+        await updateFWDDashboard(
+            year,
+            month
+        );
+
+    }
+
+
+    const country =
+        document.getElementById(
+            "baseCountryFilter"
+        );
+
+
+    if(country){
+
+        country.value =
+            state.country || "ALL";
+
+    }
+
+
+    const sort =
+        document.getElementById(
+            "baseSort"
+        );
+
+
+    if(sort){
+
+        sort.value =
+            state.sort;
+
+    }
+
+
+    const code =
+        document.getElementById(
+            "delayCodeSelector"
+        );
+
+
+    if(code && state.delayCode){
+
+        code.value =
+            state.delayCode;
+
+    }
+
+
+    const group =
+        document.getElementById(
+            "delayGroupSelector"
+        );
+
+
+    if(group && state.delayGroup){
+
+        group.value =
+            state.delayGroup;
+
+    }
+
+
+    const zero =
+        document.getElementById(
+            "showZeroBases"
+        );
+
+
+    if(zero){
+
+        zero.checked =
+            state.showZero;
+
+    }
+
+
+    const analysisBase =
+        document.getElementById(
+            "analysisBase"
+        );
+
+
+    if(
+        analysisBase &&
+        state.analysisBase
+    ){
+
+        analysisBase.value =
+            state.analysisBase;
+
+    }
+
+
+    if(
+        typeof updateBasePerformance ===
+        "function"
+    ){
+
+        updateBasePerformance();
+
+    }
+
+
+    if(
+        typeof updateBaseAnalysis ===
+        "function"
+    ){
+
+        updateBaseAnalysis();
+
+    }
+
+
+    if(
+        typeof updateBaseHistoryChart ===
+        "function"
+    ){
+
+        updateBaseHistoryChart();
+
+    }
+
+
+    if(
+        typeof updateOperationalTrends ===
+        "function"
+    ){
+
+        updateOperationalTrends();
+
+    }
+
+
+    if(
+        typeof updateRegionalCards ===
+        "function"
+    ){
+
+        updateRegionalCards(
+            state.country || "ALL"
+        );
+
+    }
+
+
+    if(
+        typeof updateRegionalDelayCharts ===
+        "function"
+    ){
+
+        updateRegionalDelayCharts(
+            state.country || "ALL"
+        );
+
+    }
+
+
+    if(
+        typeof updateRegionalTopDelay ===
+        "function"
+    ){
+
+        updateRegionalTopDelay(
+            state.country || "ALL"
+        );
+
+    }
+
+
+    if(
+        typeof updateMapSelection ===
+        "function"
+    ){
+
+        updateMapSelection(
+            state.country || "ALL"
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// PDF SECTION VISIBILITY
+// ======================================================
+
+function getFwdExportSections(){
+
+    const selected = [];
+
+    document
+        .querySelectorAll(
+            "#fwdExportModal input[type='checkbox'][value]"
+        )
+        .forEach(input=>{
+
+            if(input.checked){
+
+                selected.push(
+                    input.value
+                );
+
+            }
+
+        });
+
+
+    // IMPORTANT:
+    // We use the REAL dashboard sections.
+    // Nothing is recreated for the PDF.
+
+    const map = {
+
+        exec:
+            document.querySelector(
+                ".exec-section"
+            ),
+
+        region:
+            document.querySelector(
+                ".region-section"
+            ),
+
+        base:
+            document.querySelector(
+                ".base-section"
+            ),
+
+        analysis:
+            document.querySelector(
+                ".analysis-section"
+            ),
+
+        trend:
+            document.querySelector(
+                ".trend-section"
+            ),
+
+        insight:
+            document.querySelector(
+                ".insight-section"
+            ),
+
+        explorer:
+            document.querySelector(
+                ".explorer-section"
+            )
+
+    };
+
+
+    return selected
+        .map(key => map[key])
+        .filter(section => section);
+
+}
+
+
+// ======================================================
+// PREPARE DASHBOARD FOR PDF
+// ======================================================
+
+function prepareFwdPdfDashboard(){
+
+    const elements = [
+
+        ".region-filters",
+
+        ".base-filters",
+
+        ".analysis-filters",
+
+        ".trend-filters",
+
+        ".explorer-toolbar",
+
+        ".zero-toggle",
+
+        "#delayCodeFilter",
+
+        "#delayGroupFilter"
+
+    ];
+
+
+    const hidden = [];
+
+
+    elements.forEach(selector=>{
+
+        document
+            .querySelectorAll(selector)
+            .forEach(element=>{
+
+                hidden.push({
+
+                    element,
+
+                    display:
+                        element.style.display
+
+                });
+
+
+                element.style.display =
+                    "none";
+
+            });
+
+    });
+
+
+    return hidden;
+
+}
+
+
+// ======================================================
+// RESTORE DASHBOARD
+// ======================================================
+
+function restoreFwdPdfDashboard(hidden){
+
+    hidden.forEach(item=>{
+
+        item.element.style.display =
+            item.display;
+
+    });
+
+}
+
+
+// ======================================================
+// PREPARE BASE / TREND PDF CONTENT
+// ======================================================
+
+function prepareFwdPdfSectionContent(section){
+
+    const changes = [];
+
+    // ==============================================
+    // BASE PERFORMANCE
+    // ==============================================
+
+    if(
+        section.classList &&
+        section.classList.contains("base-section")
+    ){
+
+        const sort =
+            document.getElementById(
+                "baseSort"
+            );
+
+        const delayCode =
+            document.getElementById(
+                "delayCodeSelector"
+            );
+
+        const delayGroup =
+            document.getElementById(
+                "delayGroupSelector"
+            );
+
+
+        let metric =
+            sort
+                ?.selectedOptions[0]
+                ?.textContent
+                ?.trim()
+            || "First Wave Delays";
+
+
+        // More descriptive names for filtered metrics
+
+        if(
+            sort?.value === "delayCode" &&
+            delayCode?.selectedOptions[0]
+        ){
+
+            metric =
+                `Delay Code — ${
+                    delayCode
+                        .selectedOptions[0]
+                        .textContent
+                        .trim()
+                }`;
+
+        }
+
+
+        if(
+            sort?.value === "delayGroup" &&
+            delayGroup?.selectedOptions[0]
+        ){
+
+            metric =
+                `Delay Group — ${
+                    delayGroup
+                        .selectedOptions[0]
+                        .textContent
+                        .trim()
+                }`;
+
+        }
+
+
+        // Create metric label
+
+        const rankingHeader =
+            section.querySelector(
+                ".ranking-header"
+            );
+
+
+        if(rankingHeader){
+
+            const metricLabel =
+                document.createElement(
+                    "div"
+                );
+
+
+            metricLabel.id =
+                "fwdPdfMetricLabel";
+
+
+            metricLabel.style.cssText = `
+
+                margin-top:6px;
+
+                margin-bottom:10px;
+
+                color:#6B7280;
+
+                font-size:13px;
+
+                font-weight:600;
+
+                letter-spacing:.3px;
+
+            `;
+
+
+            metricLabel.textContent =
+                `Metric: ${metric}`;
+
+
+            rankingHeader.insertAdjacentElement(
+                "afterend",
+                metricLabel
+            );
+
+
+            changes.push(
+                metricLabel
+            );
+
+        }
+
+
+        // ==========================================
+        // FORCE ZERO VALUES
+        // ==========================================
+
+        const zeroToggle =
+            document.getElementById(
+                "showZeroBases"
+            );
+
+
+        if(zeroToggle){
+
+            changes.push({
+
+                type:"checkbox",
+
+                element:zeroToggle,
+
+                checked:
+                    zeroToggle.checked
+
+            });
+
+
+            zeroToggle.checked =
+                true;
+
+
+            updateBasePerformance();
+
+        }
+
+    }
+
+
+   
+}
+
+// ======================================================
+// CAPTURE FWD PDF SECTION
+// ======================================================
+
+async function captureFwdPdfSection(section){
+
+    if(!section){
+
+        throw new Error(
+            "FWD_PDF_SECTION_NOT_FOUND"
+        );
+
+    }
+
+
+    // ==================================================
+    // SPECIAL COUNTRY OVERVIEW HANDLING
+    // ==================================================
+
+    if(
+        section.classList &&
+        section.classList.contains("region-section")
+    ){
+
+        return await captureFwdCountryOverview(
+            section
+        );
+
+    }
+
+
+    // ==================================================
+    // TEMPORARY PDF CHANGES
+    // ==================================================
+
+    const temporaryElements = [];
+
+    let zeroCheckbox = null;
+    let originalZeroState = null;
+
+
+    // ==================================================
+    // BASE PERFORMANCE
+    // ==================================================
+
+    if(
+        section.classList &&
+        section.classList.contains("base-section")
+    ){
+
+        // ----------------------------------------------
+        // SHOW ZERO VALUES
+        // ----------------------------------------------
+
+        zeroCheckbox =
+            document.getElementById(
+                "showZeroBases"
+            );
+
+        if(zeroCheckbox){
+
+    originalZeroState =
+        zeroCheckbox.checked;
+
+    zeroCheckbox.checked = true;
+
+
+    if(
+        typeof updateBasePerformance ===
+        "function"
+    ){
+
+        updateBasePerformance();
+
+    }
+
+
+    // ==========================================
+    // FORCE BASE CHART TO FINISH REDRAWING
+    // ==========================================
+
+    if(
+        typeof baseRankingChart !==
+        "undefined" &&
+        baseRankingChart
+    ){
+
+        baseRankingChart.update("none");
+
+        baseRankingChart.resize();
+
+        baseRankingChart.update("none");
+
+    }
+
+
+    // Give Chart.js time to render the zero values
+
+    await new Promise(
+        resolve =>
+            requestAnimationFrame(
+                ()=>resolve()
+            )
+    );
+
+
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                200
+            )
+    );
+
+}
+
+
+        // ----------------------------------------------
+        // FIND SELECTED METRIC
+        // ----------------------------------------------
+
+        const sortSelect =
+            document.getElementById(
+                "baseSort"
+            );
+
+
+        let metric =
+            sortSelect
+                ?.selectedOptions?.[0]
+                ?.textContent
+                ?.trim()
+            || "First Wave Delays";
+
+
+        // ----------------------------------------------
+        // CREATE METRIC LABEL
+        // ----------------------------------------------
+
+        const metricLabel =
+            document.createElement(
+                "div"
+            );
+
+
+        metricLabel.style.cssText = `
+
+            font-size:14px;
+
+            font-weight:600;
+
+            color:#6B7280;
+
+            margin-top:4px;
+
+            margin-bottom:12px;
+
+        `;
+
+
+        metricLabel.textContent =
+            `Metric: ${metric}`;
+
+
+        const rankingTitle =
+            section.querySelector(
+                ".ranking-header"
+            );
+
+
+        if(rankingTitle){
+
+            rankingTitle.insertAdjacentElement(
+                "afterend",
+                metricLabel
+            );
+
+        }
+        else{
+
+            section.prepend(
+                metricLabel
+            );
+
+        }
+
+
+        temporaryElements.push(
+            metricLabel
+        );
+
+    }
+
+
+    // ==================================================
+    // TREND ANALYSIS
+    // ==================================================
+
+    if(
+        section.classList &&
+        section.classList.contains("trend-section")
+    ){
+
+        const trendTitle =
+            document.createElement(
+                "div"
+            );
+
+
+        trendTitle.style.cssText = `
+
+            font-size:26px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+    margin-bottom:18px;
+
+    padding-bottom:10px;
+
+`;
+
+
+        trendTitle.textContent =
+            "Trend Analysis";
+
+const underline =
+    document.createElement(
+        "div"
+    );
+
+
+underline.style.cssText = `
+
+    width:70px;
+
+    height:4px;
+
+    background:#F1C400;
+
+    border-radius:4px;
+
+    margin-top:-12px;
+
+    margin-bottom:18px;
+
+`;
+
+
+        const firstChild =
+            section.firstElementChild;
+
+
+        if(firstChild){
+
+    section.insertBefore(
+        trendTitle,
+        firstChild
+    );
+
+    section.insertBefore(
+        underline,
+        trendTitle.nextSibling
+    );
+
+}
+else{
+
+    section.appendChild(
+        trendTitle
+    );
+
+    section.appendChild(
+        underline
+    );
+
+}
+
+
+        temporaryElements.push(
+    trendTitle,
+    underline
+);
+
+    }
+
+
+    // ==================================================
+    // NORMAL SECTION
+    // ==================================================
+
+    const originalDisplay =
+        section.style.display;
+
+    const originalVisibility =
+        section.style.visibility;
+
+
+    section.style.display =
+        "block";
+
+    section.style.visibility =
+        "visible";
+
+
+    section.getBoundingClientRect();
+
+
+    await new Promise(
+        resolve =>
+            requestAnimationFrame(
+                ()=>resolve()
+            )
+    );
+
+
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                300
+            )
+    );
+
+
+    let canvas;
+
+
+    try{
+
+        canvas =
+            await html2canvas(
+                section,
+                {
+
+                    scale:4,
+
+                    useCORS:true,
+
+                    allowTaint:true,
+
+                    backgroundColor:
+                        "#FFFFFF",
+
+                    logging:false,
+
+                    scrollX:0,
+
+                    scrollY:-window.scrollY,
+
+                    windowWidth:
+                        Math.max(
+                            document.documentElement.scrollWidth,
+                            section.scrollWidth
+                        ),
+
+                    windowHeight:
+                        Math.max(
+                            document.documentElement.scrollHeight,
+                            section.scrollHeight
+                        )
+
+                }
+            );
+
+    }
+
+    finally{
+
+        // ==============================================
+        // RESTORE ORIGINAL SECTION STATE
+        // ==============================================
+
+        section.style.display =
+            originalDisplay;
+
+        section.style.visibility =
+            originalVisibility;
+
+
+        // ==============================================
+        // RESTORE ZERO CHECKBOX
+        // ==============================================
+
+        if(
+    zeroCheckbox &&
+    originalZeroState !== null
+){
+
+    zeroCheckbox.checked =
+        originalZeroState;
+
+
+    if(
+        typeof updateBasePerformance ===
+        "function"
+    ){
+
+        updateBasePerformance();
+
+    }
+
+}
+
+
+        // ==============================================
+        // REMOVE TEMPORARY ELEMENTS
+        // ==============================================
+
+        temporaryElements.forEach(
+            element => {
+
+                if(
+                    element &&
+                    element.parentNode
+                ){
+
+                    element.remove();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    return canvas;
+
+}
+
+
+// ======================================================
+// COUNTRY OVERVIEW PDF
+// ======================================================
+
+async function captureFwdCountryOverview(section){
+
+    const country =
+        document.getElementById(
+            "fwdExportCountry"
+        )?.value || "ALL";
+
+
+    const countryLabel =
+    country === "ALL"
+        ? "ALL COUNTRIES"
+        : country.toUpperCase();
+
+// ==============================================
+// COUNTRY DATA FOR PDF
+// ==============================================
+
+const countryStats =
+    currentStats?.countryStats?.[country] || {};
+
+const pdfCountryBases =
+    country === "ALL"
+        ? BASES.length
+        : BASES.filter(
+            base => BASE_COUNTRIES[base] === country
+          ).length;
+
+const pdfCountryFwd =
+    country === "ALL"
+        ? currentStats?.totalFWD || 0
+        : countryStats.fwd || 0;
+
+const pdfCountryNightStops =
+    country === "ALL"
+        ? currentStats?.totalNightStops || 0
+        : countryStats.nightStops || 0;
+
+const pdfCountryRate =
+    pdfCountryNightStops > 0
+        ? (
+            pdfCountryFwd /
+            pdfCountryNightStops *
+            100
+          ).toFixed(1) + "%"
+        : "0.0%";
+
+
+    // ==============================================
+    // CREATE TEMPORARY PDF CONTAINER
+    // ==============================================
+
+    const pdfSection =
+        document.createElement("div");
+
+
+    pdfSection.style.cssText = `
+
+        width:1800px;
+
+        padding:35px;
+
+        background:#FFFFFF;
+
+        box-sizing:border-box;
+
+        font-family:
+            'Segoe UI',
+            Arial,
+            sans-serif;
+
+        color:#073590;
+
+    `;
+
+
+    // ==============================================
+    // TITLE
+    // ==============================================
+
+    pdfSection.innerHTML = `
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:25px;
+        ">
+
+            <div>
+
+                <div style="
+                    font-size:30px;
+                    font-weight:800;
+                    color:#07225B;
+                ">
+                    Country Overview
+                </div>
+
+                <div style="
+                    margin-top:5px;
+                    font-size:15px;
+                    color:#7A8599;
+                ">
+                    First Wave Delays — Country Performance
+                </div>
+
+            </div>
+
+
+            <div style="
+                background:#073590;
+                color:#FFFFFF;
+                padding:12px 22px;
+                border-radius:12px;
+                font-size:15px;
+                font-weight:800;
+            ">
+
+                ${countryLabel}
+
+            </div>
+
+        </div>
+
+
+        <!-- KPI CARDS -->
+
+        <div
+            style="
+                display:grid;
+                grid-template-columns:
+                    repeat(4,1fr);
+                gap:18px;
+                margin-bottom:25px;
+            "
+        >
+
+            ${createFwdPdfKpi(
+    "BASES",
+    pdfCountryBases
+)}
+
+${createFwdPdfKpi(
+    "TOTAL FWD",
+    pdfCountryFwd.toLocaleString()
+)}
+
+${createFwdPdfKpi(
+    "TOTAL NIGHT STOPS",
+    pdfCountryNightStops.toLocaleString()
+)}
+
+${createFwdPdfKpi(
+    "FWD RATE",
+    pdfCountryRate
+)}
+
+        </div>
+
+
+        <!-- DELAY ANALYSIS -->
+
+        <div
+            style="
+                display:grid;
+                grid-template-columns:
+                    1.25fr 1fr;
+                gap:20px;
+                margin-bottom:25px;
+            "
+        >
+
+            <div
+                style="
+                    background:#FFFFFF;
+                    border:1px solid #E3E8F0;
+                    border-top:5px solid #F1C400;
+                    border-radius:16px;
+                    padding:22px;
+                    box-sizing:border-box;
+                "
+            >
+
+                <div style="
+                    font-size:20px;
+                    font-weight:800;
+                    color:#073590;
+                    margin-bottom:15px;
+                ">
+                    TOP STANDARD IATA DELAY CODES
+                </div>
+
+                <div
+                    id="fwdPdfDelayCodes"
+                    style="
+                        height:360px;
+                    "
+                ></div>
+
+            </div>
+
+
+            <div
+                style="
+                    background:#FFFFFF;
+                    border:1px solid #E3E8F0;
+                    border-top:5px solid #073590;
+                    border-radius:16px;
+                    padding:22px;
+                    box-sizing:border-box;
+                "
+            >
+
+                <div style="
+                    font-size:20px;
+                    font-weight:800;
+                    color:#073590;
+                    margin-bottom:15px;
+                ">
+                    DELAY GROUPS DISTRIBUTION
+                </div>
+
+                <div
+                    id="fwdPdfDelayGroups"
+                    style="
+                        height:360px;
+                    "
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- COUNTRY DONUTS -->
+
+        <div
+            style="
+                display:grid;
+                grid-template-columns:
+                    1fr 1fr;
+                gap:20px;
+            "
+        >
+
+            <div
+                style="
+                    background:#FFFFFF;
+                    border:1px solid #E3E8F0;
+                    border-top:5px solid #F1C400;
+                    border-radius:16px;
+                    padding:22px;
+                    box-sizing:border-box;
+                "
+            >
+
+                <div style="
+                    font-size:20px;
+                    font-weight:800;
+                    color:#073590;
+                    margin-bottom:10px;
+                ">
+                    FWD PER COUNTRY (%)
+                </div>
+
+                <div
+                    id="fwdPdfCountryFwd"
+                    style="
+                        height:390px;
+                        display:flex;
+                        justify-content:center;
+                    "
+                ></div>
+
+            </div>
+
+
+            <div
+                style="
+                    background:#FFFFFF;
+                    border:1px solid #E3E8F0;
+                    border-top:5px solid #073590;
+                    border-radius:16px;
+                    padding:22px;
+                    box-sizing:border-box;
+                "
+            >
+
+                <div style="
+                    font-size:20px;
+                    font-weight:800;
+                    color:#073590;
+                    margin-bottom:10px;
+                ">
+                    NIGHT-STOP AIRCRAFT PER COUNTRY (%)
+                </div>
+
+                <div
+                    id="fwdPdfCountryNs"
+                    style="
+                        height:390px;
+                        display:flex;
+                        justify-content:center;
+                    "
+                ></div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        pdfSection
+    );
+
+
+// ==============================================
+// FORCE COUNTRY CHART REFRESH
+// ==============================================
+
+if(
+    typeof updateRegionalDelayCharts ===
+    "function"
+){
+
+    updateRegionalDelayCharts(
+        country
+    );
+
+}
+
+if(
+    typeof updateRegionalPieCharts ===
+    "function"
+){
+
+    updateRegionalPieCharts(
+        country
+    );
+
+}
+
+await new Promise(
+    resolve =>
+        setTimeout(
+            resolve,
+            500
+        )
+);
+
+    // ==============================================
+// REFRESH COUNTRY DATA FOR PDF
+// ==============================================
+
+if(
+    typeof updateRegionalDelayCharts ===
+    "function"
+){
+
+    updateRegionalDelayCharts(
+        country
+    );
+
+}
+
+
+if(
+    typeof updateRegionalPieCharts ===
+    "function"
+){
+
+    updateRegionalPieCharts(
+        country
+    );
+
+}
+
+
+// Wait for Chart.js to finish updating
+
+await new Promise(
+    resolve =>
+        setTimeout(
+            resolve,
+            1200
+        )
+);
+
+
+// ==============================================
+// COUNTRY DELAY CODES TABLE
+// ==============================================
+
+const delayCodesContainer =
+    pdfSection.querySelector(
+        "#fwdPdfDelayCodes"
+    );
+
+
+if(delayCodesContainer){
+
+    delayCodesContainer.innerHTML =
+        createFwdPdfDelayCodesTable(
+            country
+        );
+
+}
+
+
+// ==============================================
+// COPY COUNTRY CHARTS
+// ==============================================
+
+await insertFwdPdfChart(
+    pdfSection,
+    "fwdPdfDelayGroups",
+    "regionalDelayGroupsChart"
+);
+
+
+await insertFwdPdfChart(
+    pdfSection,
+    "fwdPdfCountryFwd",
+    "countryFwdChart"
+);
+
+
+await insertFwdPdfChart(
+    pdfSection,
+    "fwdPdfCountryNs",
+    "countryNsChart"
+);
+
+
+    // ==============================================
+    // FORCE LAYOUT
+    // ==============================================
+
+    pdfSection.getBoundingClientRect();
+
+
+    await new Promise(
+        resolve =>
+            requestAnimationFrame(
+                ()=>resolve()
+            )
+    );
+
+
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                300
+            )
+    );
+
+
+    // ==============================================
+    // CAPTURE
+    // ==============================================
+
+    let canvas;
+
+
+    try{
+
+        canvas =
+            await html2canvas(
+                pdfSection,
+                {
+
+                    scale:4,
+
+                    useCORS:true,
+
+                    allowTaint:true,
+
+                    backgroundColor:
+                        "#FFFFFF",
+
+                    logging:false,
+
+                    scrollX:0,
+
+                    scrollY:0
+
+                }
+            );
+
+    }
+
+    finally{
+
+        pdfSection.remove();
+
+    }
+
+
+    return canvas;
+
+}
+
+// ======================================================
+// COUNTRY DELAY CODES TABLE FOR PDF
+// ======================================================
+
+function createFwdPdfDelayCodesTable(country){
+
+    let delayCodes = {};
+
+
+    // ==============================================
+    // GET COUNTRY DATA
+    // ==============================================
+
+    if(country === "ALL"){
+
+        Object.values(
+            stats.countryStats || {}
+        ).forEach(countryData=>{
+
+            Object.entries(
+                countryData.delayCodes || {}
+            ).forEach(
+                ([code,value])=>{
+
+                    delayCodes[code] =
+                        (delayCodes[code] || 0)
+                        + value;
+
+                }
+            );
+
+        });
+
+    }
+    else{
+
+        delayCodes =
+            stats
+                .countryStats?.[country]
+                ?.delayCodes || {};
+
+    }
+
+
+    // ==============================================
+    // SORT BY EVENTS
+    // ==============================================
+
+    const entries =
+        Object.entries(delayCodes)
+            .sort(
+                (a,b)=>b[1]-a[1]
+            );
+
+
+    // ==============================================
+    // EMPTY STATE
+    // ==============================================
+
+    if(!entries.length){
+
+        return `
+
+            <div style="
+                padding:35px 20px;
+                text-align:center;
+                color:#7A8599;
+                font-size:14px;
+            ">
+
+                No delay codes recorded.
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ==============================================
+    // TABLE
+    // ==============================================
+
+    let html = `
+
+        <div style="
+            width:100%;
+            border:1px solid #E3E8F0;
+            border-radius:12px;
+            overflow:hidden;
+        ">
+
+            <div style="
+                display:grid;
+                grid-template-columns:
+                    90px 1fr 90px;
+
+                background:#073590;
+                color:#FFFFFF;
+
+                font-size:13px;
+                font-weight:800;
+
+                padding:12px 16px;
+            ">
+
+                <div>CODE</div>
+
+                <div>DESCRIPTION</div>
+
+                <div style="
+                    text-align:right;
+                ">
+                    EVENTS
+                </div>
+
+            </div>
+
+    `;
+
+
+    entries.forEach(
+        ([code,value])=>{
+
+            const description =
+                IATA_DELAY_CODES[code]
+                || "Unknown";
+
+
+            html += `
+
+                <div style="
+                    display:grid;
+                    grid-template-columns:
+                        90px 1fr 90px;
+
+                    padding:13px 16px;
+
+                    border-bottom:
+                        1px solid #E8EDF3;
+
+                    font-size:14px;
+
+                    color:#07225B;
+                ">
+
+                    <div>
+
+                        <span style="
+                            display:inline-block;
+
+                            background:#073590;
+
+                            color:#FFFFFF;
+
+                            border-radius:8px;
+
+                            padding:5px 11px;
+
+                            font-weight:800;
+                        ">
+                            ${code}
+                        </span>
+
+                    </div>
+
+
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                    ">
+
+                        ${description}
+
+                    </div>
+
+
+                    <div style="
+                        text-align:right;
+
+                        color:#FDB813;
+
+                        font-weight:800;
+
+                        display:flex;
+                        align-items:center;
+                        justify-content:flex-end;
+                    ">
+
+                        ${value}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    return html;
+
+}
+
+// ======================================================
+// PDF KPI CARD
+// ======================================================
+
+function createFwdPdfKpi(
+    label,
+    value
+){
+
+    return `
+
+        <div
+            style="
+                background:#F8FAFD;
+
+                border:1px solid #E1E7F0;
+
+                border-top:
+                    5px solid #F1C400;
+
+                border-radius:14px;
+
+                padding:20px;
+
+                min-height:100px;
+
+                box-sizing:border-box;
+            "
+        >
+
+            <div
+                style="
+                    color:#7A8599;
+
+                    font-size:12px;
+
+                    font-weight:800;
+
+                    letter-spacing:.5px;
+
+                    text-transform:uppercase;
+                "
+            >
+                ${label}
+            </div>
+
+
+            <div
+                style="
+                    margin-top:12px;
+
+                    color:#073590;
+
+                    font-size:30px;
+
+                    font-weight:800;
+                "
+            >
+                ${value}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+// ======================================================
+// INSERT EXISTING CHART INTO PDF
+// ======================================================
+
+async function insertFwdPdfChart(
+    container,
+    targetId,
+    canvasId
+){
+
+    const target =
+        container.querySelector(
+            "#" + targetId
+        );
+
+
+    const source =
+        document.getElementById(
+            canvasId
+        );
+
+
+    if(
+        !target ||
+        !source
+    ){
+
+        return;
+
+    }
+
+
+    try{
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+
+        image.src =
+            source.toDataURL(
+                "image/png"
+            );
+
+
+        image.style.cssText = `
+
+            display:block;
+
+            width:auto;
+
+            height:100%;
+
+            max-width:100%;
+
+            object-fit:contain;
+
+        `;
+
+
+        target.appendChild(
+            image
+        );
+
+
+    }
+
+    catch(error){
+
+        console.warn(
+            "Unable to export chart:",
+            canvasId,
+            error
+        );
+
+    }
+
+}
+
+// ======================================================
+// CAPTURE PDF HEADER
+// ======================================================
+
+async function captureFwdPdfHeader(){
+
+    const header =
+        document.getElementById(
+            "fwdPdfReportHeader"
+        );
+
+
+    if(!header)
+        return null;
+
+
+    header.style.display =
+        "block";
+
+    header.style.position =
+        "absolute";
+
+    header.style.left =
+        "-99999px";
+
+    header.style.top =
+        "0";
+
+
+    const canvas =
+        await html2canvas(
+            header,
+            {
+
+                scale:4,
+
+                useCORS:true,
+
+                allowTaint:true,
+
+                backgroundColor:
+                    "#07225B",
+
+                logging:false
+
+            }
+        );
+
+
+    header.style.display =
+        "none";
+
+    header.style.position =
+        "";
+
+    header.style.left =
+        "";
+
+    header.style.top =
+        "";
+
+
+    return canvas;
+
+}
+
+
+// ======================================================
+// BUILD PDF PAGE
+// ======================================================
+
+async function addFwdPdfPage(
+
+    pdf,
+
+    headerCanvas,
+
+    sectionCanvas,
+
+    pageNumber,
+
+    totalPages
+
+){
+
+    const pageWidth =
+        pdf.internal.pageSize.getWidth();
+
+    const pageHeight =
+        pdf.internal.pageSize.getHeight();
+
+
+    const margin = 5;
+
+
+    const usableWidth =
+        pageWidth -
+        margin * 2;
+
+
+    const usableHeight =
+        pageHeight -
+        margin * 2;
+
+
+    const targetWidth =
+        1800;
+
+
+    const headerWidth =
+        targetWidth;
+
+
+    const headerHeight =
+        Math.round(
+
+            headerCanvas.height *
+
+            headerWidth /
+
+            headerCanvas.width
+
+        );
+
+
+    const sectionWidth =
+        targetWidth;
+
+
+    const sectionHeight =
+        Math.round(
+
+            sectionCanvas.height *
+
+            sectionWidth /
+
+            sectionCanvas.width
+
+        );
+
+
+    const totalHeight =
+        headerHeight +
+        sectionHeight;
+
+
+    /*
+       Create combined canvas.
+       This preserves:
+       - SVG map
+       - Chart.js charts
+       - tables
+       - dashboard styling
+    */
+
+    const combined =
+        document.createElement(
+            "canvas"
+        );
+
+
+    combined.width =
+        targetWidth;
+
+
+    combined.height =
+        totalHeight;
+
+
+    const ctx =
+        combined.getContext(
+            "2d"
+        );
+
+
+    ctx.fillStyle =
+        "#FFFFFF";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        combined.width,
+        combined.height
+    );
+
+
+    ctx.drawImage(
+
+        headerCanvas,
+
+        0,
+        0,
+
+        headerWidth,
+        headerHeight
+
+    );
+
+
+    ctx.drawImage(
+
+        sectionCanvas,
+
+        0,
+        headerHeight,
+
+        sectionWidth,
+        sectionHeight
+
+    );
+
+
+    const image =
+        combined.toDataURL(
+            "image/png"
+        );
+
+
+    let renderWidth =
+        usableWidth;
+
+
+    let renderHeight =
+        combined.height *
+
+        renderWidth /
+
+        combined.width;
+
+
+    if(
+        renderHeight >
+        usableHeight
+    ){
+
+        const ratio =
+            usableHeight /
+            renderHeight;
+
+
+        renderWidth *=
+            ratio;
+
+
+        renderHeight *=
+            ratio;
+
+    }
+
+
+    const x =
+        (pageWidth -
+            renderWidth) / 2;
+
+
+    const y =
+        (pageHeight -
+            renderHeight) / 2;
+
+
+    pdf.addImage(
+
+        image,
+
+        "PNG",
+
+        x,
+        y,
+
+        renderWidth,
+        renderHeight,
+
+        "",
+
+        "FAST"
+
+    );
+
+
+    // ======================================
+    // FOOTER
+    // ======================================
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+
+    pdf.setFontSize(7);
+
+
+    pdf.setTextColor(
+        100,
+        110,
+        125
+    );
+
+
+    pdf.text(
+
+        `Ryanair Engineering & Maintenance  •  FWD Report`,
+
+        margin,
+
+        pageHeight - 2.5
+
+    );
+
+
+    pdf.text(
+
+        `Page ${pageNumber} of ${totalPages}`,
+
+        pageWidth - margin,
+
+        pageHeight - 2.5,
+
+        {
+            align:"right"
+        }
+
+    );
+
+}
+
+
+// ======================================================
+// GENERATE FWD PDF
+// ======================================================
+
+async function generateFwdPDF(){
+
+    const originalState =
+        getFwdExportOriginalState();
+
+
+    const selectedSections =
+        getFwdExportSections();
+
+
+    if(!selectedSections.length){
+
+        showWarning(
+
+            "No Sections Selected",
+
+            "Please select at least one section for the report."
+
+        );
+
+        return;
+
+    }
+
+
+    closeFwdExportModal();
+
+
+    showPDFLoading();
+
+
+    let hidden = [];
+
+
+    try{
+
+        // ======================================
+        // APPLY EXPORT FILTERS
+        // ======================================
+
+        await applyFwdExportFilters();
+
+        // ======================================
+// WAIT FOR REGIONAL CHARTS TO FINISH
+// ======================================
+
+await new Promise(
+    resolve =>
+        setTimeout(
+            resolve,
+            1200
+        )
+);
+
+
+        // ======================================
+        // PREPARE PDF HEADER
+        // ======================================
+
+        const periodSelect =
+            document.getElementById(
+                "fwdExportPeriod"
+            );
+
+
+        const country =
+            document.getElementById(
+                "fwdExportCountry"
+            )?.value || "ALL";
+
+
+        const base =
+            document.getElementById(
+                "fwdExportBase"
+            )?.value || "-";
+
+
+        const periodLabel =
+            periodSelect
+                ?.selectedOptions[0]
+                ?.text ||
+            "Unknown Period";
+
+
+        document.getElementById(
+            "fwdPdfPeriod"
+        ).textContent =
+            periodLabel;
+
+
+        document.getElementById(
+            "fwdPdfScope"
+        ).textContent =
+
+            country === "ALL"
+
+                ? "All Countries"
+
+                : `${country} • ${base}`;
+
+
+        document.getElementById(
+            "fwdPdfGenerated"
+        ).textContent =
+
+            new Date()
+                .toLocaleString(
+                    "en-GB"
+                );
+
+
+        // ======================================
+        // HIDE DASHBOARD CONTROLS
+        // ======================================
+
+        hidden =
+            prepareFwdPdfDashboard();
+
+
+        // ======================================
+        // WAIT FOR CHARTS / MAP
+        // ======================================
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    500
+                )
+        );
+
+
+        // ======================================
+        // HEADER
+        // ======================================
+
+        const headerCanvas =
+            await captureFwdPdfHeader();
+
+
+        if(!headerCanvas){
+
+            throw new Error(
+                "FWD_PDF_HEADER_NOT_FOUND"
+            );
+
+        }
+
+
+        // ======================================
+        // CREATE PDF
+        // ======================================
+
+        const { jsPDF } =
+            window.jspdf;
+
+
+        const pdf =
+            new jsPDF({
+
+                orientation:
+                    "landscape",
+
+                unit:
+                    "mm",
+
+                format:
+                    "a4",
+
+                compress:
+                    true
+
+            });
+
+
+        const totalPages =
+            selectedSections.length;
+
+
+        // ======================================
+        // CAPTURE EACH SELECTED SECTION
+        // ======================================
+
+        for(
+
+            let i = 0;
+
+            i < selectedSections.length;
+
+            i++
+
+        ){
+
+            updatePDFLoading(
+
+                i + 1,
+
+                totalPages
+
+            );
+
+
+            const section =
+                selectedSections[i];
+
+
+            const canvas =
+                await captureFwdPdfSection(
+                    section
+                );
+
+
+            if(i > 0){
+
+                pdf.addPage(
+                    "a4",
+                    "landscape"
+                );
+
+            }
+
+
+            await addFwdPdfPage(
+
+                pdf,
+
+                headerCanvas,
+
+                canvas,
+
+                i + 1,
+
+                totalPages
+
+            );
+
+        }
+
+
+        // ======================================
+        // FILE NAME
+        // ======================================
+
+        const cleanPeriod =
+            periodLabel
+
+                .replace(
+                    /[\/\\:*?"<>|]/g,
+                    ""
+                )
+
+                .replace(
+                    /\s+/g,
+                    "_"
+                );
+
+
+        const cleanCountry =
+            country
+
+                .replace(
+                    /[\/\\:*?"<>|]/g,
+                    ""
+                )
+
+                .replace(
+                    /\s+/g,
+                    "_"
+                );
+
+
+        pdf.save(
+
+            `Ryanair_FWD_Report_${cleanPeriod}_${cleanCountry}.pdf`
+
+        );
+
+
+        showSuccess(
+
+            "PDF Generated",
+
+            "The First Wave Delays report has been generated successfully."
+
+        );
+
+
+    }
+
+    catch(error){
+
+        console.error(
+            "FWD PDF EXPORT ERROR:",
+            error
+        );
+
+
+        showError(
+
+            "PDF Export",
+
+            "Unable to generate the First Wave Delays report."
+
+        );
+
+    }
+
+
+    finally{
+
+        // ======================================
+        // RESTORE DASHBOARD
+        // ======================================
+
+        restoreFwdPdfDashboard(
+            hidden
+        );
+
+
+        await restoreFwdExportOriginalState(
+            originalState
+        );
+
+
+        hidePDFLoading();
+
+    }
+
+}
+
+
+// ======================================================
+// GLOBAL FUNCTIONS
+// ======================================================
+
+window.openFwdExportModal =
+    openFwdExportModal;
+
+
+window.closeFwdExportModal =
+    closeFwdExportModal;
+
+
+window.updateFwdExportBases =
+    updateFwdExportBases;
+
+
+window.generateFwdPDF =
+    generateFwdPDF;
+
+
+// ======================================================
+// FWD RESET DATA
+// ======================================================
+
+function resetFwdData(){
+
+    // ==============================================
+    // GET CURRENT PERIOD
+    // ==============================================
+
+    const periodSelect =
+        document.getElementById(
+            "dashboardPeriod"
+        );
+
+
+    const period =
+        periodSelect?.value;
+
+
+    const periodLabel =
+        periodSelect
+            ?.selectedOptions?.[0]
+            ?.textContent
+            ?.trim()
+        || period
+        || "the selected period";
+
+
+    if(!period){
+
+        showWarning(
+            "No Period Selected",
+            "Please select a reporting period first."
+        );
+
+        return;
+
+    }
+
+
+    // ==============================================
+    // FIRST CONFIRMATION
+    // ==============================================
+
+    showConfirmation(
+
+        "Reset FWD Data",
+
+        `You are about to permanently delete all First Wave Delay data for ${periodLabel}. This action cannot be undone.`,
+
+        async ()=>{
+
+            // ======================================
+            // SECOND CONFIRMATION
+            // ======================================
+
+            showConfirmation(
+
+                "Confirm Permanent Deletion",
+
+                `Are you absolutely sure you want to delete ${periodLabel}? All FWD records for this period will be permanently removed.`,
+
+                async ()=>{
+
+                    await performFwdDataReset(
+                        period,
+                        periodLabel
+                    );
+
+                },
+
+                "Delete Data"
+
+            );
+
+        },
+
+        "Continue"
+
+    );
+
+}
+
+// ======================================================
+// PERFORM FWD DATA RESET
+// ======================================================
+
+async function performFwdDataReset(
+    period,
+    periodLabel
+){
+
+    try{
+
+        // ==========================================
+        // LOADING
+        // ==========================================
+
+        showLoading();
+
+        updateLoading(
+            "Resetting FWD Data...",
+            25,
+            `Deleting ${periodLabel}...`
+        );
+
+
+// ==========================================
+// FIREBASE PERIOD PATH
+// ==========================================
+
+const [year, month] =
+    period.split("-");
+
+const fwdPeriodPath =
+    `${FWD_DATA_COLLECTION}/${year}/${String(month).padStart(2,"0")}`;
+
+await firebaseRemove(
+
+    firebaseRef(
+
+        database,
+
+        fwdPeriodPath
+
+    )
+
+);
+
+// ==========================================
+// REMOVE DELETED PERIOD FROM SELECTOR
+// ==========================================
+
+const dashboardSelector =
+    document.getElementById(
+        "dashboardPeriod"
+    );
+
+if(dashboardSelector){
+
+    Array.from(
+        dashboardSelector.options
+    ).forEach(option => {
+
+        const [
+            optionYear,
+            optionMonth
+        ] =
+            option.value
+                .split("-")
+                .map(Number);
+
+        if(
+            optionYear === Number(year) &&
+            optionMonth === Number(month)
+        ){
+
+            option.remove();
+
+        }
+
+    });
+
+
+    // ==========================================
+    // FIND PREVIOUS AVAILABLE PERIOD
+    // ==========================================
+
+    const remainingSnapshot =
+        await firebaseGet(
+            firebaseRef(
+                database,
+                FWD_DATA_COLLECTION
+            )
+        );
+
+
+    if(
+        remainingSnapshot.exists()
+    ){
+
+        const remainingData =
+            remainingSnapshot.val();
+
+        const remainingPeriods = [];
+
+
+        Object.keys(
+            remainingData
+        ).forEach(
+            remainingYear => {
+
+                Object.keys(
+                    remainingData[remainingYear]
+                ).forEach(
+                    remainingMonth => {
+
+                        remainingPeriods.push({
+
+                            year:
+                                Number(
+                                    remainingYear
+                                ),
+
+                            month:
+                                Number(
+                                    remainingMonth
+                                )
+
+                        });
+
+                    }
+                );
+
+            }
+        );
+
+
+        remainingPeriods.sort(
+            (a,b) => {
+
+                if(
+                    a.year !==
+                    b.year
+                ){
+
+                    return b.year - a.year;
+
+                }
+
+                return b.month - a.month;
+
+            }
+        );
+
+
+        if(
+            remainingPeriods.length > 0
+        ){
+
+            const previousPeriod =
+                remainingPeriods[0];
+
+
+            dashboardSelector.value =
+                `${previousPeriod.year}-${previousPeriod.month}`;
+
+
+            await updateFWDDashboard(
+
+                previousPeriod.year,
+
+                previousPeriod.month
+
+            );
+
+        }
+
+    }
+
+}
+
+// ==========================================
+// AUDIT LOG
+// ==========================================
+
+await writeAuditLog(
+
+    "RESET_FWD_DATA",
+
+    `Deleted FWD data for ${periodLabel} (${period}).`
+
+);
+
+// ==========================================
+// REFRESH DASHBOARD
+// ==========================================
+
+updateLoading(
+    "Refreshing Dashboard...",
+    70,
+    "Reloading First Wave Delay data..."
+);
+
+updateLoading(
+    "Reset Complete",
+    100,
+    "FWD data successfully deleted."
+);
+
+await new Promise(
+    resolve =>
+        setTimeout(
+            resolve,
+            500
+        )
+);
+
+hideLoading();
+
+// ==========================================
+// SUCCESS
+// ==========================================
+
+showSuccess(
+
+    "FWD Data Reset",
+
+    `${periodLabel} has been successfully deleted.`
+
+);
+
+    }
+
+    catch(error){
+
+        console.error(
+            "FWD Reset Error:",
+            error
+        );
+
+
+        hideLoading();
+
+
+        showError(
+
+            "Reset Failed",
+
+            "Unable to delete the selected FWD data."
+
+        );
 
     }
 

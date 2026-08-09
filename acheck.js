@@ -427,61 +427,97 @@ async function initializeACheck(){
 
 }
 
-window.generatePDF = async function () {
+window.exportPDFReport = window.generatePDF =async function () {
 
-console.log("PDF BUTTON CLICKED");
+    showPDFLoading();
+
+const pdfHeader = document.getElementById("pdfReportHeader");
+
+const periodLabel =
+    document.getElementById("analysis-period")?.selectedOptions[0]?.text ||
+    "Unknown Period";
+
+document.getElementById("pdfReportPeriod").textContent = periodLabel;
+
+document.getElementById("pdfGeneratedDate").textContent =
+    new Date().toLocaleString("en-GB");
+
+pdfHeader.style.display = "block";
 
     const { jsPDF } = window.jspdf;
 
-    const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4"
-    });
+    try{
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const margin = 4;
-
-    const usableWidth = pageWidth - margin * 2;
-    const usableHeight = pageHeight - margin * 2;
-
-    const controls = document.getElementById("controls-panel");
-    const filters = document.getElementById("ui-filters");
-
-    if (controls) controls.style.display = "none";
-    if (filters) filters.style.display = "none";
-
-    await new Promise(r => setTimeout(r,600));
-
-    async function capture(wrapper){
-
-        if(!wrapper) return;
-
-        const canvas = await html2canvas(wrapper,{
-            scale:3,
-            useCORS:true,
-            allowTaint:true,
-            backgroundColor:"#FFFFFF",
-            logging:false,
-            scrollX:0,
-            scrollY:-window.scrollY,
-            windowWidth:document.documentElement.scrollWidth,
-            windowHeight:document.documentElement.scrollHeight
+        const pdf = new jsPDF({
+            orientation: "landscape",
+            unit: "mm",
+            format: "a4"
         });
 
-        return canvas;
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-    }
+        const margin = 4;
 
-    async function addWrapper(wrapper){
+        const usableWidth = pageWidth - margin * 2;
+        const usableHeight = pageHeight - margin * 2;
 
-    const canvas = await capture(wrapper);
+        const controls = document.getElementById("controls-panel");
+        const filters = document.getElementById("ui-filters");
+
+        if (controls) controls.style.display = "none";
+        if (filters) filters.style.display = "none";
+
+        await new Promise(r => setTimeout(r,600));
+
+        async function capture(wrapper){
+
+            if(!wrapper) return;
+
+            const canvas = await html2canvas(wrapper,{
+                scale:3,
+                useCORS:true,
+                allowTaint:true,
+                backgroundColor:"#FFFFFF",
+                logging:false,
+                scrollX:0,
+                scrollY:-window.scrollY,
+                windowWidth:document.documentElement.scrollWidth,
+                windowHeight:document.documentElement.scrollHeight
+            });
+
+            return canvas;
+
+        }
+
+        async function addWrapper(wrapper){
+
+    const exportContainer = document.createElement("div");
+
+    exportContainer.style.background = "#FFFFFF";
+    exportContainer.style.padding = "0";
+    exportContainer.style.width = wrapper.offsetWidth + "px";
+
+    exportContainer.appendChild(
+        document.getElementById("pdfReportHeader").cloneNode(true)
+    );
+
+    exportContainer.appendChild(
+        wrapper.cloneNode(true)
+    );
+
+    exportContainer.style.position = "absolute";
+    exportContainer.style.left = "-99999px";
+    exportContainer.style.top = "0";
+
+    document.body.appendChild(exportContainer);
+
+    const canvas = await capture(exportContainer);
+
+    document.body.removeChild(exportContainer);
 
     const img = canvas.toDataURL("image/png");
 
-    // Obter dimensões da página ATUAL
     const currentPageWidth = pdf.internal.pageSize.getWidth();
     const currentPageHeight = pdf.internal.pageSize.getHeight();
 
@@ -516,39 +552,56 @@ console.log("PDF BUTTON CLICKED");
 
 }
 
-    const wrappers = [
-        document.getElementById("ax-duration-wrapper"),
-        document.getElementById("ax-variation-wrapper"),
-        document.getElementById("manpower-wrapper"),
-        document.getElementById("perf-wrapper"),
-        document.getElementById("deferred-wrapper"),
-        document.getElementById("hils-wrapper")
+        const wrappers = [
 
-    ];
+            document.getElementById("ax-duration-wrapper"),
+            document.getElementById("ax-variation-wrapper"),
+            document.getElementById("manpower-wrapper"),
+            document.getElementById("perf-wrapper"),
+            document.getElementById("deferred-wrapper"),
+            document.getElementById("hils-wrapper"),
+document.getElementById("pn-wrapper")
 
-    for(let i = 0; i < wrappers.length; i++){
+        ];
 
-    if(i > 0){
+        for(let i = 0; i < wrappers.length; i++){
 
-        if(i < 4){
-            // Páginas 2, 3 e 4
-            pdf.addPage("a4", "landscape");
-        } else {
-            // Páginas 5 e 6
-            pdf.addPage("a4", "portrait");
+            updatePDFLoading(i + 1, wrappers.length);
+
+            if(i > 0){
+
+                if(i < 4){
+                    pdf.addPage("a4", "landscape");
+                }else{
+                    pdf.addPage("a4", "portrait");
+                }
+
+            }
+
+            await addWrapper(wrappers[i]);
+
         }
 
-    }
+        const periodName =
+    document.getElementById("analysis-period")
+    ?.selectedOptions[0]
+    ?.text
+    ?.replace(/[\/\\:*?"<>|]/g, "")
+    ?.replace(/\s+/g, "_") || "Unknown_Period";
 
-    await addWrapper(wrappers[i]);
-
-}
-    
-    pdf.save("Ryanair_A-Check_Dashboard.pdf");
+pdf.save(`Ryanair_A-Check_Report_${periodName}.pdf`);
 
         if (controls) controls.style.display = "";
         if (filters) filters.style.display = "";
 
+    }
+    finally{
+
+    document.getElementById("pdfReportHeader").style.display = "none";
+
+    hidePDFLoading();
+
+}
 
 };
         function createEmptyState(badgeName) {
@@ -1554,32 +1607,41 @@ event.target.value = "";
 
         window.clearCurrentShiftData = function () {
 
-    if (!confirm(`Are you sure you want to clear ALL ${currentShift} Check Form?\n\nThis action cannot be undone.`)) {
-        return;
+    showConfirmation(
+
+    "Clear Current Shift",
+
+    `Are you sure you want to clear ALL ${currentShift} Check Form?\n\nThis action cannot be undone.`,
+
+    async () => {
+
+        // Repor os dados desse turno para os valores por defeito
+        appStates[currentShift] = createZeroState(
+            currentShift === "Night"
+                ? "NIGHT SHIFT"
+                : "DAY SHIFT"
+        );
+
+        // Manter apenas o nome do turno
+        appStates[currentShift].shiftLabel =
+            currentShift === "Night"
+                ? "NIGHT CHECK"
+                : "DAY CHECK";
+
+        renderDOM();
+
+        showSuccess(
+            "Current Shift Cleared",
+            "The current report has been cleared. Data stored in Firebase has not been modified."
+        );
+
     }
 
-    // Repor os dados desse turno para os valores por defeito
-    appStates[currentShift] = createZeroState(
-    currentShift === "Night"
-        ? "NIGHT SHIFT"
-        : "DAY SHIFT"
 );
 
-    // Manter apenas o nome do turno
-    appStates[currentShift].shiftLabel =
-        currentShift === "Night" ? "NIGHT CHECK" : "DAY CHECK";
+return;
 
-    renderDOM();
-
-showSuccess(
-
-    "Current Shift Cleared",
-
-    "The current report has been cleared. Data stored in Firebase has not been modified."
-
-);
-}
-
+        }
         // ==========================================
         // --- FUN  ES DE DESENHO E GERENCIAMENTO ---
         // ==========================================
@@ -2059,35 +2121,29 @@ async function openACheckClearCurrentShift(){
 
         ()=>{
 
-            openResetCenter(
+            showConfirmation(
 
-                async(clearFirebase)=>{
+                "Delete Current Period",
 
-                    if(clearFirebase){
+                "You are about to permanently delete all A-Check data for the selected reporting period.\n\nThis action cannot be undone.",
 
-                        await deleteACheckCurrentPeriod();
+                async ()=>{
 
-                    }
+                    await deleteACheckCurrentPeriod();
 
-                    clearCurrentShiftData();
-
-                    renderDOM();
+                    await initializeACheck();
 
                     showSuccess(
 
-                        "Dashboard Reset",
+                        "Current Period Deleted",
 
-                        clearFirebase ?
-
-                        "Dashboard and Firebase data successfully cleared."
-
-                        :
-
-                        "Dashboard successfully reset."
+                        "All A-Check data for the selected reporting period has been permanently deleted."
 
                     );
 
-                }
+                },
+
+                "Delete Current Period"
 
             );
 
@@ -2095,9 +2151,9 @@ async function openACheckClearCurrentShift(){
 
         {
 
-            action:"CLEAR_ACHECK_DATA",
+            action: "CLEAR_ACHECK_DATA",
 
-            details:"Reset A-Check Dashboard"
+            details: "Delete A-Check Current Period"
 
         }
 

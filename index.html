@@ -290,7 +290,10 @@
 
 <body>
 
-<div id="homeScreen">
+<div
+    id="homeScreen"
+    style="visibility:hidden;"
+>
 
 <style>
 
@@ -518,7 +521,227 @@ letter-spacing:1px;
 
 }
 
+.homeTopBar{
+
+    position:absolute;
+
+    top:25px;
+
+    left:0;
+
+    width:100%;
+
+    padding:0 40px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    pointer-events:none;
+
+    z-index:100;
+
+}
+
+.home-user-card{
+
+    position:fixed;
+
+    top:28px;
+
+    right:30px;
+
+    width:340px;
+
+    padding:22px;
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:18px;
+
+    background:#FBCB00;
+
+    border-radius:22px;
+
+    cursor:pointer;
+
+    box-shadow:0 18px 45px rgba(0,0,0,.28);
+
+    transition:.25s;
+
+    z-index:99999;
+
+    pointer-events: auto;
+
+}
+
+.home-user-lastlogin{
+
+    margin-top:16px;
+
+    font-size:11px;
+
+    color:#8C97A6;
+
+    text-transform:uppercase;
+
+    letter-spacing:1px;
+
+    font-weight:700;
+
+}
+
+.home-user-lastlogin-value{
+
+    margin-top:4px;
+
+    font-size:14px;
+
+    color:#07225B;
+
+    font-weight:600;
+
+}
+
+.home-user-card:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 22px 55px rgba(0,0,0,.35);
+
+}
+.passwordResetMessage{
+
+    margin-top:10px;
+
+}
+
+.passwordResetInfo{
+
+    margin-bottom:18px;
+
+}
+
+.passwordResetBox{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    padding:12px 14px;
+
+    background:#F5F7FA;
+
+    border:1px solid #D9E1EC;
+
+    border-radius:10px;
+
+    font-family:monospace;
+
+    font-size:16px;
+
+    font-weight:600;
+
+}
+
+.copyPasswordButton{
+
+    border:none;
+
+    background:#FFC800;
+
+    color:#082567;
+
+    padding:8px 12px;
+
+    border-radius:7px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+}
+
+.copyPasswordButton:hover{
+
+    opacity:.9;
+
+}
+
+.passwordResetWarning{
+
+    margin-top:14px;
+
+    font-size:13px;
+
+    color:#7F8C8D;
+
+}
+
 </style>
+
+<div
+    class="home-user-card"
+    onclick="console.log('CLICK'); toggleUserMenu(event)">
+
+    <div
+        id="homeUserAvatar"
+        class="home-user-avatar">
+
+        GU
+
+    </div>
+
+    <div class="home-user-content">
+
+            <div
+    id="homeUserGreeting"
+    class="home-user-welcome">
+
+    Welcome,
+
+</div>
+
+            <div
+                id="homeUserName"
+                class="home-user-name">
+
+                Guest User
+
+            </div>
+
+            <div id="homeUserRole" class="home-user-role">
+    Viewer
+</div>
+
+<div class="home-user-lastlogin">
+    Last Login
+</div>
+
+<div
+    id="homeUserLastLogin"
+    class="home-user-lastlogin-value">
+
+    First Login
+
+</div>
+
+<div
+    id="homeUserStatus"
+    class="home-user-status">
+
+    🟡 Guest Session
+
+</div>
+        </div>
+
+    </div>
 
 <div class="homePanel">
 
@@ -615,6 +838,7 @@ Version 1.0
 
 </div>
 
+
 <div id="dashboardContainer" style="display:none;">
 
 <div id="topNavigation">
@@ -651,7 +875,7 @@ USER PROFILE
 
 <div
 id="userProfile"
-onclick="event.stopPropagation();toggleUserMenu();">
+onclick="event.stopPropagation();toggleUserMenu(event);">
 
     <div class="userAvatar">
 
@@ -683,98 +907,6 @@ onclick="event.stopPropagation();toggleUserMenu();">
 
 </div>       
 
-<!-- ====================================================== -->
-<!-- USER MENU -->
-<!-- ====================================================== -->
-
-<div id="userMenu">
-
-    <div class="userMenuHeader">
-
-        <div class="userMenuAvatar">
-
-            👤
-
-        </div>
-
-        <div>
-
-            <div id="menuFullName">
-
-                Guest
-
-            </div>
-
-            <div id="menuRole">
-
-                Viewer
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="userMenuDivider"></div>
-
-    <button
-        id="menuLoginButton"
-        class="userMenuButton"
-        onclick="openLoginModal()">
-
-        🔐 Administrator Login
-
-    </button>
-
-    <button
-        id="menuUsersButton"
-        class="userMenuButton"
-        style="display:none;"
-        onclick="openUserManagement()">
-
-        👥 Manage Users
-
-    </button>
-
-    <button
-        id="menuLogsButton"
-        class="userMenuButton"
-        style="display:none;"
-        onclick="openActivityLogs()">
-
-        📋 Activity Logs
-
-    </button>
-
-    <button
-        id="menuSettingsButton"
-        class="userMenuButton"
-        style="display:none;"
-        onclick="openUserSettings()">
-
-        ⚙ Settings
-
-    </button>
-
-    <div class="userMenuDivider"></div>
-
-    <button
-        id="menuLogoutButton"
-        class="userMenuButton"
-        style="display:none;"
-        onclick="logoutUser()">
-
-        🚪 Logout
-
-    </button>
-
-</div>
-
-        </div>
-
-    </div>
-
-</div>
 
 <style>
 
@@ -924,35 +1056,36 @@ onclick="event.stopPropagation();toggleUserMenu();">
 
 .userAvatar{
 
-    width:38px;
+    width:42px;
 
-    height:38px;
+    height:42px;
 
     border-radius:50%;
 
-    background:#174AA8;
+    background:#07225B;
+
+    color:#FFFFFF;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:800;
+
+    font-size:15px;
+
+    flex-shrink:0;
+
+}
+.userInfo{
 
     display:flex;
 
     align-items:center;
 
-    justify-content:center;
-
-    color:white;
-
-    font-size:18px;
-
-    flex-shrink:0;
-
-}
-
-.userInfo{
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
+    gap:14px;
 
 }
 
@@ -987,33 +1120,47 @@ onclick="event.stopPropagation();toggleUserMenu();">
     text-transform:capitalize;
 
 }
+
+.userName{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:#07225B;
+
+}
+
+.userUsername{
+
+    margin-top:2px;
+
+    font-size:13px;
+
+    color:#6B7280;
+
+}
 /* ======================================================
    USER MENU
 ======================================================*/
 
 #userMenu{
 
-    position:absolute;
-
-    top:72px;
-
-    right:0;
+    position:fixed;
 
     width:320px;
 
-    background:white;
+    background:#FFFFFF;
 
     border-radius:18px;
 
-    box-shadow:0 20px 45px rgba(0,0,0,.18);
+    box-shadow:0 20px 45px rgba(0,0,0,.20);
 
     padding:18px;
 
     display:none;
 
-    animation:userMenuAnimation .18s ease;
-
-    z-index:999999;
+    z-index:999999999;
 
 }
 
@@ -1129,53 +1276,222 @@ onclick="event.stopPropagation();toggleUserMenu();">
 
 }
 
+/* ======================================================
+   USER PHOTO
+====================================================== */
+
+.userPhotoSection{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+}
+
+.userPhoto{
+
+    width:170px;
+
+    height:170px;
+
+    border-radius:50%;
+
+    border:4px solid #E8EDF5;
+
+    background:#F8FAFC;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    overflow:hidden;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.userPhoto:hover{
+
+    border-color:#07225B;
+
+    transform:scale(1.02);
+
+}
+
+.userPhoto img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    animation:fadeAvatar .25s ease;
+
+}
+
+.userPhotoPlaceholder{
+
+    font-size:70px;
+
+    color:#B8C3D6;
+
+}
+
+.userPhotoText{
+
+    margin-top:18px;
+
+    font-size:14px;
+
+    color:#6B7280;
+
+    text-align:center;
+
+}
+
+.userPhotoInput{
+
+    display:none;
+
+}
+
+@keyframes fadeAvatar{
+
+    from{
+
+        opacity:0;
+
+        transform:scale(.9);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:scale(1);
+
+    }
+
+}
+
+.homeUserAvatarImage{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    display:block;
+
+}
+
+.currentUserAvatarImage{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    display:block;
+
+}
+
+.userMenuAvatarImage{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    display:block;
+
+}
+
 </style>
-
+    </div>
 </div>
+<div id="noInfoDashboard">
+    <header id="noInfoHeader" class="rh-header">
 
-    <header class="header-container">
-        <div class="header-left">
-            <img src="ryanair-logo-2.png" alt="Company Logo" class="header-logo" onerror="this.style.display='none'">
-            <div class="header-titles">
-                <h1><span class="highlight-yellow">NO INFO DELAYS</span> MONTHLY REPORT</h1>
-                <span class="subtitle">Engineering & Maintenance</span>
+    <div class="rh-left">
+
+        <img
+            src="ryanair-logo-2.png"
+            alt="Company Logo"
+            class="rh-logo"
+            onerror="this.style.display='none'">
+
+        <div class="rh-content">
+
+            <h1 class="rh-title">
+                <span>NO INFO DELAYS</span>
+                MONTHLY REPORT
+            </h1>
+
+            <div class="rh-subtitle">
+                Engineering &amp; Maintenance
             </div>
+
         </div>
-        <div class="header-right">
-            <button
-    class="btn btn-white"
-    onclick="exportPDF()">
 
-    Export PDF
+    </div>
 
-</button>
+    <div class="rh-actions">
 
-<button
-    class="btn btn-green"
-    onclick="openNoInfoImportData()">
+        <button
+            class="rh-btn rh-btn-white"
+            onclick="exportPDF()">
 
-    Import Excel Data
+            Export PDF
 
-</button>
+        </button>
 
-<button
-    class="btn btn-yellow"
-    onclick="openNoInfoEditVisuals()">
+        <button
+            class="rh-btn rh-btn-green"
+            onclick="openNoInfoImportData()">
 
-    Edit Visuals (Manual)
+            Import Excel Data
 
-</button>
+        </button>
 
-<button
-    class="btn btn-white"
-    onclick="openNoInfoResetData()"
-    style="background:#e74c3c;color:white;border:none;">
+        <button
+            class="rh-btn rh-btn-yellow"
+            onclick="openNoInfoEditVisuals()">
 
-    Reset Data
+            Edit Visuals (Manual)
 
-</button>
-        </div>
-    </header>
+        </button>
+
+        <button
+            class="rh-btn rh-btn-red"
+            onclick="openNoInfoResetData()">
+
+            Reset Data
+
+        </button>
+
+    </div>
+
+</header>
 
     <div class="controls-bar">
         <div class="month-display" id="display-month">
@@ -1299,7 +1615,6 @@ onclick="event.stopPropagation();toggleUserMenu();">
             </div>
         </div>
     </div>
-
     <script type="module">
         // Import Firebase Functions (Versão corrigida para a 10.11.0, mais estável)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
@@ -1623,12 +1938,40 @@ const dbRef = ref(database, 'dashboardData');
         function exportPDF() { window.print(); }
 
         function resetData() {
-            if(confirm("Tens a certeza que queres apagar todas as alterações na Cloud e restaurar os valores iniciais?")) {
-                set(dbRef, defaultDb).then(() => {
-                    alert("Dados repostos com sucesso!");
-                });
+
+    showConfirmation(
+
+        "Reset Dashboard",
+
+        "Are you sure you want to delete all Cloud data and restore the default dashboard values?\n\nThis action cannot be undone.",
+
+        async () => {
+
+            try{
+
+                await set(dbRef, defaultDb);
+
+                showSuccess(
+                    "Dashboard Reset",
+                    "All dashboard data has been successfully restored to the default values."
+                );
+
+            }catch(error){
+
+                showError(
+                    "Reset Failed",
+                    "An error occurred while restoring the dashboard."
+                );
+
+                console.error(error);
+
             }
+
         }
+
+    );
+
+}
 
         // --- EXPORTAR FUNÇÕES PARA O HTML ---
         // Como estamos a usar type="module", precisamos de tornar estas funções 
@@ -3451,43 +3794,80 @@ min-height:165px;
 
 }
 
+/* ======================================================
+   USER TABLE
+====================================================== */
+
 .usersTable{
 
     width:100%;
 
     border-collapse:collapse;
 
-}
-
-.usersTable th{
-
-    background:#07225B;
-
-    color:white;
-
-    padding:14px;
-
-    text-align:left;
+    background:#FFFFFF;
 
 }
 
-.usersTable td{
+.usersTable thead{
 
-    padding:14px;
+    position:sticky;
 
-    border-bottom:1px solid #E6EAF0;
+    top:0;
 
-}
-
-.usersTable tr:hover{
+    z-index:10;
 
     background:#F8FAFC;
 
 }
 
+.usersTable th{
+
+    padding:16px 22px;
+
+    text-align:left;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    color:#6B7280;
+
+    border-bottom:1px solid #E5E7EB;
+
+    text-transform:uppercase;
+
+    letter-spacing:.5px;
+
+}
+
+.usersTable td{
+
+    padding:18px 22px;
+
+    border-bottom:1px solid #EEF2F7;
+
+    vertical-align:middle;
+
+    color:#1F2937;
+
+    font-size:14px;
+
+}
+
+.usersTable tbody tr{
+
+    transition:.18s;
+
+}
+
+.usersTable tbody tr:hover{
+
+    background:#F8FAFC;
+
+}
 .statusActive{
 
-    color:#27AE60;
+    color:#16A34A;
 
     font-weight:700;
 
@@ -3495,7 +3875,7 @@ min-height:165px;
 
 .statusInactive{
 
-    color:#E74C3C;
+    color:#DC2626;
 
     font-weight:700;
 
@@ -3505,50 +3885,65 @@ min-height:165px;
 
     display:flex;
 
-    gap:8px;
+    gap:10px;
 
-    flex-wrap:wrap;
+    align-items:center;
 
 }
 
 .userActions .btn{
 
+    border-radius:8px;
+
+    padding:8px 14px;
+
     font-size:12px;
 
-    padding:6px 12px;
+    font-weight:700;
+
+}
+
+.roleAdmin,
+.roleSupervisor,
+.roleViewer{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:6px 14px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:700;
 
 }
 
 .roleAdmin{
 
     background:#07225B;
+
     color:white;
-    padding:5px 12px;
-    border-radius:30px;
-    font-size:12px;
-    font-weight:700;
 
 }
 
 .roleSupervisor{
 
-    background:#F1C400;
+    background:#FFD84D;
+
     color:#07225B;
-    padding:5px 12px;
-    border-radius:30px;
-    font-size:12px;
-    font-weight:700;
 
 }
 
 .roleViewer{
 
-    background:#E5E7EB;
-    color:#374151;
-    padding:5px 12px;
-    border-radius:30px;
-    font-size:12px;
-    font-weight:700;
+    background:#EEF2F7;
+
+    color:#4B5563;
 
 }
 
@@ -3882,76 +4277,1583 @@ min-height:165px;
 
 }
 
+.modalLarge{
+
+    width:1280px;
+
+    max-width:95vw;
+
+    max-height:90vh;
+
+    overflow:hidden;
+
+    padding:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.modalHeader{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:28px 34px;
+
+    border-bottom:1px solid #ECEFF5;
+
+    flex-shrink:0;
+
+}
+
+.modalBody{
+
+    padding:28px;
+
+    overflow:auto;
+
+    flex:1;
+
+    background:#FAFBFD;
+
+}
+
+.modalTitle{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    font-size:34px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+}
+
+.modalClose{
+
+    width:46px;
+
+    height:46px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#F4F6FB;
+
+    cursor:pointer;
+
+    font-size:24px;
+
+    color:#07225B;
+
+    transition:.2s;
+
+}
+
+.modalClose:hover{
+
+    background:#E6ECF8;
+
+    transform:rotate(90deg);
+
+}
+
+/* ======================================================
+   RYANAIR HEADER V3
+   (Shared by No Info, FWD and A-Check)
+====================================================== */
+
+.rh-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    width:100%;
+
+    padding:18px 28px;
+
+    background:#072B7A;
+
+    border-radius:16px;
+
+    margin-bottom:20px;
+
+    box-shadow:0 6px 18px rgba(0,0,0,.12);
+}
+
+.rh-left{
+    display:flex;
+    align-items:center;
+    gap:22px;
+}
+
+.rh-logo{
+    height:56px;
+    width:auto;
+    display:block;
+}
+
+.rh-content{
+    display:flex;
+    flex-direction:column;
+}
+
+.rh-title{
+    margin:0;
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#fff;
+
+    line-height:1.15;
+}
+
+.rh-title span{
+    color:#FFD200;
+}
+
+.rh-subtitle{
+    margin-top:4px;
+
+    font-size:13px;
+
+    color:#D8E6FF;
+
+    font-weight:500;
+}
+
+.rh-actions{
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    margin-left:auto;
+
+    flex-shrink:0;
+}
+
+/* ---------- BUTTONS ---------- */
+
+.rh-btn{
+
+    height:40px;
+
+    padding:0 22px;
+
+    border:none;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    white-space:nowrap;
+}
+
+.rh-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 4px 10px rgba(0,0,0,.18);
+
+}
+
+.rh-btn-white{
+
+    background:#fff;
+
+    color:#072B7A;
+
+}
+
+.rh-btn-green{
+
+    background:#2ECC71;
+
+    color:#fff;
+
+}
+
+.rh-btn-yellow{
+
+    background:#FFD200;
+
+    color:#072B7A;
+
+}
+
+.rh-btn-red{
+
+    background:#E74C3C;
+
+    color:#fff;
+
+}
+
+/* ======================================================
+   CONFIRMATION MODAL
+====================================================== */
+
+.confirmationBox{
+
+    width:90%;
+
+    max-width:520px;
+
+    background:#ffffff;
+
+    border-radius:22px;
+
+    padding:40px;
+
+    box-shadow:0 20px 60px rgba(0,0,0,.30);
+
+    text-align:center;
+
+    animation:modalFade .25s ease;
+
+}
+
+#confirmationMessage{
+
+    font-size:18px;
+
+    line-height:1.6;
+
+    color:#555;
+
+    margin-bottom:30px;
+
+}
+
+#confirmationTitle{
+
+    font-size:36px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+    margin-bottom:15px;
+
+}
+
+.confirmationIcon{
+
+    font-size:72px;
+
+    line-height:1;
+
+    margin-bottom:20px;
+
+}
+
+.confirmationButtons{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:18px;
+
+    margin-top:35px;
+
+}
+
+.btn-confirm-cancel{
+
+    min-width:150px;
+
+    padding:13px 24px;
+
+    border:none;
+
+    border-radius:30px;
+
+    background:#f2f2f2;
+
+    color:#07225B;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.btn-confirm-cancel:hover{
+
+    background:#dddddd;
+
+    transform:translateY(-2px);
+
+}
+
+.btn-confirm-danger{
+
+    min-width:190px;
+
+    padding:13px 24px;
+
+    border:none;
+
+    border-radius:30px;
+
+    background:#dc3545;
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.btn-confirm-danger:hover{
+
+    background:#b92b39;
+
+    transform:translateY(-2px);
+
+}
+
+/* ======================================================
+   PDF LOADING MODAL
+====================================================== */
+
+.pdfLoadingBox{
+
+    width:90%;
+    max-width:520px;
+
+    background:#FFFFFF;
+
+    border-radius:20px;
+
+    padding:40px;
+
+    text-align:center;
+
+    box-shadow:0 25px 60px rgba(0,0,0,.30);
+
+    border:1px solid rgba(0,0,0,.08);
+
+    position:relative;
+
+    z-index:10001;
+
+}
+
+.pdfLoadingIcon{
+
+    font-size:64px;
+    margin-bottom:18px;
+
+}
+
+.pdfProgress{
+
+    width:100%;
+    height:12px;
+
+    background:#E8EDF5;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    margin:30px 0 15px;
+
+}
+
+.pdfProgressBar{
+
+    width:0%;
+
+    height:100%;
+
+    background:linear-gradient(90deg,#F1C400,#FFD84D);
+
+    border-radius:20px;
+
+    transition:width .35s ease;
+
+}
+
+.pdfProgressText{
+
+    font-size:14px;
+
+    color:#6B7280;
+
+    font-weight:600;
+
+    letter-spacing:.3px;
+
+}
+
+/* ======================================================
+   PDF REPORT HEADER
+====================================================== */
+
+.pdf-report-header{
+
+    width:100%;
+
+    background:#07225B;
+
+    color:#fff;
+
+    border-radius:14px;
+
+    padding:18px 28px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    box-sizing:border-box;
+
+    margin-bottom:18px;
+
+}
+
+.pdf-report-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:22px;
+
+}
+
+.pdf-report-logo{
+
+    height:58px;
+
+    width:auto;
+
+}
+
+.pdf-report-title{
+
+    font-size:28px;
+
+    font-weight:800;
+
+    letter-spacing:.5px;
+
+}
+
+.pdf-report-subtitle{
+
+    margin-top:4px;
+
+    font-size:14px;
+
+    color:#D8E5FF;
+
+}
+
+.pdf-report-right{
+
+    text-align:right;
+
+}
+
+.pdf-report-period,
+.pdf-report-generated{
+
+    font-size:12px;
+
+    color:#D8E5FF;
+
+    text-transform:uppercase;
+
+    letter-spacing:.8px;
+
+}
+
+.pdf-report-value{
+
+    font-size:22px;
+
+    font-weight:700;
+
+    margin-bottom:12px;
+
+}
+
+.pdf-report-date{
+
+    font-size:16px;
+
+    font-weight:600;
+
+}
+
+/* ======================================================
+   WELCOME MODAL
+====================================================== */
+
+.welcomeBox{
+
+    width:90%;
+    max-width:500px;
+
+    text-align:center;
+
+}
+
+.welcomeAvatar{
+
+    width:90px;
+    height:90px;
+
+    margin:0 auto 20px;
+
+    border-radius:50%;
+
+    background:linear-gradient(135deg,#0A3D91,#07225B);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:42px;
+
+    color:#fff;
+
+    box-shadow:0 12px 30px rgba(7,34,91,.25);
+
+}
+
+.welcomeTitle{
+
+    font-size:34px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+    margin-bottom:12px;
+
+}
+
+.welcomeUserName{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#07225B;
+
+    margin-bottom:6px;
+
+}
+
+.welcomeUserRole{
+
+    display:inline-block;
+
+    padding:6px 18px;
+
+    border-radius:25px;
+
+    background:#F1C400;
+
+    color:#07225B;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    margin-bottom:25px;
+
+}
+
+.welcomeMessage{
+
+    font-size:16px;
+
+    color:#666;
+
+    line-height:1.6;
+
+    margin-bottom:35px;
+
+}
+
+/* ======================================================
+   HOME USER CARD
+====================================================== */
+
+
+.home-user-avatar{
+
+    width:74px;
+
+    height:74px;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        #07225B,
+        #0A4AA3
+    );
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    color:white;
+
+    font-size:28px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    text-transform:uppercase;
+
+    box-shadow:
+        0 12px 25px rgba(7,34,91,.28);
+
+}
+
+.home-user-content{
+
+    flex:1;
+
+}
+
+.home-user-welcome{
+
+    font-size:13px;
+
+    color:#7E7E7E;
+
+    margin-bottom:4px;
+
+}
+
+.home-user-name{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+    line-height:1.2;
+
+}
+
+.home-user-role{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    margin-top:8px;
+
+    padding:6px 15px;
+
+    background:#FBCB00;
+
+    color:#07225B;
+
+    border-radius:18px;
+
+    font-size:12px;
+
+    font-weight:700;
+
+}
+
+.home-user-status{
+
+    margin-top:14px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:6px 12px;
+
+    border-radius:18px;
+
+    background:#EAF9EF;
+
+    color:#18A54A;
+
+    font-size:12px;
+
+    font-weight:700;
+
+}
+
+.userToolbar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:20px;
+
+    margin-bottom:26px;
+
+}
+
+.userToolbarLeft{
+
+    display:flex;
+
+    gap:14px;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+}
+
+.userToolbarLeft input{
+
+    width:340px;
+
+}
+
+.userToolbarLeft select{
+
+    min-width:170px;
+
+}
+
+/* ======================================================
+   CREATE USER
+====================================================== */
+
+.createUserGrid{
+
+    display:grid;
+
+    grid-template-columns:260px 1fr;
+
+    gap:40px;
+
+    align-items:flex-start;
+
+}
+
+.createUserForm{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+}
+
+.formRow{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.formRow label{
+
+    margin-bottom:8px;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    color:#07225B;
+
+}
+
+.formRow input,
+.formRow select{
+
+    width:100%;
+
+}
+
+.formRow.fullWidth{
+
+    grid-column:1 / -1;
+
+}
+
+.modalFooter{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:14px;
+
+    padding:24px 30px;
+
+    border-top:1px solid #E5E7EB;
+
+    background:#FAFBFD;
+
+}
+
+.btn-green{
+
+    background:#2ECC71;
+
+    color:white;
+
+}
+
+.btn-green:hover{
+
+    background:#27AE60;
+
+}
+
+@media(max-width:950px){
+
+    .createUserGrid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .createUserForm{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+.initialsAvatar{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    width:100%;
+
+    height:100%;
+
+    font-size:56px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+    background:#EEF3FB;
+
+    border-radius:50%;
+
+}
+
+.statsGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:18px;
+
+    margin-bottom:28px;
+
+}
+
+.statCard{
+
+    background:white;
+
+    border:1px solid #E6EAF0;
+
+    border-radius:18px;
+
+    padding:22px;
+
+    text-align:center;
+
+    box-shadow:0 8px 22px rgba(0,0,0,.05);
+
+}
+
+.statTitle{
+
+    font-size:14px;
+
+    color:#6B7280;
+
+    margin-bottom:10px;
+
+}
+
+.statValue{
+
+    font-size:34px;
+
+    font-weight:800;
+
+    color:#07225B;
+
+}
+
+.userAvatarImage{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    display:block;
+
+}
+
+html,
+body{
+    background:#0f172a
+}
+
+/* ======================================================
+   FWD PDF EXPORT MODAL
+====================================================== */
+
+.fwd-export-overlay{
+
+    display:none;
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:999999;
+
+    background:rgba(7,34,91,.58);
+
+    backdrop-filter:blur(7px);
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:25px;
+
+}
+
+
+.fwd-export-modal{
+
+    width:min(760px,95vw);
+
+    max-height:92vh;
+
+    background:#FFFFFF;
+
+    border-radius:24px;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.28);
+
+    overflow:hidden;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.fwd-export-header{
+
+    background:#07225B;
+
+    color:white;
+
+    padding:28px 32px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+}
+
+
+.fwd-export-eyebrow{
+
+    color:#F1C400;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    letter-spacing:1.5px;
+
+    text-transform:uppercase;
+
+    margin-bottom:7px;
+
+}
+
+
+.fwd-export-header h2{
+
+    margin:0;
+
+    font-size:27px;
+
+    font-weight:800;
+
+}
+
+
+.fwd-export-header p{
+
+    margin:7px 0 0;
+
+    color:#C9D5EA;
+
+    font-size:13px;
+
+}
+
+
+.fwd-export-close{
+
+    width:38px;
+
+    height:38px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.12);
+
+    color:white;
+
+    font-size:25px;
+
+    cursor:pointer;
+
+}
+
+
+.fwd-export-close:hover{
+
+    background:rgba(255,255,255,.22);
+
+}
+
+
+.fwd-export-body{
+
+    padding:28px 32px;
+
+    overflow-y:auto;
+
+}
+
+
+.fwd-export-section{
+
+    padding-bottom:24px;
+
+    margin-bottom:24px;
+
+    border-bottom:1px solid #E7EBF3;
+
+}
+
+
+.fwd-export-section:last-child{
+
+    border-bottom:none;
+
+    margin-bottom:0;
+
+}
+
+
+.fwd-export-section-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    color:#07225B;
+
+    font-size:15px;
+
+    font-weight:800;
+
+    margin-bottom:17px;
+
+}
+
+
+.fwd-export-section-title span{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:26px;
+
+    height:26px;
+
+    border-radius:8px;
+
+    background:#F1C400;
+
+    color:#07225B;
+
+    font-size:11px;
+
+    font-weight:900;
+
+}
+
+
+.fwd-export-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:18px;
+
+}
+
+
+.fwd-export-field{
+
+    margin-bottom:15px;
+
+}
+
+
+.fwd-export-field:last-child{
+
+    margin-bottom:0;
+
+}
+
+
+.fwd-export-field label{
+
+    display:block;
+
+    margin-bottom:7px;
+
+    color:#6B778C;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+
+}
+
+
+.fwd-export-field select{
+
+    width:100%;
+
+    padding:12px 14px;
+
+    border:1px solid #D9E1ED;
+
+    border-radius:11px;
+
+    background:white;
+
+    color:#07225B;
+
+    font-family:inherit;
+
+    font-size:13px;
+
+    outline:none;
+
+}
+
+
+.fwd-export-field select:focus{
+
+    border-color:#073590;
+
+    box-shadow:0 0 0 3px rgba(7,53,144,.10);
+
+}
+
+
+.fwd-export-zero-info{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:13px 15px;
+
+    background:#F5F8FC;
+
+    border:1px solid #E1E8F2;
+
+    border-radius:13px;
+
+    margin-top:8px;
+
+}
+
+
+.fwd-export-check-icon{
+
+    width:30px;
+
+    height:30px;
+
+    border-radius:50%;
+
+    background:#2ECC71;
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-weight:900;
+
+}
+
+
+.fwd-export-zero-info strong{
+
+    display:block;
+
+    color:#07225B;
+
+    font-size:12px;
+
+}
+
+
+.fwd-export-zero-info span{
+
+    display:block;
+
+    color:#7F8C8D;
+
+    font-size:11px;
+
+    margin-top:3px;
+
+}
+
+
+.fwd-export-content-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+
+}
+
+
+.fwd-export-checkbox{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:11px;
+
+    padding:13px;
+
+    border:1px solid #E2E8F0;
+
+    border-radius:13px;
+
+    cursor:pointer;
+
+    transition:.2s ease;
+
+}
+
+
+.fwd-export-checkbox:hover{
+
+    border-color:#F1C400;
+
+    background:#FFFCF0;
+
+}
+
+
+.fwd-export-checkbox input{
+
+    width:17px;
+
+    height:17px;
+
+    accent-color:#073590;
+
+    margin-top:2px;
+
+}
+
+
+.fwd-export-checkbox strong{
+
+    display:block;
+
+    color:#07225B;
+
+    font-size:12px;
+
+}
+
+
+.fwd-export-checkbox small{
+
+    display:block;
+
+    color:#7F8C8D;
+
+    font-size:10px;
+
+    margin-top:4px;
+
+    line-height:1.35;
+
+}
+
+
+.fwd-export-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    padding:20px 32px;
+
+    border-top:1px solid #E7EBF3;
+
+    background:#FAFBFD;
+
+}
+
+
+.fwd-export-cancel{
+
+    border:1px solid #D8E0EA;
+
+    background:white;
+
+    color:#07225B;
+
+    border-radius:12px;
+
+    padding:12px 20px;
+
+    font-family:inherit;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+}
+
+
+.fwd-export-generate{
+
+    border:none;
+
+    background:#F1C400;
+
+    color:#07225B;
+
+    border-radius:12px;
+
+    padding:12px 22px;
+
+    font-family:inherit;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+    box-shadow:0 5px 15px rgba(241,196,0,.25);
+
+}
+
+
+.fwd-export-generate:hover{
+
+    transform:translateY(-1px);
+
+}
+
+
+@media(max-width:650px){
+
+    .fwd-export-grid,
+    .fwd-export-content-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .fwd-export-header,
+    .fwd-export-body,
+    .fwd-export-footer{
+
+        padding-left:20px;
+        padding-right:20px;
+
+    }
+
+}
+
+
     </style>
 
 <!-- ===================================================== -->
 <!-- A-CHECK DASHBOARD -->
 <!-- ===================================================== -->
+<div id="aCheckDashboard" style="display:none;">
 
-<div
-id="aCheckDashboard"
-style="display:none;">
+    <header id="aCheckHeader" class="rh-header">
 
- <div id="exportable-dashboard">
-        <header id="main-header">
-            <div class="header-title-wrapper">
-                <img src="ryanair-logo-2.png" alt="Company Logo" class="header-logo">
-                <div>
-                    <h1><span>A-CHECK</span> DATA MONTHLY REPORT</h1>
-                    <p>Engineering & Maintenance</p>
+        <div class="rh-left">
+
+            <img
+                src="ryanair-logo-2.png"
+                alt="Company Logo"
+                class="rh-logo">
+
+            <div class="rh-content">
+
+                <h1 class="rh-title">
+                    <span>A-CHECK</span>
+                    DATA MONTHLY REPORT
+                </h1>
+
+                <div class="rh-subtitle">
+                    Engineering &amp; Maintenance
                 </div>
+
             </div>
-            
-            <div class="controls-wrapper" id="controls-panel">
 
-    <button
-        type="button"
-        class="btn-action btn-pdf"
-        onclick="window.generatePDF()">
+        </div>
 
-        Export PDF Report
+        <div class="rh-actions" id="controls-panel">
 
-    </button>
+            <button
+                type="button"
+                class="rh-btn rh-btn-white"
+                onclick="exportPDFReport()">
+                Export PDF
+            </button>
 
-    <input
-        type="file"
-        id="excel-upload"
-        accept=".xlsx,.xls"
-        style="display:none;"
-        onchange="window.handleExcelUpload(event)">
+            <input
+                type="file"
+                id="excel-upload"
+                accept=".xlsx,.xls"
+                style="display:none;"
+                onchange="window.handleExcelUpload(event)">
 
-    <button
-        type="button"
-        class="btn-action btn-import"
-        onclick="openImportExcelPeriod()"
-        style="background-color:#27ae60;color:white;">
+            <button
+                type="button"
+                class="rh-btn rh-btn-green"
+                onclick="openImportExcelPeriod()">
+                Import Excel Data
+            </button>
 
-        Import Excel Data
+            <button
+                type="button"
+                class="rh-btn rh-btn-yellow"
+                onclick="openEditVisualsPeriod()">
+                Edit Visuals (Manual)
+            </button>
 
-    </button>
+            <button
+                type="button"
+                class="rh-btn rh-btn-red"
+                onclick="openACheckClearCurrentShift()">
+                Reset Data
+            </button>
 
-    <button
-        type="button"
-        class="btn-action btn-import"
-        onclick="openEditVisualsPeriod()">
-
-        Edit Visuals (Manual)
-
-    </button>
-
-    <button
-        type="button"
-        class="btn-action"
-        onclick="openACheckClearCurrentShift()"
-        style="background:#dc3545;color:white;">
-
-        Clear Current Shift
-
-    </button>
-
-</div>
-
-<div>
+        </div>
 
     </header>
 
@@ -3967,7 +5869,12 @@ style="display:none;">
 
     <select
         id="analysis-period"
-        class="periodSelector"
+        style="
+        padding:8px 14px;
+        border-radius:8px;
+        border:1px solid #ccc;
+        min-width:220px;
+    "
         onchange="changeACheckPeriod(this.value)">
 
     </select>
@@ -4525,7 +6432,9 @@ style="display:none;">
                         </div>
                     </div>
                 </div>
+</div> <!-- FECHA O hils-wrapper -->
 
+<div id="pn-wrapper">
                 <h4 class="sub-header-title">P/N OUT OF STOCK</h4>
                 <div style="display: flex; justify-content: center; gap: 40px; margin-top: 20px; margin-bottom: 40px;">
                     <div class="pn-stock-card ng">
@@ -4576,7 +6485,7 @@ style="display:none;">
             
         </div>
     </div>
-
+</div>
     <div id="aCheckEditModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -4941,43 +6850,76 @@ style="display:none;">
 
 </div>
 
+</div>
+
+</div>
+
 <!-- ===================================================== -->
 <!-- FIRST WAVE DELAYS DASHBOARD -->
 <!-- ===================================================== -->
 
-<div id="fwdDashboard" class="dashboard-v2" style="display:none;">
+<div id="fwdDashboard" style="display:none;">
+<header id="fwdHeader" class="rh-header">
 
-    <header class="header-container">
-        <div class="header-left">
-            <img src="ryanair-logo-2.png" alt="Company Logo" class="header-logo">
-            <div class="header-titles">
-                <h1><span class="highlight-yellow">FIRST WAVE DELAYS</span> MONTHLY REPORT</h1>
-                <span class="subtitle">Engineering & Maintenance</span>
+    <div class="rh-left">
+
+        <img
+            src="ryanair-logo-2.png"
+            alt="Company Logo"
+            class="rh-logo">
+
+        <div class="rh-content">
+
+            <h1 class="rh-title">
+                <span>FIRST WAVE DELAYS</span>
+                MONTHLY REPORT
+            </h1>
+
+            <div class="rh-subtitle">
+                Engineering &amp; Maintenance
             </div>
+
         </div>
 
-        <div class="header-right">
-            <button class="btn btn-white">Export PDF</button>
-            <button class="btn btn-green" onclick="openImportData()">
-    Import Data
-</button>
-            <button
-    class="btn btn-yellow"
-    onclick="openVisualEditorProtected()">
+    </div>
 
-    Edit Visuals (Manual)
+    <div class="rh-actions">
 
-</button>
-            <button
+        <button
     class="btn btn-white"
-    style="background:#e74c3c;color:white;"
-    onclick="resetDashboardProtected()">
-
-    Reset Data
-
+    type="button"
+    onclick="openFwdExportModal()"
+>
+    Export PDF
 </button>
-        </div>
-    </header>
+
+        <button
+            class="rh-btn rh-btn-green"
+            onclick="openImportData()">
+
+            Import Excel Data
+
+        </button>
+
+        <button
+            class="rh-btn rh-btn-yellow"
+            onclick="openVisualEditorProtected()">
+
+            Edit Visuals (Manual)
+
+        </button>
+
+        <button
+            class="rh-btn rh-btn-red"
+            onclick="resetDashboardProtected()">
+
+            Reset Data
+
+        </button>
+
+    </div>
+
+</header>
 
     <div class="controls-bar">
 
@@ -5328,29 +7270,43 @@ onclick="openActiveDaysModal()">
         <!-- MAP -->
 
         <div id="regionalMapContainer"
-             style="
-                background:#FAFBFD;
-                border-radius:18px;
-                padding:20px;
-                height:620px;
-                display:flex;
-                justify-content:flex-start;
-                align-items:center;
-                padding-right: 20px;
-                margin-right: 0px;
-            ">
+     style="
+        background:#FAFBFD;
+        border-radius:18px;
+        padding:20px;
+        height:auto;
+        aspect-ratio:1 / 1;
+        min-height:0;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        box-sizing:border-box;
+        overflow:visible;
+    ">
 
-            <div id="regionalMap" style="width:88%;height:100%;margin:auto;">
+            <div
+    id="regionalMap"
+    style="
+        width:100%;
+        height:100%;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        margin:auto;
+    "
+>
 
 <svg id="regionalSVG"
      xmlns="http://www.w3.org/2000/svg"
-     viewBox="935 165 120 210"
+     viewBox="825 165 240 210"
      preserveAspectRatio="xMidYMid meet"
      style="
-    width:92%;
-    height:92%;
+    width:100%;
+    height:100%;
+    max-width:100%;
+    max-height:100%;
+    display:block;
     overflow:visible;
-    transform:translate(95px,-5px);
 ">
 
 <g
@@ -6172,52 +8128,107 @@ box-shadow:0 4px 15px rgba(0,0,0,.08);
 
     <script>
 
-    async function openNoInfo(){
+function hideNoInfo(){
 
-        document.getElementById("homeScreen").style.display="none";
-        document.getElementById("dashboardContainer").style.display="block";
-document.getElementById("aCheckDashboard").style.display="none";
+    document.getElementById("noInfoHeader").style.display="none";
 
-        document.getElementById("fwdDashboard").style.display="none";
+    document.querySelector(".controls-bar").style.display="none";
 
-        document.querySelector(".header-container").style.display="";
-        document.querySelector(".controls-bar").style.display="";
-        document.querySelector(".month-display").parentElement.style.display="";
-        document.querySelector(".kpi-grid").style.display="";
-        document.querySelectorAll(".dashboard-grid, .card").forEach(el=>{
-            el.style.display="";
-        });
+    document.querySelector(".kpi-grid").style.display="none";
 
-    }
+    document.querySelector(".month-display").parentElement.style.display="none";
 
-    async function openFWD(){
-
-        await loadBases();
-    document.getElementById("homeScreen").style.display = "none";
-    document.getElementById("dashboardContainer").style.display = "block";
-document.getElementById("aCheckDashboard").style.display="none";
-
-    document.querySelector(".header-container").style.display = "none";
-    document.querySelector(".controls-bar").style.display = "none";
-    document.querySelector(".kpi-grid").style.display = "none";
-    document.querySelector(".month-display").parentElement.style.display = "none";
-
-    document.querySelectorAll(".dashboard-grid, .card").forEach(el=>{
-        el.style.display = "none";
+    document.querySelectorAll(".dashboard-grid").forEach(el=>{
+        el.style.display="none";
     });
 
-    document.getElementById("fwdDashboard").style.display = "block";
+    document.querySelectorAll(".card").forEach(el=>{
+        el.style.display="none";
+    });
+
+}
+
+function showNoInfo(){
+
+    document.getElementById("noInfoHeader").style.display="flex";
+
+    document.querySelector(".controls-bar").style.display="block";
+
+    document.querySelector(".kpi-grid").style.display="grid";
+
+    document.querySelector(".month-display").parentElement.style.display="block";
+
+    document.querySelectorAll(".dashboard-grid").forEach(el=>{
+        el.style.display="grid";
+    });
+
+    document.querySelectorAll(".card").forEach(el=>{
+        el.style.display="block";
+    });
+
+}
+
+function showFWD(){
+
+    document.getElementById("fwdDashboard").style.display="block";
+
+}
+
+function hideFWD(){
+
+    document.getElementById("fwdDashboard").style.display="none";
+
+}
+
+function showACheck(){
+
+    document.getElementById("aCheckDashboard").style.display="block";
+
+}
+
+function hideACheck(){
+
+    document.getElementById("aCheckDashboard").style.display="none";
+
+}
+
+   async function openNoInfo(){
+
+    document.getElementById("homeScreen").style.display="none";
+
+    document.getElementById("dashboardContainer").style.display="block";
+
+    hideFWD();
+
+    hideACheck();
+
+    showNoInfo();
+
+}
+
+async function openFWD(){
+
+    await loadBases();
+
+    document.getElementById("homeScreen").style.display="none";
+
+    document.getElementById("dashboardContainer").style.display="block";
+
+    hideNoInfo();
+
+    hideACheck();
+
+    showFWD();
 
     await loadAvailableDashboardPeriods();
 
-    const selector = document.getElementById("dashboardPeriod");
+    const selector=document.getElementById("dashboardPeriod");
 
     if(selector.options.length){
 
-        selector.selectedIndex = selector.options.length - 1;
+        selector.selectedIndex=selector.options.length-1;
 
-        const [year,month] =
-            selector.value.split("-").map(Number);
+        const [year,month]=selector.value.split("-").map(Number);
 
         await updateFWDDashboard(year,month);
 
@@ -6227,27 +8238,15 @@ document.getElementById("aCheckDashboard").style.display="none";
 
 async function openACheck(){
 
-    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("homeScreen").style.display="none";
 
-    document.getElementById("dashboardContainer").style.display = "block";
+    document.getElementById("dashboardContainer").style.display="block";
 
-    document.querySelector(".header-container").style.display = "none";
+    hideNoInfo();
 
-    document.querySelector(".controls-bar").style.display = "none";
+    hideFWD();
 
-    document.querySelector(".kpi-grid").style.display = "none";
-
-    document.querySelector(".month-display").parentElement.style.display = "none";
-
-    document.querySelectorAll(".dashboard-grid, .card").forEach(el=>{
-
-        el.style.display = "none";
-
-    });
-
-    document.getElementById("fwdDashboard").style.display = "none";
-
-    document.getElementById("aCheckDashboard").style.display = "block";
+    showACheck();
 
     initializeACheck();
 
@@ -6612,46 +8611,42 @@ document.getElementById("uploadProgressBar").style.background =
 
 function closeUploadProgress(){
 
-    // Fecha o popup
-    document.getElementById("uploadProgressModal").style.display = "none";
+    // ==========================================
+    // CLOSE IMPORT PROGRESS
+    // ==========================================
 
-    // Fecha o Import Data
-    document.getElementById("manualInputScreen").style.display = "none";
+    document.getElementById(
+        "uploadProgressModal"
+    ).style.display = "none";
 
-    // Mostra novamente o Dashboard
-    document.getElementById("fwdDashboard").style.display = "block";
 
-    // Limpa dados temporários do import
+    // ==========================================
+    // CLOSE IMPORT SCREEN
+    // ==========================================
+
+    document.getElementById(
+        "manualInputScreen"
+    ).style.display = "none";
+
+
+    // ==========================================
+    // SHOW FWD DASHBOARD
+    // ==========================================
+
+    document.getElementById(
+        "fwdDashboard"
+    ).style.display = "block";
+
+
+    // ==========================================
+    // CLEAR TEMPORARY IMPORT DATA
+    // ==========================================
+
     pendingImportDays = {};
+
     newImportDays = [];
+
     existingImportDays = [];
-
-    // Atualiza automaticamente para o mês importado
-    loadAvailableDashboardPeriods().then(()=>{
-
-        const selector =
-            document.getElementById("dashboardPeriod");
-
-        const target =
-            `${pendingImportYear}-${pendingImportMonth}`;
-
-        for(let i=0;i<selector.options.length;i++){
-
-            if(selector.options[i].value === target){
-
-                selector.selectedIndex = i;
-                break;
-
-            }
-
-        }
-
-        updateFWDDashboard(
-            pendingImportYear,
-            pendingImportMonth
-        );
-
-    });
 
 }
 
@@ -7121,27 +9116,66 @@ function openManualInput(){
 
 }
 
-function backToFWD(){
+async function backToFWD(){
 
-    document.getElementById("manualInputScreen").style.display = "none";
+    document.getElementById(
+        "manualInputScreen"
+    ).style.display = "none";
 
-    document.getElementById("fwdDashboard").style.display = "block";
 
-loadAvailableDashboardPeriods().then(() => {
+    document.getElementById(
+        "fwdDashboard"
+    ).style.display = "block";
 
-    const selector = document.getElementById("dashboardPeriod");
 
-    if (selector.options.length > 0) {
+    // ==========================================
+    // RELOAD AVAILABLE PERIODS
+    // ==========================================
 
-        selector.selectedIndex = selector.options.length - 1;
+    await loadAvailableDashboardPeriods();
 
-        const [year, month] = selector.value.split("-").map(Number);
 
-        updateFWDDashboard(year, month);
+    const selector =
+        document.getElementById(
+            "dashboardPeriod"
+        );
+
+
+    if(
+        !selector ||
+        selector.options.length === 0
+    ){
+
+        return;
 
     }
 
-});
+
+    // ==========================================
+    // SELECT LAST AVAILABLE MONTH
+    // ==========================================
+
+    selector.selectedIndex =
+        selector.options.length - 1;
+
+
+    // ==========================================
+    // LOAD SELECTED PERIOD
+    // ==========================================
+
+    const [
+        year,
+        month
+    ] =
+        selector.value
+            .split("-")
+            .map(Number);
+
+
+    await updateFWDDashboard(
+        year,
+        month
+    );
 
 }
 
@@ -7281,89 +9315,128 @@ async function executeImport(mode){
         "Preparing import..."
     );
 
+
     let daysToImport = [];
+
 
     if(mode === "new"){
 
-        daysToImport = newImportDays;
+        daysToImport =
+            newImportDays;
 
     }else{
 
-        daysToImport = Object.keys(pendingImportDays).map(Number);
+        daysToImport =
+            Object.keys(
+                pendingImportDays
+            ).map(Number);
 
     }
+
 
     updateUploadProgress(
         30,
         "Importing Active Days..."
     );
 
+
     for(const day of daysToImport){
 
         await saveDayToFirebase(
 
             pendingImportYear,
-
             pendingImportMonth,
-
             day,
-
             pendingImportDays[day]
 
         );
 
     }
 
+
     updateUploadProgress(
         55,
         "Refreshing calendar..."
     );
+
 
     await refreshCalendarStatus(
         pendingImportYear,
         pendingImportMonth
     );
 
+
     updateUploadProgress(
         70,
         "Updating dashboard..."
     );
 
-    await loadAvailableDashboardPeriods();
 
-    const selector = document.getElementById("dashboardPeriod");
+    // ==========================================
+    // REFRESH PERIOD SELECTOR
+    // AND SELECT IMPORTED MONTH
+    // ==========================================
 
-    const target = `${pendingImportYear}-${pendingImportMonth}`;
+    await loadAvailableDashboardPeriods(
 
-    for(let i = 0; i < selector.options.length; i++){
-
-        if(selector.options[i].value === target){
-
-            selector.selectedIndex = i;
-            break;
-
-        }
-
-    }
-
-    await updateFWDDashboard(
         pendingImportYear,
         pendingImportMonth
+
     );
+
+
+    const importedYear =
+        Number(
+            pendingImportYear
+        );
+
+
+    const importedMonth =
+        Number(
+            pendingImportMonth
+        );
+
+
+    // ==========================================
+    // UPDATE DASHBOARD
+    // ==========================================
+
+    await updateFWDDashboard(
+
+        importedYear,
+        importedMonth
+
+    );
+
 
     updateUploadProgress(
         90,
         "Rebuilding dashboard snapshot..."
     );
 
+
+    // ==========================================
+    // REBUILD DASHBOARD SNAPSHOT
+    // ==========================================
+
     await rebuildDashboardSnapshot(
-        pendingImportYear,
-        pendingImportMonth
+
+        importedYear,
+        importedMonth
+
     );
 
+
+    // ==========================================
+    // FINALISE IMPORT
+    // ==========================================
+
     finishUpload(
+
         newImportDays.length,
+
         existingImportDays.length
+
     );
 
 }
@@ -10233,63 +12306,210 @@ return stats;
 
 }
 
-async function loadAvailableDashboardPeriods() {
+async function loadAvailableDashboardPeriods(selectedYear = null, selectedMonth = null){
 
-    const snapshot = await window.firebaseGet(
-        window.firebaseRef(window.database, "dashboardData/FWD")
-    );
+    const selector =
+        document.getElementById("dashboardPeriod");
 
-    if (!snapshot.exists()) return;
+    if(!selector){
+        return;
+    }
 
-    const data = snapshot.val();
 
-    const selector = document.getElementById("dashboardPeriod");
+    try{
 
-    selector.innerHTML = "";
+        const snapshot =
+            await window.firebaseGet(
 
-    const periods = [];
+                window.firebaseRef(
 
-    Object.keys(data).forEach(year => {
+                    window.database,
 
-        Object.keys(data[year]).forEach(month => {
+                    "dashboardData/FWD"
 
-            periods.push({
-                year: Number(year),
-                month: Number(month)
+                )
+
+            );
+
+
+        // ==========================================
+        // NÃO EXISTEM DADOS
+        // ==========================================
+
+        if(!snapshot.exists()){
+
+            selector.innerHTML = "";
+
+            return;
+
+        }
+
+
+        const data =
+            snapshot.val();
+
+
+        const periods = [];
+
+
+        // ==========================================
+        // OBTER TODOS OS PERÍODOS
+        // ==========================================
+
+        Object.keys(data).forEach(year => {
+
+            if(!data[year]) return;
+
+
+            Object.keys(data[year]).forEach(month => {
+
+                const numericYear =
+                    Number(year);
+
+                const numericMonth =
+                    Number(month);
+
+
+                if(
+
+                    !Number.isNaN(numericYear) &&
+
+                    !Number.isNaN(numericMonth) &&
+
+                    numericMonth >= 1 &&
+
+                    numericMonth <= 12
+
+                ){
+
+                    periods.push({
+
+                        year:numericYear,
+
+                        month:numericMonth
+
+                    });
+
+                }
+
             });
 
         });
 
-    });
 
-    periods.sort((a, b) => {
+        // ==========================================
+        // ORDENAR
+        // ==========================================
 
-        if (a.year !== b.year) {
+        periods.sort((a,b)=>{
 
-            return a.year - b.year;
+            if(a.year !== b.year){
+
+                return a.year - b.year;
+
+            }
+
+            return a.month - b.month;
+
+        });
+
+
+        // ==========================================
+        // RECONSTRUIR SELECTOR
+        // ==========================================
+
+        selector.innerHTML = "";
+
+
+        periods.forEach(period => {
+
+            const option =
+                document.createElement("option");
+
+
+            option.value =
+                `${period.year}-${period.month}`;
+
+
+            option.textContent =
+                new Date(
+
+                    period.year,
+
+                    period.month - 1,
+
+                    1
+
+                ).toLocaleString(
+
+                    "en-GB",
+
+                    {
+
+                        month:"long",
+
+                        year:"numeric"
+
+                    }
+
+                );
+
+
+            selector.appendChild(option);
+
+        });
+
+
+        // ==========================================
+        // SELECCIONAR PERÍODO PEDIDO
+        // ==========================================
+
+        if(
+
+            selectedYear !== null &&
+
+            selectedMonth !== null
+
+        ){
+
+            const target =
+                `${Number(selectedYear)}-${Number(selectedMonth)}`;
+
+
+            const exists =
+                Array.from(
+
+                    selector.options
+
+                ).some(
+
+                    option =>
+                        option.value === target
+
+                );
+
+
+            if(exists){
+
+                selector.value =
+                    target;
+
+            }
 
         }
 
-        return a.month - b.month;
 
-    });
+    }catch(error){
 
-    periods.forEach(period => {
+        console.error(
 
-        const option = document.createElement("option");
+            "Error loading dashboard periods:",
 
-        option.value = `${period.year}-${period.month}`;
+            error
 
-        option.textContent =
-            new Date(period.year, period.month - 1)
-                .toLocaleString("en-GB", {
-                    month: "long",
-                    year: "numeric"
-                });
+        );
 
-        selector.appendChild(option);
-
-    });
+    }
 
 }
 
@@ -10988,15 +13208,24 @@ offset:-10,
 
 }
 
-window.dashboardPeriod = function(){
+window.dashboardPeriod = async function(){
 
-    const selector = document.getElementById("dashboardPeriod");
+    const selector =
+        document.getElementById("dashboardPeriod");
 
+    if(!selector || !selector.value){
+        return;
+    }
 
     const [year, month] =
-        selector.value.split("-").map(Number);
+        selector.value
+            .split("-")
+            .map(Number);
 
-    updateFWDDashboard(year, month);
+    await updateFWDDashboard(
+        year,
+        month
+    );
 
 };
 
@@ -12114,13 +14343,35 @@ document.getElementById("delayGroupFilter").style.display =
 
 
 
-    let ranking = BASES.map(base => [
-    base,
-    stats.baseStats[base]
-]);
+    const showZero =
+    document.getElementById(
+        "showZeroBases"
+    )?.checked === true;
 
-const showZero =
-    document.getElementById("showZeroBases").checked;
+
+let ranking =
+    BASES
+        .map(base => [
+
+            base,
+
+            stats.baseStats[base] || {
+
+                fwd: 0,
+
+                nightStops: 0,
+
+                activeDays: 0,
+
+                rate: 0,
+
+                delayCodes: {},
+
+                delayGroups: {}
+
+            }
+
+        ]);
 
 if(!showZero){
 
@@ -12424,10 +14675,20 @@ layout:{
 },
 
                 datalabels:{
+
     color:"#07225B",
+
     anchor:"end",
+
     align:"end",
+
     offset:4,
+
+    clamp:false,
+
+    clip:false,
+
+    display:true,
 
     font:{
         weight:"bold",
@@ -12436,22 +14697,27 @@ layout:{
 
     formatter:function(value){
 
-    const metric = document.getElementById("baseSort").value;
+        const metric =
+            document.getElementById("baseSort").value;
 
-    switch(metric){
+        switch(metric){
 
-        case "rate":
-            return value.toFixed(1) + "%";
+            case "rate":
 
-        case "fwdPerDay":
-        case "nightStopsPerDay":
-            return value.toFixed(1);
+                return value.toFixed(1) + "%";
 
-        default:
-            return Math.round(value);
+            case "fwdPerDay":
+            case "nightStopsPerDay":
+
+                return value.toFixed(1);
+
+            default:
+
+                return Math.round(value);
+
+        }
+
     }
-
-}
 
 }
 
@@ -12463,7 +14729,17 @@ layout:{
 
                     beginAtZero:true,
                     suggestedMax: function(context){
-    return Math.max(...context.chart.data.datasets[0].data) * 1.03;
+
+    const maxValue =
+        Math.max(
+            ...context.chart.data.datasets[0].data
+        );
+
+    return Math.max(
+        1,
+        maxValue * 1.15
+    );
+
 },
 
                     grid:{
@@ -15091,8 +17367,6 @@ z-index:999999;
 
 </div>
 
-<script src="auth.js"></script>
-<script src="acheck.js"></script>
 
 <!-- ==========================================================
      APPLICATION LOADING SCREEN
@@ -15143,240 +17417,93 @@ Preparing..
 
 </div>
 
-<!-- ======================================================
-USER MANAGEMENT
-====================================================== -->
 
-<div
-id="userManagementModal"
+<!-- ====================================================== -->
+<!-- USER MENU -->
+<!-- ====================================================== -->
 
-style="
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.45);
-justify-content:center;
-align-items:center;
-z-index:999999;
-">
+<div id="userMenu">
 
-    <div
+    <div class="userMenuHeader">
 
-style="
-width:1100px;
-max-width:94%;
-max-height:90vh;
-overflow:auto;
-background:white;
-border-radius:20px;
-padding:35px;
-box-shadow:0 25px 80px rgba(0,0,0,.25);
-"
->
+        <div class="userMenuAvatar">
 
-        <div
-style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-">
-
-    <h2
-    style="
-    margin:0;
-    color:#333;
-    ">
-
-        👥 User Management
-
-    </h2>
-
-    <button
-
-    onclick="closeUserManagement()"
-
-    style="
-    width:42px;
-    height:42px;
-    border:none;
-    border-radius:50%;
-    background:#F4F6F8;
-    cursor:pointer;
-    font-size:22px;
-    color:#07225B;
-    transition:.2s;
-    ">
-
-        ✕
-
-    </button>
-
-</div>
-
-<div
-id="userManagementStats"
-
-style="
-display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:15px;
-margin-bottom:25px;
-">
-
-</div>
-
-        <div
-        style="
-        display:flex;
-        justify-content:space-between;
-        margin:25px 0;">
-
-            <input
-            id="userSearchInput"
-            class="auth-input"
-            style="width:320px;"
-            placeholder="Search user..."
-            oninput="renderUsersTable()">
-
-            <button
-            class="btn btn-yellow"
-            onclick="openCreateUserModal()">
-
-                + Create User
-
-            </button>
+            👤
 
         </div>
 
-        <div id="usersTableContainer">
+        <div>
 
-        </div>
+            <div id="menuFullName">
 
-    </div>
+                Guest
 
-</div>
+            </div>
 
-<!-- ======================================================
-EDIT USER
-====================================================== -->
-
-<div
-id="editUserModal"
-style="
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.45);
-justify-content:center;
-align-items:center;
-z-index:999999;
-">
-
-    <div
-    style="
-    width:650px;
-    max-width:94%;
-    background:white;
-    border-radius:20px;
-    padding:35px;
-    box-shadow:0 25px 80px rgba(0,0,0,.25);
-    ">
-
-        <h2 style="margin-bottom:30px;">
-
-            Edit User
-
-        </h2>
-
-        <label class="input-label">
-
-            Full Name
-
-        </label>
-
-        <input
-
-        id="editUserFullName"
-
-        class="auth-input">
-
-        <label
-        class="input-label"
-        style="margin-top:18px;">
-
-            Username
-
-        </label>
-
-        <input
-
-        id="editUserUsername"
-
-        class="auth-input"
-
-        disabled>
-
-        <label
-        class="input-label"
-        style="margin-top:18px;">
-
-            Role
-
-        </label>
-
-        <select
-
-        id="editUserRole"
-
-        class="auth-input">
-
-            <option value="admin">
-
-                Administrator
-
-            </option>
-
-            <option value="supervisor">
-
-                Supervisor
-
-            </option>
-
-            <option value="viewer">
+            <div id="menuRole">
 
                 Viewer
 
-            </option>
+            </div>
 
-        </select>
+        </div>
 
-        <div
-        style="
-        display:flex;
-        justify-content:flex-end;
-        gap:12px;
-        margin-top:35px;">
+    </div>
 
-            <button
+    <div class="userMenuDivider"></div>
 
-            class="btn btn-white"
+    <button
+        id="menuLoginButton"
+        class="userMenuButton"
+        onclick="openLoginModal()">
 
-            onclick="closeEditUser()">
+        🔐 Administrator Login
 
-                Cancel
+    </button>
 
-            </button>
+    <button
+        id="menuUsersButton"
+        class="userMenuButton"
+        style="display:none;"
+        onclick="closeUserMenu(); openUserManagement();">
 
-            <button
+        👥 Manage Users
 
-            class="btn btn-yellow"
+    </button>
 
-            onclick="saveUser()">
+    <button
+        id="menuLogsButton"
+        class="userMenuButton"
+        style="display:none;"
+        onclick="closeUserMenu(); openActivityLogs()">
 
-                Save
+        📋 Activity Logs
 
-            </button>
+    </button>
+
+    <button
+        id="menuSettingsButton"
+        class="userMenuButton"
+        style="display:none;"
+        onclick="closeUserMenu(); openUserSettings()">
+
+        ⚙ Settings
+
+    </button>
+
+    <div class="userMenuDivider"></div>
+
+    <button
+        id="menuLogoutButton"
+        class="userMenuButton"
+        style="display:none;"
+        onclick="closeUserMenu(); logoutUser()">
+
+        🚪 Logout
+
+    </button>
+
+</div>
 
         </div>
 
@@ -15384,218 +17511,479 @@ z-index:999999;
 
 </div>
 
+
 <!-- ======================================================
-CREATE USER
+EDIT USER MODAL
+====================================================== -->
+
+<div id="editUserModal" class="modalOverlay">
+
+    <div class="notificationModal modalLarge">
+
+        <!-- HEADER -->
+
+        <div class="modalHeader">
+
+            <div class="modalTitle">
+
+                👤 Edit User
+
+            </div>
+
+            <button
+                class="modalClose"
+                onclick="closeEditUser()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <!-- BODY -->
+
+        <div class="modalBody">
+
+            <div class="createUserGrid">
+
+                <!-- PHOTO -->
+
+                <div class="userPhotoSection">
+
+                    <label
+                        class="userPhoto"
+                        for="editUserPhotoInput">
+
+                        <img
+                            id="editUserPhotoPreview"
+                            style="display:none;">
+
+                        <div
+                            id="editUserPhotoPlaceholder"
+                            class="userPhotoPlaceholder initialsAvatar">
+
+                            ??
+
+                        </div>
+
+                    </label>
+
+                    <input
+    id="editUserPhotoInput"
+    class="userPhotoInput"
+    type="file"
+    accept="image/*"
+    onchange="previewEditUserPhoto(event)">
+
+                    <div class="userPhotoTitle">
+
+                        Profile Picture
+
+                    </div>
+
+                    <div class="userPhotoText">
+
+                        Click to upload<br>
+
+                        JPG • PNG • Max 5 MB
+
+                    </div>
+
+                </div>
+
+                <!-- FORM -->
+
+                <div class="createUserForm">
+
+                    <div class="formRow">
+
+                        <label>Full Name</label>
+
+                        <input
+                            id="editUserFullName"
+                            class="auth-input">
+
+                    </div>
+
+                    <div class="formRow">
+
+                        <label>Username</label>
+
+                        <input
+                            id="editUserUsername"
+                            class="auth-input"
+                            readonly>
+
+                    </div>
+
+                    <div class="formRow fullWidth">
+
+                        <label>Role</label>
+
+                        <select
+                            id="editUserRole"
+                            class="auth-input">
+
+                            <option value="viewer">
+
+                                Viewer
+
+                            </option>
+
+                            <option value="supervisor">
+
+                                Supervisor
+
+                            </option>
+
+                            <option value="admin">
+
+                                Administrator
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="formRow fullWidth">
+
+                        <label>
+
+                            New Password
+                            <span style="font-weight:400;color:#6B7280;">
+                                (optional)
+                            </span>
+
+                        </label>
+
+                        <div class="passwordField">
+
+                            <input
+                                id="editUserPassword"
+                                type="password"
+                                class="auth-input">
+
+                            <button
+                                type="button"
+                                class="passwordToggle"
+                                onclick="toggleEditPassword()">
+
+                                👁
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+
+        <div class="modalFooter">
+
+            <button
+                class="btn btn-red"
+                onclick="deleteUser()">
+
+                🗑 Delete User
+
+            </button>
+
+            <div style="margin-left:auto;display:flex;gap:12px;">
+
+                <button
+                    class="btn btn-white"
+                    onclick="closeEditUser()">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    class="btn btn-green"
+                    onclick="saveUser()">
+
+                    Save Changes
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    id="userManagementModal"
+    class="modalOverlay">
+
+<div class="notificationModal modalLarge">
+
+    <!-- HEADER -->
+
+    <div class="modalHeader">
+
+        <div class="modalTitle">
+
+            👥 User Management
+
+        </div>
+
+        <button
+            class="modalClose"
+            onclick="closeUserManagement()">
+
+            ✕
+
+        </button>
+
+    </div>
+
+    <!-- BODY -->
+
+    <div class="modalBody">
+
+        <!-- Statistics -->
+
+        <div
+            id="userManagementStats"
+            class="statsGrid">
+
+        </div>
+
+        <!-- Toolbar -->
+
+        <div class="userToolbar">
+
+            <div class="userToolbarLeft">
+
+                <input
+                    id="userSearchInput"
+                    class="auth-input"
+                    placeholder="🔍 Search by name or username..."
+                    oninput="renderUsersTable()">
+
+                <select
+                    id="roleFilter"
+                    class="periodSelector"
+                    onchange="renderUsersTable()">
+
+                    <option value="">All Roles</option>
+                    <option value="admin">Administrator</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="viewer">Viewer</option>
+
+                </select>
+
+                <select
+                    id="statusFilter"
+                    class="periodSelector"
+                    onchange="renderUsersTable()">
+
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+
+                </select>
+
+            </div>
+
+            <button
+                class="rh-btn rh-btn-green"
+                onclick="openCreateUserModal()">
+
+                ➕ Create User
+
+            </button>
+
+        </div>
+
+        <!-- Users Table -->
+
+        <div class="usersTableWrapper">
+
+            <div id="usersTableContainer">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- ======================================================
+ACTIVITY LOGS
 ====================================================== -->
 
 <div
-id="createUserModal"
-style="
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.45);
-justify-content:center;
-align-items:center;
-z-index:999999;
-">
-
-<div
-style="
-width:650px;
-max-width:94%;
-background:white;
-border-radius:20px;
-padding:35px;
-box-shadow:0 25px 80px rgba(0,0,0,.25);
-">
-
-<h2>Create User</h2>
-
-<label class="input-label">
-Full Name
-</label>
-
-<input
-id="newUserFullName"
-class="auth-input">
-
-<label
-class="input-label"
-style="margin-top:18px;">
-Username
-</label>
-
-<input
-id="newUserUsername"
-class="auth-input">
-
-<label
-class="input-label"
-style="margin-top:18px;">
-Password
-</label>
-
-<input
-id="newUserPassword"
-class="auth-input"
-type="password">
-
-<label
-class="input-label"
-style="margin-top:18px;">
-Role
-</label>
-
-<select
-id="newUserRole"
-class="auth-input">
-
-<option value="admin">
-Administrator
-</option>
-
-<option value="supervisor">
-Supervisor
-</option>
-
-<option value="viewer">
-Viewer
-</option>
-
-</select>
-
-<div
-style="
-display:flex;
-justify-content:flex-end;
-gap:10px;
-margin-top:30px;
-">
-
-<button
-class="btn btn-white"
-onclick="closeCreateUserModal()">
-
-Cancel
-
-</button>
-
-<button
-class="btn btn-yellow"
-onclick="createDashboardUser()">
-
-Create User
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- ======================================================
-AUDIT LOGS
-====================================================== -->
-
-<div
-id="auditLogsModal"
-style="
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.45);
-justify-content:center;
-align-items:center;
-z-index:999999;
-">
-
-<div
-style="
-width:1200px;
-max-width:95%;
-max-height:90vh;
-overflow:auto;
-background:white;
-border-radius:20px;
-padding:35px;
-box-shadow:0 25px 80px rgba(0,0,0,.25);
-">
-
-<div
-style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-">
-
-<h2 style="margin:0;">
-
-📋 Activity Logs
-
-</h2>
-
-<button
-
-    onclick="closeActivityLogs()"
-
+    id="auditLogsModal"
+    class="modalOverlay"
     style="
-    width:42px;
-    height:42px;
-    border:none;
-    border-radius:50%;
-    background:#F4F6F8;
-    cursor:pointer;
-    font-size:22px;
-    color:#07225B;
-    transition:.2s;
-    ">
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.45);
+        justify-content:center;
+        align-items:center;
+        z-index:999999;
+        padding:20px;
+    "
+>
 
-        ✕
+    <div
+        class="notificationModal"
+        style="
+            width:1200px;
+            max-width:95vw;
+            max-height:90vh;
+            overflow:hidden;
+            padding:30px;
+            box-shadow:0 25px 80px rgba(0,0,0,0.25);
+        "
+    >
 
-    </button>
+        <!-- HEADER -->
 
-</div>
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:25px;
+            "
+        >
 
-<div
-style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-">
+            <div>
 
-<input
+                <h2
+                    style="
+                        margin:0;
+                        color:#07225B;
+                    "
+                >
+                    📋 Activity Logs
+                </h2>
 
-id="auditSearch"
+                <p
+                    style="
+                        margin:6px 0 0;
+                        color:#7F8C8D;
+                        font-size:14px;
+                    "
+                >
+                    System activity and audit history
+                </p>
 
-class="auth-input"
+            </div>
 
-style="width:320px;"
 
-placeholder="Search logs..."
+            <button
+                type="button"
+                onclick="closeActivityLogs()"
+                style="
+                    width:42px;
+                    height:42px;
+                    border:none;
+                    border-radius:50%;
+                    background:#F4F6F8;
+                    cursor:pointer;
+                    font-size:22px;
+                    color:#07225B;
+                    font-weight:700;
+                "
+            >
+                ✕
+            </button>
 
-oninput="renderAuditTable()">
+        </div>
 
-<button
 
-class="btn btn-yellow"
+        <!-- CONTROLS -->
 
-onclick="exportAuditLogs()">
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:15px;
+                margin-bottom:20px;
+                flex-wrap:wrap;
+            "
+        >
 
-Export Logs
+            <input
+                id="auditSearch"
+                class="auth-input"
+                type="text"
+                placeholder="Search logs..."
+                oninput="renderAuditTable()"
+                style="
+                    width:320px;
+                    max-width:100%;
+                    box-sizing:border-box;
+                "
+            >
 
-</button>
 
-</div>
+            <button
+                type="button"
+                class="btn btn-yellow"
+                onclick="exportAuditLogs()"
+            >
+                📥 Export Logs
+            </button>
 
-<div id="auditTableContainer">
+        </div>
 
-</div>
 
-</div>
+        <!-- TABLE -->
+
+        <div
+            id="auditTableContainer"
+            style="
+                width:100%;
+                max-height:60vh;
+                overflow:auto;
+                border:1px solid #E5E7EB;
+                border-radius:10px;
+            "
+        >
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div
+            style="
+                display:flex;
+                justify-content:flex-end;
+                margin-top:20px;
+            "
+        >
+
+            <button
+                type="button"
+                class="btn btn-white"
+                onclick="closeActivityLogs()"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -15644,67 +18032,115 @@ SETTINGS CENTER
 ====================================================== -->
 
 <div
-id="settingsModal"
-class="notificationOverlay">
+    id="settingsModal"
+    class="modalOverlay"
+    style="display:none;"
+>
 
     <div
-    style="
-    width:950px;
-    max-width:95%;
-    max-height:90vh;
-    overflow:auto;
-    background:white;
-    border-radius:22px;
-    padding:35px;
-    ">
+        style="
+            width:950px;
+            max-width:95vw;
+            max-height:90vh;
+            overflow:auto;
+            background:white;
+            border-radius:22px;
+            box-shadow:0 25px 70px rgba(0,0,0,.25);
+        "
+    >
+
+        <!-- HEADER -->
 
         <div
-        style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin-bottom:25px;
-        ">
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding:28px 32px;
+                border-bottom:1px solid #E5E7EB;
+            "
+        >
 
-            <h2>
+            <div>
 
-                ⚙️ Settings Center
+                <h2
+                    style="
+                        margin:0;
+                        color:#07225B;
+                        font-size:28px;
+                    "
+                >
+                    ⚙️ Settings
+                </h2>
 
-            </h2>
-<button
+                <p
+                    style="
+                        margin:6px 0 0;
+                        color:#7F8C8D;
+                        font-size:14px;
+                    "
+                >
+                    Manage your account and dashboard preferences
+                </p>
 
-    onclick="closeSettings()"
+            </div>
 
-    style="
-    width:42px;
-    height:42px;
-    border:none;
-    border-radius:50%;
-    background:#F4F6F8;
-    cursor:pointer;
-    font-size:22px;
-    color:#07225B;
-    transition:.2s;
-    ">
 
-        ✕
-
-    </button>
+            <button
+                type="button"
+                onclick="closeSettings()"
+                style="
+                    width:42px;
+                    height:42px;
+                    border:none;
+                    border-radius:50%;
+                    background:#F4F6F8;
+                    color:#07225B;
+                    font-size:22px;
+                    cursor:pointer;
+                    font-weight:700;
+                "
+            >
+                ✕
+            </button>
 
         </div>
 
+
+        <!-- SETTINGS CONTENT -->
+
         <div
-        id="settingsContent">
+            id="settingsContent"
+            style="
+                padding:30px;
+            "
+        >
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div
+            style="
+                display:flex;
+                justify-content:flex-end;
+                padding:20px 30px;
+                border-top:1px solid #E5E7EB;
+                background:#FAFBFD;
+            "
+        >
+
+            <button
+                type="button"
+                class="btn btn-white"
+                onclick="closeSettings()"
+            >
+                Close
+            </button>
 
         </div>
 
     </div>
-
-</div>
-
-<div
-id="aCheckContainer"
-style="display:none;">
 
 </div>
 
@@ -15867,6 +18303,1064 @@ style="display:none;">
     </div>
 
 </div>
+
+
+
+
+<!-- ======================================================
+CONFIRMATION MODAL
+====================================================== -->
+
+<div id="confirmationModal" class="notificationOverlay" style="display:none;">
+
+    <div class="notificationBox confirmationBox">
+
+        <div class="confirmationIcon">
+            ⚠️
+        </div>
+
+        <div
+            class="notificationTitle"
+            id="confirmationTitle">
+
+            Confirmation
+
+        </div>
+
+        <div
+            class="notificationMessage"
+            id="confirmationMessage">
+
+            Are you sure you want to continue?
+
+        </div>
+
+        <div class="confirmationButtons">
+
+            <button
+                class="btn-confirm-cancel"
+                onclick="confirmCancel()">
+
+                Cancel
+
+            </button>
+
+            <button
+                id="confirmationButton"
+                class="btn-confirm-danger"
+                onclick="confirmYes()">
+
+                Confirm
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- PDF LOADING MODAL                                     -->
+<!-- ===================================================== -->
+
+<div id="pdfLoadingModal" class="notificationOverlay" style="display:none;">
+
+    <div class="notificationBox pdfLoadingBox">
+
+        <div class="pdfLoadingIcon">
+            📄
+        </div>
+
+        <div class="notificationTitle">
+            Generating PDF Report
+        </div>
+
+        <div class="notificationMessage" id="pdfLoadingMessage">
+
+            Please wait while the dashboard is being prepared.
+
+        </div>
+
+        <div class="pdfProgress">
+
+            <div
+                id="pdfProgressBar"
+                class="pdfProgressBar">
+
+            </div>
+
+        </div>
+
+        <div
+            id="pdfProgressText"
+            class="pdfProgressText">
+
+            Preparing...
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- PDF REPORT HEADER (Hidden)                            -->
+<!-- ===================================================== -->
+
+<div id="pdfReportHeader" style="display:none;">
+
+    <div class="pdf-report-header">
+
+        <div class="pdf-report-left">
+
+            <img
+                src="ryanair-logo-2.png"
+                class="pdf-report-logo"
+                alt="Ryanair">
+
+            <div>
+
+                <div class="pdf-report-title">
+
+                    A-CHECK DATA MONTHLY REPORT
+
+                </div>
+
+                <div class="pdf-report-subtitle">
+
+                    Engineering &amp; Maintenance
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="pdf-report-right">
+
+            <div class="pdf-report-period">
+
+                Reporting Period
+
+            </div>
+
+            <div
+                id="pdfReportPeriod"
+                class="pdf-report-value">
+
+                -
+
+            </div>
+
+            <div class="pdf-report-generated">
+
+                Generated on
+
+            </div>
+
+            <div
+                id="pdfGeneratedDate"
+                class="pdf-report-date">
+
+                -
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- STARTUP WELCOME MODAL -->
+<!-- ===================================================== -->
+
+<div
+    id="welcomeModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        width:100%;
+        height:100%;
+        background:#111827;
+        backdrop-filter:blur(6px);
+        -webkit-backdrop-filter:blur(6px);
+        justify-content:center;
+        align-items:center;
+        z-index:2000000;
+    "
+>
+
+    <div
+        style="
+            width:520px;
+            max-width:90vw;
+            background:#FFFFFF;
+            border-radius:24px;
+            padding:42px 40px 36px;
+            text-align:center;
+            box-shadow:0 30px 90px rgba(0,0,0,0.35);
+            box-sizing:border-box;
+        "
+    >
+
+        <!-- AVATAR -->
+
+        <div
+            id="welcomeAvatar"
+            style="
+                width:88px;
+                height:88px;
+                margin:0 auto 22px;
+                border-radius:50%;
+                background:linear-gradient(135deg,#0A3D91,#07225B);
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:white;
+                font-size:32px;
+                font-weight:700;
+                box-shadow:0 10px 25px rgba(7,34,91,.25);
+            "
+        >
+            👋
+        </div>
+
+
+        <!-- TITLE -->
+
+        <div
+            id="welcomeTitle"
+            style="
+                font-size:32px;
+                font-weight:800;
+                color:#07225B;
+                margin-bottom:10px;
+            "
+        >
+            Welcome
+        </div>
+
+
+        <!-- NAME -->
+
+        <div
+            id="welcomeUserName"
+            style="
+                font-size:24px;
+                font-weight:700;
+                color:#07225B;
+                margin-bottom:8px;
+            "
+        >
+            Guest User
+        </div>
+
+
+        <!-- ROLE -->
+
+        <div
+            id="welcomeUserRole"
+            style="
+                display:inline-block;
+                padding:6px 18px;
+                border-radius:20px;
+                background:#F1C400;
+                color:#07225B;
+                font-size:14px;
+                font-weight:700;
+                margin-bottom:22px;
+            "
+        >
+            Viewer
+        </div>
+
+
+        <!-- MESSAGE -->
+
+        <div
+            id="welcomeMessage"
+            style="
+                font-size:16px;
+                line-height:1.6;
+                color:#667085;
+                margin-bottom:30px;
+            "
+        >
+            Welcome to the Ryanair Engineering Dashboard.
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div
+            id="welcomeActions"
+            style="
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                gap:12px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <button
+                id="welcomeLoginButton"
+                class="btn btn-yellow"
+                onclick="startupLogin()"
+            >
+                🔐 Login
+            </button>
+
+
+            <button
+                id="welcomeGuestButton"
+                class="btn btn-white"
+                onclick="continueAsGuest()"
+            >
+                Continue as Guest
+            </button>
+
+
+            <button
+                id="welcomeContinueButton"
+                class="btn btn-yellow"
+                onclick="closeWelcomeModal()"
+                style="display:none;"
+            >
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+CREATE USER MODAL
+====================================================== -->
+
+<div id="createUserModal" class="modalOverlay">
+
+    <div class="notificationModal modalLarge">
+
+        <!-- HEADER -->
+
+        <div class="modalHeader">
+
+            <div class="modalTitle">
+
+                👤 Create New User
+
+            </div>
+
+            <button
+                class="modalClose"
+                onclick="closeCreateUserModal()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <!-- BODY -->
+
+        <div class="modalBody">
+
+            <div class="createUserGrid">
+
+                <!-- PHOTO -->
+
+                <div class="userPhotoSection">
+
+                    <label
+                        class="userPhoto"
+                        for="createUserPhotoInput">
+
+                        <img
+                            id="createUserPhotoPreview"
+                            style="display:none;">
+
+                        <div
+    id="createUserPhotoPlaceholder"
+    class="userPhotoPlaceholder initialsAvatar">
+
+    ??
+
+</div>
+
+                    </label>
+
+                    <input
+                        id="createUserPhotoInput"
+                        class="userPhotoInput"
+                        type="file"
+                        accept="image/*"
+                        onchange="previewCreateUserPhoto(event)">
+
+                    <div class="userPhotoText">
+
+                        Click to upload<br>
+                        JPG • PNG • Max 5 MB
+
+                    </div>
+
+                </div>
+
+                <!-- FORM -->
+
+                <div class="createUserForm">
+
+                    <div class="formRow">
+
+                        <label>Full Name</label>
+
+                        <input
+    id="newUserFullName"
+    class="auth-input"
+    oninput="updateCreateUserInitials()"
+                            autocomplete="off">
+
+                    </div>
+
+                    <div class="formRow">
+
+                        <label>Username</label>
+
+                        <input
+                            id="newUserUsername"
+                            class="auth-input"
+                            autocomplete="off">
+
+                    </div>
+
+                    <div class="formRow fullWidth">
+
+                        <label>Password</label>
+
+                        <input
+                            id="newUserPassword"
+                            type="password"
+                            class="auth-input">
+
+                    </div>
+
+                    <div class="formRow fullWidth">
+
+                        <label>Role</label>
+
+                        <select
+                            id="newUserRole"
+                            class="auth-input">
+
+                            <option value="viewer">
+
+                                Viewer
+
+                            </option>
+
+                            <option value="supervisor">
+
+                                Supervisor
+
+                            </option>
+
+                            <option value="admin">
+
+                                Administrator
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+
+        <div class="modalFooter">
+
+            <button
+                class="btn btn-white"
+                onclick="closeCreateUserModal()">
+
+                Cancel
+
+            </button>
+
+            <button
+                class="btn btn-green"
+                onclick="createDashboardUser()">
+
+                Create User
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+     FWD PDF EXPORT MODAL
+====================================================== -->
+
+<div
+    id="fwdExportModal"
+    class="fwd-export-overlay"
+>
+
+    <div class="fwd-export-modal">
+
+        <!-- HEADER -->
+
+        <div class="fwd-export-header">
+
+            <div>
+
+                <div class="fwd-export-eyebrow">
+                    FIRST WAVE DELAYS
+                </div>
+
+                <h2>
+                    Export PDF Report
+                </h2>
+
+                <p>
+                    Configure the report before generating the PDF.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="fwd-export-close"
+                onclick="closeFwdExportModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="fwd-export-body">
+
+
+            <!-- REPORT PERIOD -->
+
+            <div class="fwd-export-section">
+
+                <div class="fwd-export-section-title">
+                    <span>01</span>
+                    Report Period
+                </div>
+
+                <div class="fwd-export-field">
+
+                    <label>
+                        Analysis Period
+                    </label>
+
+                    <select id="fwdExportPeriod">
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- GEOGRAPHICAL SCOPE -->
+
+            <div class="fwd-export-section">
+
+                <div class="fwd-export-section-title">
+                    <span>02</span>
+                    Geographical Scope
+                </div>
+
+                <div class="fwd-export-grid">
+
+
+                    <div class="fwd-export-field">
+
+                        <label>
+                            Country
+                        </label>
+
+                        <select
+                            id="fwdExportCountry"
+                            onchange="updateFwdExportBases()"
+                        >
+                        </select>
+
+                    </div>
+
+
+                    <div class="fwd-export-field">
+
+                        <label>
+                            Base Analysis
+                        </label>
+
+                        <select
+                            id="fwdExportBase"
+                        >
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CHART CONFIGURATION -->
+
+            <div class="fwd-export-section">
+
+                <div class="fwd-export-section-title">
+                    <span>03</span>
+                    Chart Configuration
+                </div>
+
+
+                <div class="fwd-export-field">
+
+                    <label>
+                        Sort Base Performance By
+                    </label>
+
+                    <select id="fwdExportSort">
+                    </select>
+
+                </div>
+
+
+                <!-- DELAY CODE -->
+
+                <div
+                    id="fwdExportDelayCodeField"
+                    class="fwd-export-field"
+                    style="display:none;"
+                >
+
+                    <label>
+                        Delay Code
+                    </label>
+
+                    <select id="fwdExportDelayCode">
+                    </select>
+
+                </div>
+
+
+                <!-- DELAY GROUP -->
+
+                <div
+                    id="fwdExportDelayGroupField"
+                    class="fwd-export-field"
+                    style="display:none;"
+                >
+
+                    <label>
+                        Delay Group
+                    </label>
+
+                    <select id="fwdExportDelayGroup">
+                    </select>
+
+                </div>
+
+
+                <div class="fwd-export-zero-info">
+
+                    <div class="fwd-export-check-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Zero-value bases included
+                        </strong>
+
+                        <span>
+                            The PDF always includes bases with zero values.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORT CONTENT -->
+
+            <div class="fwd-export-section">
+
+                <div class="fwd-export-section-title">
+                    <span>04</span>
+                    Report Content
+                </div>
+
+
+                <div class="fwd-export-content-grid">
+
+
+                    <label class="fwd-export-checkbox">
+
+                        <input
+                            type="checkbox"
+                            value="exec"
+                            checked
+                        >
+
+                        <span>
+                            <strong>
+                                Executive Summary
+                            </strong>
+
+                            <small>
+                                Monthly KPIs and overall performance
+                            </small>
+                        </span>
+
+                    </label>
+
+
+                    <label class="fwd-export-checkbox">
+
+                        <input
+                            type="checkbox"
+                            value="region"
+                            checked
+                        >
+
+                        <span>
+                            <strong>
+                                Regional Overview
+                            </strong>
+
+                            <small>
+                                Country map and regional statistics
+                            </small>
+                        </span>
+
+                    </label>
+
+
+                    <label class="fwd-export-checkbox">
+
+                        <input
+                            type="checkbox"
+                            value="base"
+                            checked
+                        >
+
+                        <span>
+                            <strong>
+                                Base Performance
+                            </strong>
+
+                            <small>
+                                Base ranking and performance chart
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+                    <label class="fwd-export-checkbox">
+
+                        <input
+                            type="checkbox"
+                            value="analysis"
+                            checked
+                        >
+
+                        <span>
+
+                            <strong>
+                                Base Analysis
+                            </strong>
+
+                            <small>
+                                Detailed selected-base analysis
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+                    <label class="fwd-export-checkbox">
+
+                        <input
+                            type="checkbox"
+                            value="trend"
+                            checked
+                        >
+
+                        <span>
+
+                            <strong>
+                                Operational Trends
+                            </strong>
+
+                            <small>
+                                Trend and performance charts
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+                    <label class="fwd-export-checkbox">
+
+                        <input
+                            type="checkbox"
+                            value="insight"
+                            checked
+                        >
+
+                        <span>
+
+                            <strong>
+                                Operational Insights
+                            </strong>
+
+                            <small>
+                                Key observations and indicators
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+                    <label class="fwd-export-checkbox">
+
+                        <input
+                            type="checkbox"
+                            value="explorer"
+                            checked
+                        >
+
+                        <span>
+
+                            <strong>
+                                Data Explorer
+                            </strong>
+
+                            <small>
+                                Detailed operational data
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="fwd-export-footer">
+
+            <button
+                type="button"
+                class="fwd-export-cancel"
+                onclick="closeFwdExportModal()"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="fwd-export-generate"
+                onclick="generateFwdPDF()"
+            >
+                <span>📄</span>
+                Generate PDF
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ======================================================
+     FWD PDF REPORT HEADER
+====================================================== -->
+
+<div
+    id="fwdPdfReportHeader"
+    style="
+        display:none;
+        width:100%;
+        background:#07225B;
+        color:white;
+        padding:22px 28px;
+        box-sizing:border-box;
+        font-family:'Montserrat','Segoe UI',Arial,sans-serif;
+    "
+>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:30px;
+        "
+    >
+
+        <div
+            style="
+                display:flex;
+                align-items:center;
+                gap:18px;
+            "
+        >
+
+            <img
+                src="ryanair-logo-2.png"
+                style="
+                    height:48px;
+                    object-fit:contain;
+                "
+            >
+
+            <div>
+
+                <div
+                    style="
+                        font-size:25px;
+                        font-weight:800;
+                        letter-spacing:.5px;
+                    "
+                >
+
+                    <span style="color:#F1C400;">
+                        FIRST WAVE DELAYS
+                    </span>
+
+                    MONTHLY REPORT
+
+                </div>
+
+                <div
+                    style="
+                        margin-top:5px;
+                        font-size:12px;
+                        opacity:.82;
+                    "
+                >
+                    Engineering & Maintenance
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            style="
+                text-align:right;
+                min-width:260px;
+                font-size:12px;
+            "
+        >
+
+            <div>
+                <span style="opacity:.65;">
+                    Reporting Period
+                </span>
+
+                <strong
+                    id="fwdPdfPeriod"
+                    style="
+                        display:block;
+                        margin-top:3px;
+                        font-size:15px;
+                    "
+                >
+                    -
+                </strong>
+            </div>
+
+
+            <div style="margin-top:8px;">
+
+                <span style="opacity:.65;">
+                    Scope
+                </span>
+
+                <strong
+                    id="fwdPdfScope"
+                    style="
+                        display:block;
+                        margin-top:3px;
+                        font-size:14px;
+                    "
+                >
+                    All Countries
+                </strong>
+
+            </div>
+
+
+            <div style="margin-top:8px;">
+
+                <span style="opacity:.65;">
+                    Generated
+                </span>
+
+                <strong
+                    id="fwdPdfGenerated"
+                    style="
+                        display:block;
+                        margin-top:3px;
+                        font-size:13px;
+                    "
+                >
+                    -
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="auth.js"></script>
+<script src="acheck.js"></script>
+
 
 </body>
 </html> 
