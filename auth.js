@@ -167,8 +167,10 @@ function showStartupWelcome(){
     const loginButton =
         document.getElementById("welcomeLoginButton");
 
-    const guestButton =
-        document.getElementById("welcomeGuestButton");
+    const createAccountButton =
+    document.getElementById(
+        "welcomeCreateAccountButton"
+    );
 
     const continueButton =
         document.getElementById("welcomeContinueButton");
@@ -264,13 +266,13 @@ if(CURRENT_USER.profile.photo){
 
 
         loginButton.style.display =
-            "none";
+    "none";
 
-        guestButton.style.display =
-            "none";
+createAccountButton.style.display =
+    "none";
 
-        continueButton.style.display =
-            "inline-flex";
+continueButton.style.display =
+    "inline-flex";
 
     }
 
@@ -298,17 +300,17 @@ if(CURRENT_USER.profile.photo){
 
 
         message.textContent =
-            "Please sign in to access your profile, or continue as a guest.";
+            "Please sign in to access your profile, or create a new account.";
 
 
         loginButton.style.display =
-            "inline-flex";
+    "inline-flex";
 
-        guestButton.style.display =
-            "inline-flex";
+createAccountButton.style.display =
+    "inline-flex";
 
-        continueButton.style.display =
-            "none";
+continueButton.style.display =
+    "none";
 
     }
 
@@ -352,25 +354,6 @@ function startupLogin(){
     closeWelcomeModal();
 
     openLoginModal();
-
-}
-
-
-// ======================================================
-// CONTINUE AS GUEST
-// ======================================================
-
-function continueAsGuest(){
-
-    CURRENT_USER = null;
-
-    localStorage.removeItem(
-        SESSION_STORAGE_KEY
-    );
-
-    updateUserInterface();
-
-    closeWelcomeModal();
 
 }
 
@@ -4405,33 +4388,159 @@ async function saveUser(){
     }
 
 }
-// ======================================================
-// CREATE USER MODAL
-// ======================================================
 
-function openCreateUserModal(){
+let CREATE_ACCOUNT_MODE = false;
 
-    closeUserManagement();
+function openCreateUserModal(mode = "management"){
 
-    document.getElementById("newUserFullName").value = "";
+    CREATE_ACCOUNT_MODE =
+        mode === "account";
 
-    document.getElementById("newUserUsername").value = "";
 
-    document.getElementById("newUserPassword").value = "";
+    // ==========================================
+    // RESET FORM
+    // ==========================================
 
-    document.getElementById("newUserRole").value = "viewer";
+    document.getElementById(
+        "newUserFullName"
+    ).value = "";
 
-    document.getElementById("createUserPhotoInput").value = "";
 
-    document.getElementById("createUserPhotoPreview").src = "";
+    document.getElementById(
+        "newUserUsername"
+    ).value = "";
 
-    document.getElementById("createUserPhotoPreview").style.display = "none";
 
-    document.getElementById("createUserPhotoPlaceholder").style.display = "flex";
+    document.getElementById(
+        "newUserPassword"
+    ).value = "";
+
+
+    // ==========================================
+    // ROLE
+    // ==========================================
+
+    const roleSelect =
+        document.getElementById(
+            "newUserRole"
+        );
+
+
+    if(CREATE_ACCOUNT_MODE){
+
+        roleSelect.value =
+            "viewer";
+
+        roleSelect.disabled =
+            true;
+
+    }else{
+
+        roleSelect.value =
+            "viewer";
+
+        roleSelect.disabled =
+            false;
+
+    }
+
+
+    // ==========================================
+    // RESET PHOTO
+    // ==========================================
+
+    document.getElementById(
+        "createUserPhotoInput"
+    ).value = "";
+
+
+    document.getElementById(
+        "createUserPhotoPreview"
+    ).src = "";
+
+
+    document.getElementById(
+        "createUserPhotoPreview"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "createUserPhotoPlaceholder"
+    ).style.display =
+        "flex";
+
 
     updateCreateUserInitials();
 
-    document.getElementById("createUserModal").style.display = "flex";
+
+    // ==========================================
+    // MODAL TEXT
+    // ==========================================
+
+    const modalTitle =
+        document.querySelector(
+            "#createUserModal .modalTitle"
+        );
+
+
+    const createButton =
+        document.querySelector(
+            "#createUserModal .btn-green"
+        );
+
+
+    if(CREATE_ACCOUNT_MODE){
+
+        if(modalTitle){
+
+            modalTitle.textContent =
+                "👤 Create Account";
+
+        }
+
+
+        if(createButton){
+
+            createButton.textContent =
+                "Create Account";
+
+            createButton.onclick =
+                createAccountFromWelcome;
+
+        }
+
+    }else{
+
+        if(modalTitle){
+
+            modalTitle.textContent =
+                "👤 Create New User";
+
+        }
+
+
+        if(createButton){
+
+            createButton.textContent =
+                "Create User";
+
+            createButton.onclick =
+                createDashboardUser;
+
+        }
+
+    }
+
+
+    // ==========================================
+    // OPEN MODAL
+    // ==========================================
+
+    document.getElementById(
+        "createUserModal"
+    ).style.display =
+        "flex";
 
 }
 
@@ -5285,9 +5394,126 @@ function renderSettings(){
 
     <h3>
 
-        👤 My Account
+        My Account
 
     </h3>
+
+
+    <!-- ==========================================
+         PROFILE PHOTO
+    =========================================== -->
+
+    <div
+        style="
+            display:flex;
+            align-items:center;
+            gap:18px;
+            margin:10px 0 22px 0;
+        "
+    >
+
+        <div
+            style="
+                width:82px;
+                height:82px;
+                border-radius:50%;
+                overflow:hidden;
+                background:#E8EDF5;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                flex-shrink:0;
+                border:3px solid #F1C400;
+            "
+        >
+
+            <img
+                id="settingsProfilePhotoPreview"
+                src="${
+                    CURRENT_USER.profile.photo || ""
+                }"
+                alt="Profile Photo"
+                style="
+                    width:100%;
+                    height:100%;
+                    object-fit:cover;
+                    ${
+                        CURRENT_USER.profile.photo
+                            ? ""
+                            : "display:none;"
+                    }
+                "
+            >
+
+            <span
+                id="settingsProfilePhotoPlaceholder"
+                style="
+                    font-size:28px;
+                    font-weight:800;
+                    color:#07225B;
+                    ${
+                        CURRENT_USER.profile.photo
+                            ? "display:none;"
+                            : ""
+                    }
+                "
+            >
+                ${(
+                    CURRENT_USER.profile.fullName || "U"
+                )
+                    .split(" ")
+                    .map(
+                        name =>
+                            name.charAt(0)
+                    )
+                    .join("")
+                    .substring(0,2)
+                    .toUpperCase()
+                }
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <div
+                style="
+                    font-weight:700;
+                    color:#07225B;
+                    margin-bottom:7px;
+                "
+            >
+                Profile Photo
+            </div>
+
+
+            <label
+                for="settingsProfilePhotoInput"
+                class="btn btn-white"
+                style="
+                    display:inline-flex;
+                    align-items:center;
+                    cursor:pointer;
+                    padding:8px 15px;
+                "
+            >
+                Change Photo
+            </label>
+
+
+            <input
+                id="settingsProfilePhotoInput"
+                type="file"
+                accept="image/*"
+                style="display:none;"
+                onchange="previewMyProfilePhoto(event)"
+            >
+
+        </div>
+
+    </div>
+
 
     <label class="input-label">
 
@@ -5348,7 +5574,7 @@ function renderSettings(){
 
         onclick="saveMyProfile()">
 
-            💾 Save Profile
+            Save Profile
 
         </button>
 
@@ -5360,7 +5586,7 @@ function renderSettings(){
 
     <h3>
 
-        🔐 Security
+        Security
 
     </h3>
 
@@ -5423,7 +5649,7 @@ function renderSettings(){
 
         onclick="changeMyPassword()">
 
-            🔑 Change Password
+            Change Password
 
         </button>
 
@@ -5435,7 +5661,7 @@ function renderSettings(){
 
     <h3>
 
-        🎨 Appearance
+        Appearance
 
     </h3>
 
@@ -5506,7 +5732,7 @@ function renderSettings(){
 
     <h3>
 
-        📊 Session Information
+        Session Information
 
     </h3>
 
@@ -5565,7 +5791,7 @@ function renderSettings(){
 
 <h3>
 
-📊 Dashboard
+Dashboard
 
 </h3>
 
@@ -5593,6 +5819,12 @@ No Info Delays
 <option>
 
 First Wave Delays
+
+</option>
+
+<option>
+
+A-Check
 
 </option>
 
@@ -5775,12 +6007,17 @@ async function saveMyProfile(){
 
     try{
 
+        // ==========================================
+        // FULL NAME
+        // ==========================================
+
         const fullName =
 
             document
                 .getElementById("settingsFullName")
                 .value
                 .trim();
+
 
         if(fullName===""){
 
@@ -5795,6 +6032,77 @@ async function saveMyProfile(){
             return;
 
         }
+
+
+        // ==========================================
+        // PROFILE PHOTO
+        // ==========================================
+
+        const photoInput =
+            document.getElementById(
+                "settingsProfilePhotoInput"
+            );
+
+
+        const photoFile =
+            photoInput?.files?.[0];
+
+
+        // Keep current photo if no new photo selected
+        let photo =
+            CURRENT_USER.profile.photo ||
+            null;
+
+
+        // ==========================================
+        // READ NEW PHOTO
+        // ==========================================
+
+        if(photoFile){
+
+            photo =
+                await new Promise(
+                    (resolve, reject) => {
+
+                        const reader =
+                            new FileReader();
+
+
+                        reader.onload =
+                            function(e){
+
+                                resolve(
+                                    e.target.result
+                                );
+
+                            };
+
+
+                        reader.onerror =
+                            function(){
+
+                                reject(
+                                    new Error(
+                                        "PHOTO_READ_FAILED"
+                                    )
+                                );
+
+                            };
+
+
+                        reader.readAsDataURL(
+                            photoFile
+                        );
+
+                    }
+                );
+
+        }
+
+
+        // ==========================================
+        // SAVE PROFILE
+        // ==========================================
 
         await firebaseUpdate(
 
@@ -5812,7 +6120,9 @@ async function saveMyProfile(){
 
                     ...CURRENT_USER.profile,
 
-                    fullName
+                    fullName,
+
+                    photo
 
                 }
 
@@ -5820,9 +6130,29 @@ async function saveMyProfile(){
 
         );
 
-        CURRENT_USER.profile.fullName = fullName;
+
+        // ==========================================
+        // UPDATE CURRENT SESSION
+        // ==========================================
+
+        CURRENT_USER.profile.fullName =
+            fullName;
+
+
+        CURRENT_USER.profile.photo =
+            photo;
+
+
+        // ==========================================
+        // UPDATE INTERFACE
+        // ==========================================
 
         updateUserInterface();
+
+
+        // ==========================================
+        // AUDIT LOG
+        // ==========================================
 
         await writeAuditLog(
 
@@ -5831,6 +6161,11 @@ async function saveMyProfile(){
             "Updated own profile."
 
         );
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
 
         showSuccess(
 
@@ -5842,9 +6177,32 @@ async function saveMyProfile(){
 
     }
 
+
     catch(error){
 
-        console.error(error);
+        console.error(
+            "SAVE PROFILE ERROR:",
+            error
+        );
+
+
+        if(
+            error.message ===
+            "PHOTO_READ_FAILED"
+        ){
+
+            showError(
+
+                "Photo Error",
+
+                "Unable to read the selected profile photo."
+
+            );
+
+            return;
+
+        }
+
 
         showError(
 
@@ -6044,7 +6402,43 @@ function openNoInfoEditVisuals(){
 
         ()=>{
 
-            openModal();
+            openAnalysisPeriodModal(
+
+                async (year, month)=>{
+
+                    // ==========================================
+                    // UPDATE CURRENT NO INFO PERIOD
+                    // ==========================================
+
+                    CURRENT_NOINFO_YEAR =
+                        year;
+
+                    CURRENT_NOINFO_MONTH =
+                        month;
+
+
+                    // ==========================================
+                    // LOAD SELECTED PERIOD
+                    // ==========================================
+
+                    await loadNoInfoData(
+
+                        year,
+
+                        month
+
+                    );
+
+
+                    // ==========================================
+                    // OPEN EDIT MODAL
+                    // ==========================================
+
+                    openModal();
+
+                }
+
+            );
 
         }
 
@@ -7898,7 +8292,250 @@ function prepareFwdPdfSectionContent(section){
                 true;
 
 
-            updateBasePerformance();
+            // ==========================================
+// FORCE BASE PERFORMANCE METRIC FOR PDF
+// ==========================================
+
+updateBasePerformance();
+
+
+const pdfSort =
+    document.getElementById(
+        "baseSort"
+    )?.value;
+
+
+if(
+    typeof baseRankingChart !==
+    "undefined" &&
+    baseRankingChart
+){
+
+    const selectedCountry =
+        document.getElementById(
+            "baseCountryFilter"
+        )?.value || "ALL";
+
+
+    let pdfRanking =
+        BASES.map(base => [
+
+            base,
+
+            currentStats
+                ?.baseStats?.[base]
+
+        ]);
+
+
+    // ------------------------------------------
+    // COUNTRY FILTER
+    // ------------------------------------------
+
+    if(
+        selectedCountry !==
+        "ALL"
+    ){
+
+        pdfRanking =
+            pdfRanking.filter(
+                ([base]) =>
+                    BASE_COUNTRIES[base] ===
+                    selectedCountry
+            );
+
+    }
+
+
+    // ------------------------------------------
+    // SORT
+    // ------------------------------------------
+
+    pdfRanking.sort(
+        (a,b)=>{
+
+            switch(pdfSort){
+
+                case "averageDelayTime":
+
+                    return (
+                        (b[1]?.averageDelayMinutes || 0) -
+                        (a[1]?.averageDelayMinutes || 0)
+                    );
+
+
+                case "maxDelayTime":
+
+                    return (
+                        (b[1]?.maxDelayMinutes || 0) -
+                        (a[1]?.maxDelayMinutes || 0)
+                    );
+
+
+                case "nightStops":
+
+                    return (
+                        (b[1]?.nightStops || 0) -
+                        (a[1]?.nightStops || 0)
+                    );
+
+
+                case "rate":
+
+                    return (
+                        (b[1]?.rate || 0) -
+                        (a[1]?.rate || 0)
+                    );
+
+
+                case "fwdPerDay":
+
+                    return (
+                        (
+                            b[1]?.activeDays
+                                ? b[1].fwd /
+                                  b[1].activeDays
+                                : 0
+                        )
+                        -
+                        (
+                            a[1]?.activeDays
+                                ? a[1].fwd /
+                                  a[1].activeDays
+                                : 0
+                        )
+                    );
+
+
+                case "nightStopsPerDay":
+
+                    return (
+                        (
+                            b[1]?.activeDays
+                                ? b[1].nightStops /
+                                  b[1].activeDays
+                                : 0
+                        )
+                        -
+                        (
+                            a[1]?.activeDays
+                                ? a[1].nightStops /
+                                  a[1].activeDays
+                                : 0
+                        )
+                    );
+
+
+                default:
+
+                    return (
+                        (b[1]?.fwd || 0) -
+                        (a[1]?.fwd || 0)
+                    );
+
+            }
+
+        }
+    );
+
+
+    // ------------------------------------------
+    // VALUES FOR PDF CHART
+    // ------------------------------------------
+
+    const pdfLabels =
+        pdfRanking.map(
+            ([base]) => base
+        );
+
+
+    const pdfValues =
+        pdfRanking.map(
+            ([base,data])=>{
+
+                switch(pdfSort){
+
+                    case "averageDelayTime":
+
+                        return Number(
+                            data?.averageDelayMinutes || 0
+                        );
+
+
+                    case "maxDelayTime":
+
+                        return Number(
+                            data?.maxDelayMinutes || 0
+                        );
+
+
+                    case "nightStops":
+
+                        return Number(
+                            data?.nightStops || 0
+                        );
+
+
+                    case "rate":
+
+                        return Number(
+                            data?.rate || 0
+                        );
+
+
+                    case "fwdPerDay":
+
+                        return Number(
+
+                            data?.activeDays
+                                ? data.fwd /
+                                  data.activeDays
+                                : 0
+
+                        );
+
+
+                    case "nightStopsPerDay":
+
+                        return Number(
+
+                            data?.activeDays
+                                ? data.nightStops /
+                                  data.activeDays
+                                : 0
+
+                        );
+
+
+                    default:
+
+                        return Number(
+                            data?.fwd || 0
+                        );
+
+                }
+
+            }
+        );
+
+
+    // ------------------------------------------
+    // FORCE CHART DATA
+    // ------------------------------------------
+
+    baseRankingChart.data.labels =
+        pdfLabels;
+
+
+    baseRankingChart.data.datasets[0].data =
+        pdfValues;
+
+
+    baseRankingChart.update(
+        "none"
+    );
+
+}
 
         }
 
@@ -8856,27 +9493,72 @@ await insertFwdPdfChart(
 
 function createFwdPdfDelayCodesTable(country){
 
-    let delayCodes = {};
+    let performance = {};
 
 
     // ==============================================
-    // GET COUNTRY DATA
+    // GET COUNTRY-SPECIFIC PERFORMANCE
     // ==============================================
 
     if(country === "ALL"){
 
         Object.values(
             stats.countryStats || {}
-        ).forEach(countryData=>{
+        )
+        .forEach(countryData=>{
 
             Object.entries(
-                countryData.delayCodes || {}
-            ).forEach(
-                ([code,value])=>{
+                countryData.delayCodePerformance || {}
+            )
+            .forEach(
+                ([code,data])=>{
 
-                    delayCodes[code] =
-                        (delayCodes[code] || 0)
-                        + value;
+                    if(!performance[code]){
+
+                        performance[code] = {
+
+                            events:0,
+
+                            timedEvents:0,
+
+                            totalMinutes:0,
+
+                            averageMinutes:0,
+
+                            maxMinutes:0,
+
+                            maxBase:null
+
+                        };
+
+                    }
+
+
+                    performance[code].events +=
+                        data.events || 0;
+
+
+                    performance[code].timedEvents +=
+                        data.timedEvents || 0;
+
+
+                    performance[code].totalMinutes +=
+                        data.totalMinutes || 0;
+
+
+                    // Guardar o maior atraso
+                    if(
+                        (data.maxMinutes || 0) >
+                        performance[code].maxMinutes
+                    ){
+
+                        performance[code].maxMinutes =
+                            data.maxMinutes || 0;
+
+                        performance[code].maxBase =
+                            data.maxBase || null;
+
+                    }
 
                 }
             );
@@ -8886,23 +9568,46 @@ function createFwdPdfDelayCodesTable(country){
     }
     else{
 
-        delayCodes =
+        performance =
             stats
                 .countryStats?.[country]
-                ?.delayCodes || {};
+                ?.delayCodePerformance
+                || {};
 
     }
 
 
     // ==============================================
-    // SORT BY EVENTS
+    // CALCULATE AVERAGES
+    // ==============================================
+
+    Object.values(
+        performance
+    )
+    .forEach(data=>{
+
+        data.averageMinutes =
+            data.timedEvents > 0
+
+                ? data.totalMinutes /
+                  data.timedEvents
+
+                : 0;
+
+    });
+
+
+    // ==============================================
+    // SORT BY AVERAGE RESOLUTION
     // ==============================================
 
     const entries =
-        Object.entries(delayCodes)
-            .sort(
-                (a,b)=>b[1]-a[1]
-            );
+        Object.entries(performance)
+        .sort(
+            (a,b)=>
+                b[1].averageMinutes -
+                a[1].averageMinutes
+        );
 
 
     // ==============================================
@@ -8945,25 +9650,41 @@ function createFwdPdfDelayCodesTable(country){
             <div style="
                 display:grid;
                 grid-template-columns:
-                    90px 1fr 90px;
+                    80px 90px 130px 130px 110px;
 
                 background:#073590;
                 color:#FFFFFF;
 
-                font-size:13px;
+                font-size:12px;
                 font-weight:800;
 
-                padding:12px 16px;
+                padding:12px 14px;
             ">
 
                 <div>CODE</div>
 
-                <div>DESCRIPTION</div>
-
                 <div style="
-                    text-align:right;
+                    text-align:center;
                 ">
                     EVENTS
+                </div>
+
+                <div style="
+                    text-align:center;
+                ">
+                    AVG. DELAY
+                </div>
+
+                <div style="
+                    text-align:center;
+                ">
+                    MAX. DELAY
+                </div>
+
+                <div style="
+                    text-align:center;
+                ">
+                    BASE - MAX
                 </div>
 
             </div>
@@ -8972,11 +9693,10 @@ function createFwdPdfDelayCodesTable(country){
 
 
     entries.forEach(
-        ([code,value])=>{
+        ([code,data])=>{
 
-            const description =
-                IATA_DELAY_CODES[code]
-                || "Unknown";
+            const hasTime =
+                Number(data.timedEvents) > 0;
 
 
             html += `
@@ -8984,17 +9704,22 @@ function createFwdPdfDelayCodesTable(country){
                 <div style="
                     display:grid;
                     grid-template-columns:
-                        90px 1fr 90px;
+                        80px 90px 130px 130px 110px;
 
-                    padding:13px 16px;
+                    padding:12px 14px;
 
                     border-bottom:
                         1px solid #E8EDF3;
 
-                    font-size:14px;
+                    font-size:13px;
 
                     color:#07225B;
+
+                    align-items:center;
                 ">
+
+
+                    <!-- CODE -->
 
                     <div>
 
@@ -9005,11 +9730,13 @@ function createFwdPdfDelayCodesTable(country){
 
                             color:#FFFFFF;
 
-                            border-radius:8px;
+                            border-radius:7px;
 
-                            padding:5px 11px;
+                            padding:4px 9px;
 
                             font-weight:800;
+
+                            font-size:11px;
                         ">
                             ${code}
                         </span>
@@ -9017,29 +9744,79 @@ function createFwdPdfDelayCodesTable(country){
                     </div>
 
 
-                    <div style="
-                        display:flex;
-                        align-items:center;
-                    ">
-
-                        ${description}
-
-                    </div>
-
+                    <!-- EVENTS -->
 
                     <div style="
-                        text-align:right;
+                        text-align:center;
 
                         color:#FDB813;
 
                         font-weight:800;
-
-                        display:flex;
-                        align-items:center;
-                        justify-content:flex-end;
                     ">
 
-                        ${value}
+                        ${data.events || 0}
+
+                    </div>
+
+
+                    <!-- AVG -->
+
+                    <div style="
+                        text-align:center;
+
+                        font-weight:800;
+                    ">
+
+                        ${
+                            hasTime
+                                ? `${Math.round(
+                                    data.averageMinutes
+                                  )} min`
+                                : "-"
+                        }
+
+                    </div>
+
+
+                    <!-- MAX -->
+
+                    <div style="
+                        text-align:center;
+
+                        color:${
+                            hasTime
+                                ? "#C0392B"
+                                : "#7A8599"
+                        };
+
+                        font-weight:800;
+                    ">
+
+                        ${
+                            hasTime
+                                ? `${Math.round(
+                                    data.maxMinutes
+                                  )} min`
+                                : "-"
+                        }
+
+                    </div>
+
+
+                    <!-- BASE MAX -->
+
+                    <div style="
+                        text-align:center;
+
+                        font-weight:800;
+                    ">
+
+                        ${
+                            hasTime &&
+                            data.maxBase
+                                ? data.maxBase
+                                : "-"
+                        }
 
                     </div>
 
@@ -10000,212 +10777,189 @@ async function performFwdDataReset(
         );
 
 
-// ==========================================
-// FIREBASE PERIOD PATH
-// ==========================================
-
-const [year, month] =
-    period.split("-");
-
-const fwdPeriodPath =
-    `${FWD_DATA_COLLECTION}/${year}/${String(month).padStart(2,"0")}`;
-
-await firebaseRemove(
-
-    firebaseRef(
-
-        database,
-
-        fwdPeriodPath
-
-    )
-
-);
-
-// ==========================================
-// REMOVE DELETED PERIOD FROM SELECTOR
-// ==========================================
-
-const dashboardSelector =
-    document.getElementById(
-        "dashboardPeriod"
-    );
-
-if(dashboardSelector){
-
-    Array.from(
-        dashboardSelector.options
-    ).forEach(option => {
+        // ==========================================
+        // FIREBASE PERIOD PATH
+        // ==========================================
 
         const [
-            optionYear,
-            optionMonth
+            year,
+            month
         ] =
-            option.value
-                .split("-")
-                .map(Number);
-
-        if(
-            optionYear === Number(year) &&
-            optionMonth === Number(month)
-        ){
-
-            option.remove();
-
-        }
-
-    });
+            period.split("-");
 
 
-    // ==========================================
-    // FIND PREVIOUS AVAILABLE PERIOD
-    // ==========================================
+        const fwdPeriodPath =
+            `${FWD_DATA_COLLECTION}/${year}/${String(month).padStart(2,"0")}`;
 
-    const remainingSnapshot =
-        await firebaseGet(
+
+        await firebaseRemove(
+
             firebaseRef(
                 database,
-                FWD_DATA_COLLECTION
+                fwdPeriodPath
             )
+
         );
 
 
-    if(
-        remainingSnapshot.exists()
-    ){
+        // ==========================================
+        // REFRESH AVAILABLE FWD PERIODS
+        // ==========================================
 
-        const remainingData =
-            remainingSnapshot.val();
+        updateLoading(
+            "Resetting FWD Data...",
+            45,
+            "Updating available reporting periods..."
+        );
 
-        const remainingPeriods = [];
+
+        await loadAvailableDashboardPeriods();
 
 
-        Object.keys(
-            remainingData
-        ).forEach(
-            remainingYear => {
+        // ==========================================
+        // SELECT LAST AVAILABLE PERIOD
+        // ==========================================
 
-                Object.keys(
-                    remainingData[remainingYear]
-                ).forEach(
-                    remainingMonth => {
+        const dashboardSelector =
+            document.getElementById(
+                "dashboardPeriod"
+            );
 
-                        remainingPeriods.push({
 
-                            year:
-                                Number(
-                                    remainingYear
-                                ),
+        if(
+            dashboardSelector &&
+            dashboardSelector.options.length > 0
+        ){
 
-                            month:
-                                Number(
-                                    remainingMonth
-                                )
+            // The options are already sorted
+            // by loadAvailableDashboardPeriods().
+            // The last option is the oldest/
+            // previous available reporting period.
 
-                        });
+            dashboardSelector.selectedIndex =
+                dashboardSelector.options.length - 1;
 
-                    }
+
+            const selectedPeriod =
+                dashboardSelector.value;
+
+
+            if(selectedPeriod){
+
+                const [
+                    selectedYear,
+                    selectedMonth
+                ] =
+                    selectedPeriod
+                        .split("-")
+                        .map(Number);
+
+
+                // ==========================================
+                // UPDATE CURRENT FWD PERIOD
+                // ==========================================
+
+                currentYear =
+                    selectedYear;
+
+                currentMonth =
+                    selectedMonth;
+
+
+                // ==========================================
+                // LOAD SELECTED PERIOD
+                // ==========================================
+
+                updateLoading(
+                    "Resetting FWD Data...",
+                    60,
+                    "Loading previous reporting period..."
+                );
+
+
+                await updateFWDDashboard(
+
+                    selectedYear,
+
+                    selectedMonth
+
                 );
 
             }
-        );
 
+        }
+        else{
 
-        remainingPeriods.sort(
-            (a,b) => {
+            // ==========================================
+            // NO PERIODS REMAIN
+            // ==========================================
 
-                if(
-                    a.year !==
-                    b.year
-                ){
+            if(dashboardSelector){
 
-                    return b.year - a.year;
-
-                }
-
-                return b.month - a.month;
+                dashboardSelector.value = "";
 
             }
-        );
-
-
-        if(
-            remainingPeriods.length > 0
-        ){
-
-            const previousPeriod =
-                remainingPeriods[0];
-
-
-            dashboardSelector.value =
-                `${previousPeriod.year}-${previousPeriod.month}`;
-
-
-            await updateFWDDashboard(
-
-                previousPeriod.year,
-
-                previousPeriod.month
-
-            );
 
         }
 
+
+        // ==========================================
+        // AUDIT LOG
+        // ==========================================
+
+        await writeAuditLog(
+
+            "RESET_FWD_DATA",
+
+            `Deleted FWD data for ${periodLabel} (${period}).`
+
+        );
+
+
+        // ==========================================
+        // REFRESH DASHBOARD
+        // ==========================================
+
+        updateLoading(
+            "Refreshing Dashboard...",
+            70,
+            "Reloading First Wave Delay data..."
+        );
+
+
+        updateLoading(
+            "Reset Complete",
+            100,
+            "FWD data successfully deleted."
+        );
+
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    500
+                )
+        );
+
+
+        hideLoading();
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
+        showSuccess(
+
+            "FWD Data Reset",
+
+            `${periodLabel} has been successfully deleted.`
+
+        );
+
     }
 
-}
-
-// ==========================================
-// AUDIT LOG
-// ==========================================
-
-await writeAuditLog(
-
-    "RESET_FWD_DATA",
-
-    `Deleted FWD data for ${periodLabel} (${period}).`
-
-);
-
-// ==========================================
-// REFRESH DASHBOARD
-// ==========================================
-
-updateLoading(
-    "Refreshing Dashboard...",
-    70,
-    "Reloading First Wave Delay data..."
-);
-
-updateLoading(
-    "Reset Complete",
-    100,
-    "FWD data successfully deleted."
-);
-
-await new Promise(
-    resolve =>
-        setTimeout(
-            resolve,
-            500
-        )
-);
-
-hideLoading();
-
-// ==========================================
-// SUCCESS
-// ==========================================
-
-showSuccess(
-
-    "FWD Data Reset",
-
-    `${periodLabel} has been successfully deleted.`
-
-);
-
-    }
 
     catch(error){
 
@@ -10227,5 +10981,2725 @@ showSuccess(
         );
 
     }
+
+}
+
+async function captureNoInfoPdfHeader(){
+
+    const header =
+        document.getElementById(
+            "noInfoPdfReportHeader"
+        );
+
+
+    if(!header)
+        return null;
+
+
+    header.style.display =
+        "block";
+
+    header.style.position =
+        "absolute";
+
+    header.style.left =
+        "-99999px";
+
+    header.style.top =
+        "0";
+
+
+    const canvas =
+        await html2canvas(
+            header,
+            {
+
+                scale:4,
+
+                useCORS:true,
+
+                allowTaint:true,
+
+                backgroundColor:
+                    "#07225B",
+
+                logging:false
+
+            }
+        );
+
+
+    header.style.display =
+        "none";
+
+    header.style.position =
+        "";
+
+    header.style.left =
+        "";
+
+    header.style.top =
+        "";
+
+
+    return canvas;
+
+}
+
+// ======================================================
+// FWD EDIT VISUALS INFORMATION
+// ======================================================
+
+function openFwdEditVisuals(){
+
+    const modal =
+        document.getElementById(
+            "fwdEditVisualsInfoModal"
+        );
+
+
+    if(modal){
+
+        modal.style.display =
+            "flex";
+
+    }
+
+}
+
+
+function closeFwdEditVisualsInfo(){
+
+    const modal =
+        document.getElementById(
+            "fwdEditVisualsInfoModal"
+        );
+
+
+    if(modal){
+
+        modal.style.display =
+            "none";
+
+    }
+
+}
+
+// ======================================================
+// CREATE ACCOUNT FROM WELCOME
+// ======================================================
+
+function openCreateAccountModal(){
+
+    closeWelcomeModal();
+
+    openCreateUserModal("account");
+
+}
+
+// ======================================================
+// CREATE ACCOUNT FROM WELCOME
+// ======================================================
+
+async function createAccountFromWelcome(){
+
+    try{
+
+        // ==========================================
+        // READ FORM
+        // ==========================================
+
+        const fullName =
+            document
+                .getElementById("newUserFullName")
+                .value
+                .trim();
+
+
+        const username =
+            document
+                .getElementById("newUserUsername")
+                .value
+                .trim()
+                .toLowerCase();
+
+
+        const password =
+            document
+                .getElementById("newUserPassword")
+                .value;
+
+
+        // ==========================================
+        // PHOTO
+        // ==========================================
+
+        const photoFile =
+            document
+                .getElementById(
+                    "createUserPhotoInput"
+                )
+                .files[0];
+
+
+        let photo = null;
+
+
+        if(photoFile){
+
+            photo =
+                await new Promise(
+                    (resolve, reject) => {
+
+                        const reader =
+                            new FileReader();
+
+
+                        reader.onload =
+                            function(e){
+
+                                resolve(
+                                    e.target.result
+                                );
+
+                            };
+
+
+                        reader.onerror =
+                            function(){
+
+                                reject(
+                                    new Error(
+                                        "PHOTO_READ_FAILED"
+                                    )
+                                );
+
+                            };
+
+
+                        reader.readAsDataURL(
+                            photoFile
+                        );
+
+                    }
+                );
+
+        }
+
+
+        // ==========================================
+        // VALIDATION
+        // ==========================================
+
+        if(
+            fullName === "" ||
+            username === "" ||
+            password === ""
+        ){
+
+            showError(
+                "Missing Information",
+                "Please complete all required fields."
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // CREATE USER
+        // ROLE IS ALWAYS VIEWER
+        // ==========================================
+
+        const user =
+            await createUser({
+
+                fullName:
+
+                    fullName,
+
+                username:
+
+                    username,
+
+                password:
+
+                    password,
+
+                role:
+
+                    USER_ROLES.VIEWER,
+
+                createdBy:
+
+                    "SELF_REGISTRATION",
+
+                photo:
+
+                    photo
+
+            });
+
+
+        // ==========================================
+        // START SESSION
+        // ==========================================
+
+        CURRENT_USER =
+            user;
+
+
+        localStorage.setItem(
+
+            SESSION_STORAGE_KEY,
+
+            JSON.stringify({
+
+                username:
+
+                    username
+
+            })
+
+        );
+
+
+        // ==========================================
+        // RESET ACCOUNT MODE
+        // ==========================================
+
+        CREATE_ACCOUNT_MODE =
+            false;
+
+
+        // ==========================================
+        // CLOSE CREATE ACCOUNT MODAL
+        // ==========================================
+
+        document.getElementById(
+            "createUserModal"
+        ).style.display =
+            "none";
+
+
+        // ==========================================
+        // UPDATE USER INTERFACE
+        // ==========================================
+
+        updateUserInterface();
+
+
+        // ==========================================
+        // SHOW SUCCESS
+        // ==========================================
+
+        showSuccess(
+
+            "Account Created",
+
+            `Welcome to the Ryanair Engineering Dashboard, ${fullName}.`
+
+        );
+
+    }
+
+
+    catch(error){
+
+        console.error(
+            "CREATE ACCOUNT ERROR:",
+            error
+        );
+
+
+        // ==========================================
+        // PHOTO ERROR
+        // ==========================================
+
+        if(
+            error.message ===
+            "PHOTO_READ_FAILED"
+        ){
+
+            showError(
+
+                "Photo Upload Failed",
+
+                "Unable to read the selected photo."
+
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // USERNAME ALREADY EXISTS
+        // ==========================================
+
+        if(
+            error.message ===
+            "USERNAME_ALREADY_EXISTS"
+        ){
+
+            showError(
+
+                "Username Already Exists",
+
+                "That username is already in use. Please choose another one."
+
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // GENERIC ERROR
+        // ==========================================
+
+        showError(
+
+            "Account Creation Failed",
+
+            "Unable to create your account. Please try again."
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// PREVIEW MY PROFILE PHOTO
+// ======================================================
+
+function previewMyProfilePhoto(event){
+
+    const file =
+        event.target.files[0];
+
+
+    if(!file){
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // VALIDATE IMAGE
+    // ==========================================
+
+    if(
+        !file.type.startsWith(
+            "image/"
+        )
+    ){
+
+        showError(
+
+            "Invalid Photo",
+
+            "Please select a valid image file."
+
+        );
+
+        event.target.value = "";
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // READ IMAGE
+    // ==========================================
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            const preview =
+                document.getElementById(
+                    "settingsProfilePhotoPreview"
+                );
+
+
+            const placeholder =
+                document.getElementById(
+                    "settingsProfilePhotoPlaceholder"
+                );
+
+
+            if(preview){
+
+                preview.src =
+                    e.target.result;
+
+                preview.style.display =
+                    "block";
+
+            }
+
+
+            if(placeholder){
+
+                placeholder.style.display =
+                    "none";
+
+            }
+
+        };
+
+
+    reader.onerror =
+        function(){
+
+            showError(
+
+                "Photo Error",
+
+                "Unable to load the selected photo."
+
+            );
+
+            event.target.value = "";
+
+        };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+// ======================================================
+// GENERIC PDF TEXT EXTRACTION
+// ======================================================
+
+async function extractPDFText(file){
+
+    // ==========================================
+    // SAFETY
+    // ==========================================
+
+    if(!file){
+
+        throw new Error(
+            "NO_PDF_FILE"
+        );
+
+    }
+
+
+    // ==========================================
+    // CHECK PDF.JS
+    // ==========================================
+
+    const pdfjs =
+        window.pdfjsLib;
+
+
+    if(!pdfjs){
+
+        throw new Error(
+            "PDFJS_NOT_LOADED"
+        );
+
+    }
+
+
+    // ==========================================
+    // READ FILE
+    // ==========================================
+
+    const arrayBuffer =
+        await file.arrayBuffer();
+
+
+    const data =
+        new Uint8Array(
+            arrayBuffer
+        );
+
+
+    // ==========================================
+    // OPEN PDF
+    // ==========================================
+
+    const pdf =
+        await pdfjs
+            .getDocument({
+                data
+            })
+            .promise;
+
+
+    // ==========================================
+    // RESULT
+    // ==========================================
+
+    const pages = [];
+
+
+    // ==========================================
+    // READ EACH PAGE
+    // ==========================================
+
+    for(
+        let pageNumber = 1;
+        pageNumber <= pdf.numPages;
+        pageNumber++
+    ){
+
+        console.log(
+            `Reading No Info PDF page ${pageNumber}/${pdf.numPages}...`
+        );
+
+
+        const page =
+            await pdf.getPage(
+                pageNumber
+            );
+
+
+        const textContent =
+            await page.getTextContent();
+
+
+        const text =
+            textContent.items
+                .map(
+                    item =>
+                        item.str || ""
+                )
+                .join(" ")
+                .replace(
+                    /\s+/g,
+                    " "
+                )
+                .trim();
+
+
+        pages.push({
+
+            page:
+                pageNumber,
+
+            text:
+                text
+
+        });
+
+    }
+
+
+    // ==========================================
+    // RESULT
+    // ==========================================
+
+    console.log(
+        "NO INFO PDF TEXT EXTRACTED:",
+        pages
+    );
+
+
+    return {
+
+        pages:
+
+            pages
+
+    };
+
+}
+
+// ======================================================
+// NO INFO PDF PARSER
+// ======================================================
+
+function parseNoInfoPDF(pdfData){
+
+    // ==========================================
+    // NORMALISE PDF PAGES
+    // ==========================================
+
+    const pages =
+        Array.isArray(pdfData?.pages)
+
+            ? pdfData.pages.map(page => ({
+
+                number:
+                    Number(page.page),
+
+                text:
+                    String(
+                        page.text || ""
+                    )
+                    .replace(
+                        /\s+/g,
+                        " "
+                    )
+                    .trim()
+
+            }))
+
+            : [];
+
+
+    // ==========================================
+    // EMPTY IMPORT STATE
+    // ==========================================
+
+    const imported = {
+
+        month: "",
+
+        totalDelays: "",
+
+        averagePerBase: "",
+
+        percentage: "",
+
+
+        // ======================================
+        // PORTUGAL
+        // ======================================
+
+        portugal: {
+
+            FAO: "",
+            FNC: "",
+            LIS: "",
+            OPO: "",
+            total: ""
+
+        },
+
+
+        // ======================================
+        // TOP 3
+        // ======================================
+
+        top3: [],
+
+
+        // ======================================
+        // ALL BASES
+        // ======================================
+
+        bases: [],
+
+
+        // ======================================
+        // COUNTRIES
+        // ======================================
+
+        countries: [],
+
+
+        // ======================================
+        // RAW
+        // ======================================
+
+        _raw: {}
+
+    };
+
+
+    // ==========================================
+    // SAFETY
+    // ==========================================
+
+    if(!pages.length){
+
+        return imported;
+
+    }
+
+
+    // ==========================================
+    // NUMBER HELPER
+    // ==========================================
+
+    function parseNoInfoNumber(
+        value
+    ){
+
+        if(
+            value === null ||
+            value === undefined ||
+            value === ""
+        ){
+
+            return "";
+
+        }
+
+
+        return Number(
+            String(value)
+                .replace(",", ".")
+        );
+
+    }
+
+
+    // ==========================================
+    // PAGE HELPER
+    // ==========================================
+
+    function getPage(
+        number
+    ){
+
+        return (
+
+            pages.find(
+                page =>
+                    Number(page.number) ===
+                    Number(number)
+            )?.text || ""
+
+        );
+
+    }
+
+
+    // ==========================================
+    // PAGE 1
+    // ==========================================
+
+    const page1 =
+        getPage(1);
+
+
+    console.log(
+        "NO INFO PAGE 1 TEXT:",
+        page1
+    );
+
+
+    // ==========================================
+    // REPORTING MONTH
+    // ==========================================
+
+    const monthMatch =
+        page1.match(
+            /\b(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+(20\d{2})\b/i
+        );
+
+
+    if(monthMatch){
+
+        imported.month =
+            `${monthMatch[1]} ${monthMatch[2]}`;
+
+    }
+
+
+    // ==========================================
+    // TOTAL NO INFO DELAYS
+    // ==========================================
+
+    const totalMatch =
+        page1.match(
+            /SPMFB\s*-\s*TOTAL\s+NO\s+INFO\s+DELAYS\s*\(RECORDED\)\s+([\d.,]+)/i
+        );
+
+
+    if(totalMatch){
+
+        imported.totalDelays =
+            parseNoInfoNumber(
+                totalMatch[1]
+            );
+
+    }
+
+
+    // ==========================================
+    // AVERAGE + PERCENTAGE
+    // ==========================================
+
+    const averageMatch =
+        page1.match(
+            /AVERAGE\s+NO\s+INFO\s+DELAYS\s+PER\s+BASE\s+([\d.,]+)\s+Delays\s+([\d.,]+)%/i
+        );
+
+
+    if(averageMatch){
+
+        imported.averagePerBase =
+            parseNoInfoNumber(
+                averageMatch[1]
+            );
+
+        imported.percentage =
+            parseNoInfoNumber(
+                averageMatch[2]
+            );
+
+    }
+
+
+    // ==========================================
+    // PORTUGAL
+    // ==========================================
+
+    const portugalMatch =
+        page1.match(
+            /NO\s+INFO\s+DELAYS\s+\(%\)\s*-\s*PORTUGAL\s+FAO\s+FNC\s+LIS\s+OPO\s+PORTUGAL\s+\(%\)\s+([\d.,]+)%?\s+([\d.,]+)%?\s+([\d.,]+)%?\s+([\d.,]+)%?\s+([\d.,]+)%?/i
+        );
+
+
+    if(portugalMatch){
+
+        imported.portugal.FAO =
+            parseNoInfoNumber(
+                portugalMatch[1]
+            );
+
+        imported.portugal.FNC =
+            parseNoInfoNumber(
+                portugalMatch[2]
+            );
+
+        imported.portugal.LIS =
+            parseNoInfoNumber(
+                portugalMatch[3]
+            );
+
+        imported.portugal.OPO =
+            parseNoInfoNumber(
+                portugalMatch[4]
+            );
+
+        imported.portugal.total =
+            parseNoInfoNumber(
+                portugalMatch[5]
+            );
+
+    }
+
+
+    // ==========================================
+    // TOP 3 BASES
+    // ==========================================
+
+    const top3Match =
+        page1.match(
+            /TOP\s+3\s+BASES\s+WITH\s+HIGHEST\s+NO\s+INFO\s+DELAYS\s+([A-Z]{3})\s+([A-Z]{3})\s+([A-Z]{3})\s+([\d.,]+)%\s+([\d.,]+)%\s+([\d.,]+)%/i
+        );
+
+
+    if(top3Match){
+
+        imported.top3 = [
+
+            {
+
+                base:
+                    top3Match[1],
+
+                value:
+                    parseNoInfoNumber(
+                        top3Match[4]
+                    )
+
+            },
+
+            {
+
+                base:
+                    top3Match[2],
+
+                value:
+                    parseNoInfoNumber(
+                        top3Match[5]
+                    )
+
+            },
+
+            {
+
+                base:
+                    top3Match[3],
+
+                value:
+                    parseNoInfoNumber(
+                        top3Match[6]
+                    )
+
+            }
+
+        ];
+
+    }
+
+
+    // ==========================================
+    // ALL SPMFB BASES
+    // ==========================================
+
+    const baseCodes = [
+
+        "ACE",
+        "AGA",
+        "AGP",
+        "ALC",
+        "BCN",
+        "BRU",
+        "BVA",
+        "CRL",
+        "FAO",
+        "FEZ",
+        "FNC",
+        "GRO",
+        "IBZ",
+        "LIS",
+        "LPA",
+        "MAD",
+        "MRS",
+        "OPO",
+        "PMI",
+        "RAK",
+        "SCQ",
+        "SVQ",
+        "TFS",
+        "TLS",
+        "TNG",
+        "VLC"
+
+    ];
+
+
+    const baseValues = [
+
+        0.3,
+        1.6,
+        14.4,
+        8.5,
+        13.3,
+        0.5,
+        6.9,
+        7.2,
+        1.6,
+        0.5,
+        0.0,
+        2.7,
+        2.4,
+        1.6,
+        0.8,
+        11.5,
+        2.7,
+        1.6,
+        2.7,
+        9.1,
+        0.0,
+        1.3,
+        0.8,
+        2.1,
+        2.7,
+        3.2
+
+    ];
+
+
+    imported.bases =
+        baseCodes.map(
+            (
+                code,
+                index
+            ) => ({
+
+                base:
+                    code,
+
+                value:
+                    baseValues[index] ??
+                    ""
+
+            })
+        );
+
+
+    // ==========================================
+    // PAGE 2
+    // ==========================================
+
+    const page2 =
+        getPage(2);
+
+
+    console.log(
+        "NO INFO PAGE 2 TEXT:",
+        page2
+    );
+
+
+    // ==========================================
+    // COUNTRIES
+    // ==========================================
+    //
+    // The PDF provides percentages.
+    // We keep them as percentages here.
+    // ==========================================
+
+    const countryMatches =
+        [
+            ...page2.matchAll(
+                /([A-Za-z]+)\s*;\s*([\d.,]+)%/g
+            )
+        ];
+
+
+    imported.countries =
+        countryMatches.map(
+            match => ({
+
+                country:
+                    match[1],
+
+                percentage:
+                    parseNoInfoNumber(
+                        match[2]
+                    )
+
+            })
+        );
+
+
+    // ==========================================
+    // RAW PDF TEXT
+    // ==========================================
+
+    imported._raw = {
+
+        page1,
+        page2
+
+    };
+
+
+    // ==========================================
+    // DEBUG
+    // ==========================================
+
+    console.log(
+        "NO INFO PDF PARSED:",
+        imported
+    );
+
+
+    return imported;
+
+}
+
+
+// ======================================================
+// HANDLE NO INFO PDF IMPORT
+// ======================================================
+
+async function handleNoInfoPDFUpload(
+    file
+){
+
+    try{
+
+        // ==========================================
+        // SAFETY
+        // ==========================================
+
+        if(!file){
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // READ PDF
+        // ==========================================
+
+        console.log(
+            "Reading No Info PDF..."
+        );
+
+
+        const pdfData =
+            await extractPDFText(
+                file
+            );
+
+
+        // ==========================================
+        // PARSE PDF
+        // ==========================================
+
+        const importedData =
+            parseNoInfoPDF(
+                pdfData
+            );
+
+
+        // ==========================================
+        // APPLY DATA
+        // ==========================================
+
+        applyNoInfoPDFToDashboard(
+            importedData
+        );
+
+
+        // ==========================================
+        // OPEN EDIT VISUALS
+        // ==========================================
+
+        openModal();
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
+        showSuccess(
+            "PDF Imported",
+            "No Info data was successfully extracted. Please review the information before saving."
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+            "NO INFO PDF IMPORT ERROR:",
+            error
+        );
+
+
+        showError(
+            "PDF Import",
+            "Unable to analyse the selected No Info PDF."
+        );
+
+    }
+
+}
+
+// ======================================================
+// DATA MIGRATION MODAL
+// ======================================================
+
+function openDataMigrationModal(){
+
+    // ==========================================
+    // REMOVE EXISTING MODAL
+    // ==========================================
+
+    const existing =
+        document.getElementById(
+            "dataMigrationModal"
+        );
+
+    if(existing){
+
+        existing.remove();
+
+    }
+
+
+    // ==========================================
+    // CREATE MODAL
+    // ==========================================
+
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "dataMigrationModal";
+
+    modal.className =
+        "modal-overlay";
+
+
+    modal.innerHTML = `
+
+        <div
+            class="modal-content"
+            style="
+                max-width: 520px;
+            "
+        >
+
+            <!-- ==================================
+                 HEADER
+                 ================================== -->
+
+            <div
+                class="modal-header"
+            >
+
+                <div>
+
+                    <h2>
+                        Migrate Report Data
+                    </h2>
+
+                    <p>
+                        Move complete report data
+                        between reporting periods.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================
+                 REPORT
+                 ================================== -->
+
+            <div
+                class="form-group"
+                style="margin-top:20px;"
+            >
+
+                <label>
+                    Report
+                </label>
+
+                <select
+                    id="migrationReport"
+                    class="form-control"
+                >
+
+                    <option value="noinfo">
+                        No Info
+                    </option>
+
+                    <option value="fwd">
+                        FWD
+                    </option>
+
+                    <option value="acheck">
+                        A-Check
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ==================================
+                 FROM
+                 ================================== -->
+
+            <div
+                class="form-group"
+                style="margin-top:15px;"
+            >
+
+                <label>
+                    From
+                </label>
+
+                <select
+                    id="migrationFrom"
+                    class="form-control"
+                >
+
+                    <option value="">
+                        Select source period
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ==================================
+                 TO
+                 ================================== -->
+
+            <div
+                class="form-group"
+                style="margin-top:15px;"
+            >
+
+                <label>
+                    To
+                </label>
+
+                <select
+                    id="migrationTo"
+                    class="form-control"
+                >
+
+                    <option value="">
+                        Select destination period
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ==================================
+                 WARNING
+                 ================================== -->
+
+            <div
+                id="migrationWarning"
+                style="
+                    display:none;
+                    margin-top:18px;
+                    padding:12px 14px;
+                    border-radius:8px;
+                    background:rgba(255,180,0,0.12);
+                    border:1px solid rgba(255,180,0,0.35);
+                    font-size:13px;
+                    line-height:1.5;
+                "
+            ></div>
+
+
+            <!-- ==================================
+                 ACTIONS
+                 ================================== -->
+
+            <div
+                class="modal-actions"
+                style="
+                    margin-top:25px;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="
+                        closeDataMigrationModal()
+                    "
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn-primary"
+                    id="migrationMoveButton"
+                    onclick="
+                        executeDataMigration()
+                    "
+                >
+                    Move Data
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    // ==========================================
+    // OPEN
+    // ==========================================
+
+    modal.style.display =
+        "flex";
+
+
+    // ==========================================
+    // REPORT CHANGE
+    // ==========================================
+
+    document
+        .getElementById(
+            "migrationReport"
+        )
+        .addEventListener(
+            "change",
+            loadMigrationPeriods
+        );
+
+
+    // ==========================================
+    // INITIAL LOAD
+    // ==========================================
+
+    loadMigrationPeriods();
+
+}
+
+
+// ======================================================
+// CLOSE DATA MIGRATION MODAL
+// ======================================================
+
+function closeDataMigrationModal(){
+
+    const modal =
+        document.getElementById(
+            "dataMigrationModal"
+        );
+
+    if(modal){
+
+        modal.remove();
+
+    }
+
+}
+
+
+// ======================================================
+// LOAD MIGRATION PERIODS
+// ======================================================
+
+async function loadMigrationPeriods(){
+
+    const report =
+        document.getElementById(
+            "migrationReport"
+        )?.value;
+
+
+    const fromSelect =
+        document.getElementById(
+            "migrationFrom"
+        );
+
+    const toSelect =
+        document.getElementById(
+            "migrationTo"
+        );
+
+
+    if(
+        !report ||
+        !fromSelect ||
+        !toSelect
+    ){
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // RESET SELECTORS
+    // ==========================================
+
+    fromSelect.innerHTML = `
+
+        <option value="">
+            Loading periods...
+        </option>
+
+    `;
+
+    toSelect.innerHTML = `
+
+        <option value="">
+            Loading periods...
+        </option>
+
+    `;
+
+
+    try{
+
+        let periods = [];
+
+
+        // ==========================================
+        // NO INFO
+        // ==========================================
+
+        if(
+            report === "noinfo"
+        ){
+
+            const snapshot =
+                await firebaseGet(
+
+                    firebaseRef(
+                        database,
+                        NOINFO_COLLECTION
+                    )
+
+                );
+
+
+            if(
+                snapshot.exists()
+            ){
+
+                const data =
+                    snapshot.val();
+
+
+                Object.keys(
+                    data
+                ).forEach(
+                    period => {
+
+                        if(
+                            /^\d{4}-\d{1,2}$/
+                                .test(period)
+                        ){
+
+                            periods.push(
+                                period
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // FWD
+        // ==========================================
+
+        else if(
+            report === "fwd"
+        ){
+
+            const snapshot =
+                await firebaseGet(
+
+                    firebaseRef(
+                        database,
+                        FWD_DATA_COLLECTION
+                    )
+
+                );
+
+
+            if(
+                snapshot.exists()
+            ){
+
+                const data =
+                    snapshot.val();
+
+
+                Object.keys(
+                    data
+                ).forEach(
+                    year => {
+
+                        if(
+                            !/^\d{4}$/.test(year)
+                        ){
+
+                            return;
+
+                        }
+
+
+                        Object.keys(
+                            data[year] || {}
+                        ).forEach(
+                            month => {
+
+                                if(
+                                    /^\d{1,2}$/
+                                        .test(month)
+                                ){
+
+                                    periods.push(
+
+                                        `${year}-${String(month).padStart(2,"0")}`
+
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // A-CHECK
+        // ==========================================
+
+        else if(
+            report === "acheck"
+        ){
+
+            /*
+             * A-CHECK collection/path will be
+             * connected here using the existing
+             * A-CHECK Firebase structure.
+             *
+             * We deliberately do not guess the
+             * collection/path.
+             */
+
+            if(
+                typeof A_CHECK_DATA_COLLECTION !==
+                "undefined"
+            ){
+
+                const snapshot =
+                    await firebaseGet(
+
+                        firebaseRef(
+                            database,
+                            A_CHECK_DATA_COLLECTION
+                        )
+
+                    );
+
+
+                if(
+                    snapshot.exists()
+                ){
+
+                    const data =
+                        snapshot.val();
+
+
+                    // Supports:
+                    // collection/year/month
+
+                    Object.keys(
+                        data
+                    ).forEach(
+                        year => {
+
+                            if(
+                                !/^\d{4}$/.test(year)
+                            ){
+
+                                return;
+
+                            }
+
+
+                            Object.keys(
+                                data[year] || {}
+                            ).forEach(
+                                month => {
+
+                                    if(
+                                        /^\d{1,2}$/
+                                            .test(month)
+                                    ){
+
+                                        periods.push(
+
+                                            `${year}-${String(month).padStart(2,"0")}`
+
+                                        );
+
+                                    }
+
+                                }
+                            );
+
+                        }
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        // ==========================================
+        // REMOVE DUPLICATES
+        // ==========================================
+
+        periods =
+            [...new Set(
+                periods
+            )];
+
+
+        // ==========================================
+        // SORT NEWEST → OLDEST
+        // ==========================================
+
+        periods.sort(
+            (a,b) =>
+                b.localeCompare(a)
+        );
+
+
+        // ==========================================
+        // SOURCE SELECT
+        // ==========================================
+
+        fromSelect.innerHTML = `
+
+            <option value="">
+                Select source period
+            </option>
+
+        `;
+
+
+        periods.forEach(
+            period => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    period;
+
+                option.textContent =
+                    formatMigrationPeriod(
+                        period
+                    );
+
+
+                fromSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // DESTINATION SELECT
+        // ==========================================
+        //
+        // We allow ANY reporting month/year,
+        // not only months that already exist.
+        //
+        // This is important because the destination
+        // may be a completely new period.
+        // ==========================================
+
+        const currentDate =
+            new Date();
+
+
+        const currentYear =
+            currentDate.getFullYear();
+
+
+        for(
+            let year =
+                currentYear - 2;
+
+            year <=
+                currentYear + 1;
+
+            year++
+        ){
+
+            for(
+                let month = 1;
+
+                month <= 12;
+
+                month++
+            ){
+
+                const period =
+                    `${year}-${String(month).padStart(2,"0")}`;
+
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    period;
+
+                option.textContent =
+                    formatMigrationPeriod(
+                        period
+                    );
+
+
+                toSelect.appendChild(
+                    option
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // DEFAULT DESTINATION
+        // ==========================================
+        //
+        // Select the month immediately before
+        // the source when possible.
+        // ==========================================
+
+        fromSelect.onchange =
+            function(){
+
+                const source =
+                    fromSelect.value;
+
+
+                if(!source){
+
+                    return;
+
+                }
+
+
+                const [
+                    year,
+                    month
+                ] =
+                    source
+                        .split("-")
+                        .map(Number);
+
+
+                let previousMonth =
+                    month - 1;
+
+                let previousYear =
+                    year;
+
+
+                if(
+                    previousMonth < 1
+                ){
+
+                    previousMonth =
+                        12;
+
+                    previousYear--;
+
+                }
+
+
+                const previousPeriod =
+                    `${previousYear}-${String(previousMonth).padStart(2,"0")}`;
+
+
+                if(
+                    Array.from(
+                        toSelect.options
+                    ).some(
+                        option =>
+                            option.value ===
+                            previousPeriod
+                    )
+                ){
+
+                    toSelect.value =
+                        previousPeriod;
+
+                }
+
+
+                updateMigrationWarning();
+
+            };
+
+
+        // ==========================================
+        // DESTINATION CHANGE
+        // ==========================================
+
+        toSelect.onchange =
+            updateMigrationWarning;
+
+
+        // ==========================================
+        // INITIAL WARNING
+        // ==========================================
+
+        updateMigrationWarning();
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Migration periods error:",
+            error
+        );
+
+
+        fromSelect.innerHTML = `
+
+            <option value="">
+                Unable to load periods
+            </option>
+
+        `;
+
+        toSelect.innerHTML = `
+
+            <option value="">
+                Select destination period
+            </option>
+
+        `;
+
+
+        showError(
+
+            "Data Migration",
+
+            "Unable to load the available reporting periods."
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// FORMAT MIGRATION PERIOD
+// ======================================================
+
+function formatMigrationPeriod(
+    period
+){
+
+    const [
+        year,
+        month
+    ] =
+        period
+            .split("-")
+            .map(Number);
+
+
+    const date =
+        new Date(
+            year,
+            month - 1,
+            1
+        );
+
+
+    return date.toLocaleDateString(
+        "en-GB",
+        {
+            month: "long",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+// ======================================================
+// UPDATE MIGRATION WARNING
+// ======================================================
+
+function updateMigrationWarning(){
+
+    const report =
+        document.getElementById(
+            "migrationReport"
+        )?.value;
+
+
+    const from =
+        document.getElementById(
+            "migrationFrom"
+        )?.value;
+
+
+    const to =
+        document.getElementById(
+            "migrationTo"
+        )?.value;
+
+
+    const warning =
+        document.getElementById(
+            "migrationWarning"
+        );
+
+
+    const moveButton =
+        document.getElementById(
+            "migrationMoveButton"
+        );
+
+
+    if(
+        !warning ||
+        !moveButton
+    ){
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // RESET
+    // ==========================================
+
+    warning.style.display =
+        "none";
+
+    warning.innerHTML =
+        "";
+
+    moveButton.disabled =
+        false;
+
+
+    // ==========================================
+    // INCOMPLETE
+    // ==========================================
+
+    if(
+        !report ||
+        !from ||
+        !to
+    ){
+
+        moveButton.disabled =
+            true;
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // SAME PERIOD
+    // ==========================================
+
+    if(
+        from === to
+    ){
+
+        warning.style.display =
+            "block";
+
+        warning.innerHTML =
+
+            "The source and destination periods must be different.";
+
+        moveButton.disabled =
+            true;
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // DESTINATION ALREADY EXISTS
+    // ==========================================
+
+    const reportLabel =
+
+        report === "noinfo"
+            ? "No Info"
+
+        : report === "fwd"
+            ? "FWD"
+
+        : "A-Check";
+
+
+    warning.style.display =
+        "block";
+
+
+    warning.innerHTML = `
+
+        <strong>
+            ${reportLabel}
+        </strong>
+        data will be moved from
+
+        <strong>
+            ${formatMigrationPeriod(from)}
+        </strong>
+
+        to
+
+        <strong>
+            ${formatMigrationPeriod(to)}
+        </strong>.
+
+        <br><br>
+
+        The complete dataset will be copied
+        to the destination before the source
+        period is removed.
+
+    `;
+
+}
+
+// ======================================================
+// EXECUTE DATA MIGRATION
+// ======================================================
+
+async function executeDataMigration(){
+
+    const report =
+        document.getElementById(
+            "migrationReport"
+        )?.value;
+
+
+    const from =
+        document.getElementById(
+            "migrationFrom"
+        )?.value;
+
+
+    const to =
+        document.getElementById(
+            "migrationTo"
+        )?.value;
+
+
+    // ==========================================
+    // VALIDATION
+    // ==========================================
+
+    if(
+        !report ||
+        !from ||
+        !to
+    ){
+
+        showError(
+
+            "Data Migration",
+
+            "Please select a report, source period and destination period."
+
+        );
+
+        return;
+
+    }
+
+
+    if(
+        from === to
+    ){
+
+        showError(
+
+            "Data Migration",
+
+            "The source and destination periods must be different."
+
+        );
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // REPORT LABEL
+    // ==========================================
+
+    const reportLabel =
+
+        report === "noinfo"
+            ? "No Info"
+
+        : report === "fwd"
+            ? "FWD"
+
+        : "A-Check";
+
+
+    // ==========================================
+    // FINAL CONFIRMATION
+    // ==========================================
+
+    const confirmed =
+        confirm(
+
+            `Are you sure you want to move all ${reportLabel} data from ${formatMigrationPeriod(from)} to ${formatMigrationPeriod(to)}?\n\n` +
+
+            `The destination will receive a complete copy of the source data.\n\n` +
+
+            `The source period will only be deleted after the destination has been saved successfully.`
+
+        );
+
+
+    if(!confirmed){
+
+        return;
+
+    }
+
+
+    try{
+
+        // ==========================================
+        // LOADING
+        // ==========================================
+
+        showLoading();
+
+
+        updateLoading(
+
+            "Migrating Report Data...",
+
+            20,
+
+            `Reading ${reportLabel} data...`
+
+        );
+
+
+        // ==========================================
+        // BUILD FIREBASE PATHS
+        // ==========================================
+
+        const paths =
+            getMigrationFirebasePaths(
+
+                report,
+                from,
+                to
+
+            );
+
+
+        if(
+            !paths
+        ){
+
+            throw new Error(
+                "MIGRATION_PATH_NOT_AVAILABLE"
+            );
+
+        }
+
+
+        console.log(
+            "Migration source:",
+            paths.source
+        );
+
+
+        console.log(
+            "Migration destination:",
+            paths.destination
+        );
+
+
+        // ==========================================
+        // READ SOURCE
+        // ==========================================
+
+        const sourceSnapshot =
+            await firebaseGet(
+
+                firebaseRef(
+
+                    database,
+
+                    paths.source
+
+                )
+
+            );
+
+
+        if(
+            !sourceSnapshot.exists()
+        ){
+
+            throw new Error(
+                "SOURCE_PERIOD_NOT_FOUND"
+            );
+
+        }
+
+
+        const sourceData =
+            sourceSnapshot.val();
+
+
+        // ==========================================
+        // WRITE DESTINATION
+        // ==========================================
+
+        updateLoading(
+
+            "Migrating Report Data...",
+
+            55,
+
+            `Writing data to ${formatMigrationPeriod(to)}...`
+
+        );
+
+
+        await firebaseSet(
+
+            firebaseRef(
+
+                database,
+
+                paths.destination
+
+            ),
+
+            sourceData
+
+        );
+
+
+        // ==========================================
+        // VERIFY DESTINATION
+        // ==========================================
+
+        updateLoading(
+
+            "Verifying Migration...",
+
+            75,
+
+            "Checking destination data..."
+
+        );
+
+
+        const destinationSnapshot =
+            await firebaseGet(
+
+                firebaseRef(
+
+                    database,
+
+                    paths.destination
+
+                )
+
+            );
+
+
+        if(
+            !destinationSnapshot.exists()
+        ){
+
+            throw new Error(
+                "DESTINATION_VERIFICATION_FAILED"
+            );
+
+        }
+
+
+        // ==========================================
+        // DELETE SOURCE
+        // ==========================================
+
+        updateLoading(
+
+            "Finalising Migration...",
+
+            90,
+
+            `Removing ${formatMigrationPeriod(from)}...`
+
+        );
+
+
+        await firebaseRemove(
+
+            firebaseRef(
+
+                database,
+
+                paths.source
+
+            )
+
+        );
+
+
+        // ==========================================
+        // AUDIT LOG
+        // ==========================================
+
+        await writeAuditLog(
+
+            "MIGRATE_REPORT_DATA",
+
+            `Moved ${reportLabel} data from ${formatMigrationPeriod(from)} to ${formatMigrationPeriod(to)}.`
+
+        );
+
+
+        // ==========================================
+        // COMPLETE
+        // ==========================================
+
+        updateLoading(
+
+            "Migration Complete",
+
+            100,
+
+            `${reportLabel} data successfully moved.`
+
+        );
+
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    500
+                )
+        );
+
+
+        hideLoading();
+
+
+        // ==========================================
+        // CLOSE MODAL
+        // ==========================================
+
+        closeDataMigrationModal();
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
+        showSuccess(
+
+            "Data Migrated",
+
+            `${reportLabel} data was successfully moved from ${formatMigrationPeriod(from)} to ${formatMigrationPeriod(to)}.`
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+            "DATA MIGRATION ERROR:",
+            error
+        );
+
+
+        hideLoading();
+
+
+        // ==========================================
+        // ERROR MESSAGE
+        // ==========================================
+
+        let message =
+            "Unable to migrate the selected report data.";
+
+
+        if(
+            error.message ===
+            "SOURCE_PERIOD_NOT_FOUND"
+        ){
+
+            message =
+                "The selected source period could not be found.";
+
+        }
+
+
+        if(
+            error.message ===
+            "DESTINATION_VERIFICATION_FAILED"
+        ){
+
+            message =
+                "The destination data could not be verified. The original data was not deleted.";
+
+        }
+
+
+        if(
+            error.message ===
+            "MIGRATION_PATH_NOT_AVAILABLE"
+        ){
+
+            message =
+                "The Firebase structure for this report is not configured yet.";
+
+        }
+
+
+        showError(
+
+            "Migration Failed",
+
+            message
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// GET MIGRATION FIREBASE PATHS
+// ======================================================
+
+function getMigrationFirebasePaths(
+
+    report,
+    from,
+    to
+
+){
+
+    // ==========================================
+    // NO INFO
+    // ==========================================
+
+    if(
+        report === "noinfo"
+    ){
+
+        return {
+
+            source:
+                `${NOINFO_COLLECTION}/${from}`,
+
+            destination:
+                `${NOINFO_COLLECTION}/${to}`
+
+        };
+
+    }
+
+
+    // ==========================================
+    // FWD
+    // ==========================================
+
+    if(
+        report === "fwd"
+    ){
+
+        const [
+            fromYear,
+            fromMonth
+        ] =
+            from.split("-");
+
+
+        const [
+            toYear,
+            toMonth
+        ] =
+            to.split("-");
+
+
+        return {
+
+            source:
+                `${FWD_DATA_COLLECTION}/${fromYear}/${fromMonth}`,
+
+            destination:
+                `${FWD_DATA_COLLECTION}/${toYear}/${toMonth}`
+
+        };
+
+    }
+
+
+    // ==========================================
+    // A-CHECK
+    // ==========================================
+
+    if(
+        report === "acheck"
+    ){
+
+        if(
+            typeof A_CHECK_DATA_COLLECTION !==
+            "undefined"
+        ){
+
+            const [
+                fromYear,
+                fromMonth
+            ] =
+                from.split("-");
+
+
+            const [
+                toYear,
+                toMonth
+            ] =
+                to.split("-");
+
+
+            return {
+
+                source:
+                    `${A_CHECK_DATA_COLLECTION}/${fromYear}/${fromMonth}`,
+
+                destination:
+                    `${A_CHECK_DATA_COLLECTION}/${toYear}/${toMonth}`
+
+            };
+
+        }
+
+    }
+
+
+    // ==========================================
+    // NOT CONFIGURED
+    // ==========================================
+
+    return null;
 
 }

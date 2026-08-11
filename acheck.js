@@ -2184,3 +2184,1690 @@ async function deleteACheckCurrentPeriod(){
     );
 
 }
+
+window.handleACheckFileUpload = function(event){
+
+    const file =
+        event.target.files[0];
+
+    if(!file)
+        return;
+
+    const extension =
+        file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+    // ==========================================
+    // EXCEL
+    // ==========================================
+
+    if(
+        extension === "xlsx" ||
+        extension === "xls"
+    ){
+
+        window.handleExcelUpload(event);
+
+        return;
+
+    }
+
+    // ==========================================
+    // PDF
+    // ==========================================
+
+    if(extension === "pdf"){
+
+        handleACheckPDFUpload(file);
+
+        return;
+
+    }
+
+    showError(
+        "Invalid File",
+        "Please select an Excel or PDF A-Check report."
+    );
+
+};
+
+async function handleACheckPDFUpload(file){
+
+    try{
+
+        // ==========================================
+        // LOADING
+        // ==========================================
+
+        showLoading();
+
+        updateLoading(
+            "Analysing A-Check PDF...",
+            20,
+            `Reading ${file.name}...`
+        );
+
+
+        // ==========================================
+        // EXTRACT PDF TEXT
+        // ==========================================
+
+        const pdfData =
+            await extractACheckPDFText(
+                file
+            );
+        
+        const importedData =
+    parseACheckPDF(
+        pdfData
+    );
+
+    // ==========================================
+// LOAD SELECTED PERIOD
+// ==========================================
+
+await loadACheckData(
+
+    CURRENT_ACHECK_YEAR,
+
+    CURRENT_ACHECK_MONTH
+
+);
+
+
+// ==========================================
+// APPLY PDF DATA
+// ==========================================
+
+applyACheckPDFToEditState(
+    importedData
+);
+
+
+// ==========================================
+// OPEN EDIT VISUALS
+// ==========================================
+
+window.openACheckEditModal();
+
+        pdfData.pages.forEach(
+            page => {
+
+                console.log(
+                    `========== PAGE ${page.page} ==========`
+                );
+
+                console.log(
+                    page.text
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // COMPLETE
+        // ==========================================
+
+        updateLoading(
+            "PDF Analysis Complete",
+            100,
+            `${pdfData.pageCount} pages analysed.`
+        );
+
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    500
+                )
+        );
+
+
+        hideLoading();
+
+
+        showSuccess(
+
+            "PDF Analysed",
+
+            `Successfully analysed ${pdfData.pageCount} pages.`
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+            "A-CHECK PDF ERROR:",
+            error
+        );
+
+
+        hideLoading();
+
+
+        showError(
+
+            "PDF Import",
+
+            "Unable to analyse the selected A-Check PDF."
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// A-CHECK PDF TEXT EXTRACTION
+// ======================================================
+
+async function extractACheckPDFText(file){
+
+    if(
+        !window.pdfjsLib
+    ){
+
+        throw new Error(
+            "PDF_JS_NOT_LOADED"
+        );
+
+    }
+
+
+    // ==========================================
+    // CONFIGURE PDF WORKER
+    // ==========================================
+
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+
+    // ==========================================
+    // READ FILE
+    // ==========================================
+
+    const arrayBuffer =
+        await file.arrayBuffer();
+
+
+    const pdf =
+        await window.pdfjsLib.getDocument({
+            data: arrayBuffer
+        }).promise;
+
+
+    const pages = [];
+
+
+    // ==========================================
+    // EXTRACT EACH PAGE
+    // ==========================================
+
+    for(
+        let pageNumber = 1;
+
+        pageNumber <= pdf.numPages;
+
+        pageNumber++
+    ){
+
+        console.log(
+            `Reading A-Check PDF page ${pageNumber}/${pdf.numPages}...`
+        );
+
+
+        const page =
+            await pdf.getPage(
+                pageNumber
+            );
+
+
+        const content =
+            await page.getTextContent();
+
+
+        const text =
+            content.items
+                .map(
+                    item =>
+                        item.str
+                )
+                .join(" ");
+
+
+        pages.push({
+
+            page:
+                pageNumber,
+
+            text:
+                text
+
+        });
+
+    }
+
+
+    return {
+
+        pageCount:
+            pdf.numPages,
+
+        pages:
+            pages
+
+    };
+
+}
+
+// ======================================================
+// A-CHECK PDF PARSER
+// 1 PDF = NIGHT SHIFT
+// NG = YELLOW
+// MAX = BLUE
+// ======================================================
+
+function parseACheckPDF(pdfData){
+
+    // ==========================================
+    // NORMALISE PDF PAGES
+    // ==========================================
+
+    const pages =
+        Array.isArray(pdfData?.pages)
+            ? pdfData.pages.map(page => ({
+
+                number:
+                    Number(page.page),
+
+                text:
+                    String(
+                        page.text || ""
+                    )
+                    .replace(
+                        /\s+/g,
+                        " "
+                    )
+                    .trim()
+
+            }))
+            : [];
+
+
+    // ==========================================
+    // EMPTY IMPORT STATE
+    // ==========================================
+
+    const imported = {
+
+        shiftLabel:
+            "NIGHT SHIFT",
+
+        month1:
+            "",
+
+        month2:
+            "",
+
+
+        // ======================================
+        // NG — YELLOW
+        // ======================================
+
+        ngTot: "",
+        ngPrev: "",
+        ngCurr: "",
+
+        ngLTime: "",
+        ngLSup: "",
+        ngLChk: "",
+
+        ngSTime: "",
+        ngSSup: "",
+        ngSChk: "",
+
+        ngPairNum: "",
+        ngPairTime: "",
+
+        ngOddNum: "",
+        ngOddTime: "",
+
+        ngAX:
+            ["","","","","",""],
+
+
+        // ======================================
+        // MAX — BLUE
+        // ======================================
+
+        maxTot: "",
+        maxPrev: "",
+        maxCurr: "",
+
+        maxLTime: "",
+        maxLSup: "",
+        maxLChk: "",
+
+        maxSTime: "",
+        maxSSup: "",
+        maxSChk: "",
+
+        maxPairNum: "",
+        maxPairTime: "",
+
+        maxOddNum: "",
+        maxOddTime: "",
+
+        maxAX:
+            ["","","","","",""],
+
+
+        // ======================================
+        // MANPOWER
+        // ======================================
+
+        manpowerAnalysisData:
+            [],
+
+
+        // ======================================
+        // AX VARIATION
+        // ======================================
+
+        axVariationData:
+            [],
+
+
+        // ======================================
+        // HILs — NG / MAX
+        // ======================================
+
+        hilsNGAvg: "",
+        hilsNGPrev: "",
+        hilsNGCurr: "",
+
+        hilsMAXAvg: "",
+        hilsMAXPrev: "",
+        hilsMAXCurr: "",
+
+        hilsLabels:
+            [],
+
+        hilsNGData:
+            [],
+
+        hilsMAXData:
+            [],
+
+
+        // ======================================
+        // HILs PER SUPERVISOR
+        // ======================================
+
+        hilsSuperLabels:
+            [],
+
+        hilsSuperNG:
+            [],
+
+        hilsSuperMAX:
+            [],
+
+
+        // ======================================
+        // PARTS / P&N
+        // ======================================
+
+        pnOutNG: "",
+        pnOutMAX: "",
+
+        topPnNG:
+            [],
+
+        topPnMAX:
+            [],
+
+        topPn3mNG:
+            [],
+
+        topPn3mMAX:
+            [],
+
+
+        // ======================================
+        // CURRENT HILs
+        // ======================================
+
+        hilsCurrLabels:
+            [],
+
+        hilsCurrData:
+            [],
+
+
+        // ======================================
+        // RAW
+        // ======================================
+
+        _raw: {}
+
+    };
+
+
+    // ==========================================
+    // SAFETY
+    // ==========================================
+
+    if(!pages.length){
+
+        return imported;
+
+    }
+
+
+    // ==========================================
+    // HELPER — PAGE TEXT
+    // ==========================================
+
+    function getPage(
+        number
+    ){
+
+        return (
+            pages.find(
+                page =>
+                    Number(page.number) ===
+                    Number(number)
+            )?.text || ""
+        );
+
+    }
+
+
+    // ==========================================
+    // HELPER — TIMES
+    // ==========================================
+
+    function getTimes(
+        value
+    ){
+
+        return (
+            String(value)
+                .match(
+                    /\b\d{1,2}:\d{2}\b/g
+                ) || []
+        );
+
+    }
+
+
+    // ==========================================
+    // PAGE 1
+    // ==========================================
+
+    const page1 =
+        getPage(1);
+
+
+    console.log(
+        "A-CHECK PAGE 1 TEXT:",
+        page1
+    );
+
+
+    // ==========================================
+    // AX DURATION SUMMARY
+    // ==========================================
+
+    const summaryIndex =
+        page1.search(
+            /NG\s+MAX\s+AX\s+DURATION/i
+        );
+
+
+    if(summaryIndex >= 0){
+
+        const summaryText =
+            page1.substring(
+                summaryIndex,
+                Math.min(
+                    summaryIndex + 450,
+                    page1.length
+                )
+            );
+
+
+        const values =
+            getTimes(
+                summaryText
+            );
+
+
+        if(values.length >= 6){
+
+            imported.ngTot =
+                values[0];
+
+            imported.ngPrev =
+                values[1];
+
+            imported.ngCurr =
+                values[2];
+
+            imported.maxTot =
+                values[3];
+
+            imported.maxPrev =
+                values[4];
+
+            imported.maxCurr =
+                values[5];
+
+        }
+
+    }
+
+
+    // ==========================================
+    // MANPOWER
+    // ==========================================
+
+    const manpowerIndex =
+        page1.search(
+            /MANPOWER\s+NG\s+DURATION\s+MAX\s+DURATION/i
+        );
+
+
+    if(manpowerIndex >= 0){
+
+        const manpowerText =
+            page1.substring(
+                manpowerIndex,
+                Math.min(
+                    manpowerIndex + 1200,
+                    page1.length
+                )
+            );
+
+
+        const manpowerRegex =
+            /\b(1[1-9]|20|21)\s+(\d{1,2}:\d{2})\s+(-|\d{1,2}:\d{2})/g;
+
+
+        let match;
+
+
+        while(
+            (match =
+                manpowerRegex.exec(
+                    manpowerText
+                )) !== null
+        ){
+
+            imported.manpowerAnalysisData.push({
+
+                mp:
+                    Number(
+                        match[1]
+                    ),
+
+                ng:
+                    match[2] || "",
+
+                max:
+                    match[3] === "-"
+                        ? ""
+                        : match[3]
+
+            });
+
+        }
+
+    }
+
+
+    imported.manpowerAnalysisData.sort(
+        (a,b) =>
+            Number(a.mp) -
+            Number(b.mp)
+    );
+
+
+    // ==========================================
+    // AX VARIATION
+    // ==========================================
+    //
+    // IMPORTANT:
+    // Only create rows for months that
+    // actually exist in the PDF.
+    //
+    // Maximum is the amount supported by
+    // the current visual editor.
+    // ==========================================
+
+    const monthMatches =
+        [
+            ...page1.matchAll(
+                /\b20\d{2}-(?:0[1-9]|1[0-2])\b/g
+            )
+        ];
+
+
+    const historicalMonths = [];
+
+
+    monthMatches.forEach(
+        match => {
+
+            if(
+                !historicalMonths.includes(
+                    match[0]
+                )
+            ){
+
+                historicalMonths.push(
+                    match[0]
+                );
+
+            }
+
+        }
+    );
+
+
+    historicalMonths
+        .slice(0, 8)
+        .forEach(
+            month => {
+
+                imported.axVariationData.push({
+
+                    month:
+                        month,
+
+                    mech:
+                        "",
+
+                    avio:
+                        "",
+
+                    ngDur:
+                        "",
+
+                    maxDur:
+                        ""
+
+                });
+
+            }
+        );
+
+
+    // ==========================================
+    // PAGE 2
+    // ==========================================
+
+    const page2 =
+        getPage(2);
+
+
+    console.log(
+        "A-CHECK PAGE 2 TEXT:",
+        page2
+    );
+
+
+    // ==========================================
+    // LONGEST / SHORTEST
+    // ==========================================
+
+    const checkTimes =
+        page2.match(
+            /Longest Check\s+(\d{1,2}:\d{2})\s+Shortest Check\s+(\d{1,2}:\d{2})\s+Longest Check\s+(\d{1,2}:\d{2})\s+Shortest Check\s+(\d{1,2}:\d{2})/i
+        );
+
+
+    if(checkTimes){
+
+        imported.ngLTime =
+            checkTimes[1];
+
+        imported.ngSTime =
+            checkTimes[2];
+
+        imported.maxLTime =
+            checkTimes[3];
+
+        imported.maxSTime =
+            checkTimes[4];
+
+    }
+
+
+    // ==========================================
+    // SUPERVISOR / AX
+    // ==========================================
+
+    const supervisorAXMatches =
+        [
+            ...page2.matchAll(
+                /([A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+){1,3})\s+(AX0[1-6])/g
+            )
+        ];
+
+
+    const supervisorAX =
+        supervisorAXMatches
+            .map(
+                match => ({
+
+                    name:
+                        match[1].trim(),
+
+                    ax:
+                        match[2]
+
+                })
+            )
+            .filter(
+                item =>
+                    !/Super AX/i.test(
+                        item.name
+                    )
+            );
+
+
+    if(
+        supervisorAX.length >= 4
+    ){
+
+        imported.ngLSup =
+            supervisorAX[0].name;
+
+        imported.ngLChk =
+            supervisorAX[0].ax;
+
+
+        imported.ngSSup =
+            supervisorAX[1].name;
+
+        imported.ngSChk =
+            supervisorAX[1].ax;
+
+
+        imported.maxLSup =
+            supervisorAX[2].name;
+
+        imported.maxLChk =
+            supervisorAX[2].ax;
+
+
+        imported.maxSSup =
+            supervisorAX[3].name;
+
+        imported.maxSChk =
+            supervisorAX[3].ax;
+
+    }
+
+
+    // ==========================================
+    // AX %
+    // ==========================================
+
+    const axPercentBlocks =
+        [
+            ...page2.matchAll(
+                /AX01\s+(\d+)%\s+AX02\s+(\d+)%\s+AX03\s+(\d+)%\s+AX04\s+(\d+)%\s+AX05\s+(\d+)%\s+AX06\s+(\d+)%/g
+            )
+        ];
+
+
+    if(
+        axPercentBlocks.length >= 1
+    ){
+
+        imported.ngAX = [
+
+            Number(
+                axPercentBlocks[0][1]
+            ),
+
+            Number(
+                axPercentBlocks[0][2]
+            ),
+
+            Number(
+                axPercentBlocks[0][3]
+            ),
+
+            Number(
+                axPercentBlocks[0][4]
+            ),
+
+            Number(
+                axPercentBlocks[0][5]
+            ),
+
+            Number(
+                axPercentBlocks[0][6]
+            )
+
+        ];
+
+    }
+
+
+    if(
+        axPercentBlocks.length >= 2
+    ){
+
+        imported.maxAX = [
+
+            Number(
+                axPercentBlocks[1][1]
+            ),
+
+            Number(
+                axPercentBlocks[1][2]
+            ),
+
+            Number(
+                axPercentBlocks[1][3]
+            ),
+
+            Number(
+                axPercentBlocks[1][4]
+            ),
+
+            Number(
+                axPercentBlocks[1][5]
+            ),
+
+            Number(
+                axPercentBlocks[1][6]
+            )
+
+        ];
+
+    }
+
+
+    // ==========================================
+    // PAIR / ODD
+    // ==========================================
+
+    const pairMatches =
+        [
+            ...page2.matchAll(
+                /PAIR\s+(\d+)\s+(\d{1,2}:\d{2})/gi
+            )
+        ];
+
+
+    const oddMatches =
+        [
+            ...page2.matchAll(
+                /ODD\s+(\d+)\s+(\d{1,2}:\d{2})/gi
+            )
+        ];
+
+
+    if(pairMatches[0]){
+
+        imported.ngPairNum =
+            Number(
+                pairMatches[0][1]
+            );
+
+        imported.ngPairTime =
+            pairMatches[0][2];
+
+    }
+
+
+    if(oddMatches[0]){
+
+        imported.ngOddNum =
+            Number(
+                oddMatches[0][1]
+            );
+
+        imported.ngOddTime =
+            oddMatches[0][2];
+
+    }
+
+
+    if(pairMatches[1]){
+
+        imported.maxPairNum =
+            Number(
+                pairMatches[1][1]
+            );
+
+        imported.maxPairTime =
+            pairMatches[1][2];
+
+    }
+
+
+    if(oddMatches[1]){
+
+        imported.maxOddNum =
+            Number(
+                oddMatches[1][1]
+            );
+
+        imported.maxOddTime =
+            oddMatches[1][2];
+
+    }
+
+
+    // ==========================================
+    // PAGE 3
+    // ==========================================
+
+    const page3 =
+        getPage(3);
+
+
+    console.log(
+        "A-CHECK PAGE 3 TEXT:",
+        page3
+    );
+
+
+    // ==========================================
+    // PAGE 4
+    // ==========================================
+
+    const page4 =
+        getPage(4);
+
+
+    console.log(
+        "A-CHECK PAGE 4 TEXT:",
+        page4
+    );
+
+
+    // ==========================================
+    // HIL AVERAGE
+    // ==========================================
+
+    const hilAverage =
+        page4.match(
+            /HIL'?S\s+AVERAGE[\s\S]{0,120}?(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)/i
+        );
+
+
+    if(hilAverage){
+
+        imported.hilsNGAvg =
+            hilAverage[1];
+
+        imported.hilsNGPrev =
+            hilAverage[2];
+
+        imported.hilsNGCurr =
+            hilAverage[3];
+
+    }
+
+
+    // ==========================================
+    // HIL HISTORY
+    // ==========================================
+    //
+    // Only keep months that actually occur
+    // in the PDF.
+    // ==========================================
+
+    const hilMonthMatches =
+        [
+            ...page4.matchAll(
+                /\b(20\d{2}-(?:0[1-9]|1[0-2]))\s+(\d+(?:\.\d+)?)\b/g
+            )
+        ];
+
+
+    hilMonthMatches.forEach(
+        match => {
+
+            if(
+                !imported.hilsLabels.includes(
+                    match[1]
+                )
+            ){
+
+                imported.hilsLabels.push(
+                    match[1]
+                );
+
+                imported.hilsNGData.push(
+                    Number(
+                        match[2]
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // PAGE 5
+    // ==========================================
+
+    const page5 =
+        getPage(5);
+
+
+    console.log(
+        "A-CHECK PAGE 5 TEXT:",
+        page5
+    );
+
+
+    // ==========================================
+    // P/N OUT OF STOCK
+    // ==========================================
+
+    const outOfStock =
+        page5.match(
+            /P\/N\s+OUT\s+OF\s+STOCK\s+(\d+)/i
+        );
+
+
+    if(outOfStock){
+
+        imported.pnOutNG =
+            Number(
+                outOfStock[1]
+            );
+
+    }
+
+
+    // ==========================================
+    // RAW PAGES
+    // ==========================================
+
+    imported._raw = {
+
+        page1,
+        page2,
+        page3,
+        page4,
+        page5
+
+    };
+
+
+    // ==========================================
+    // DEBUG
+    // ==========================================
+
+    console.log(
+        "A-CHECK PDF PARSED:",
+        imported
+    );
+
+
+    return imported;
+
+}
+
+// ======================================================
+// APPLY A-CHECK PDF DATA TO EDIT STATE
+// ======================================================
+
+function applyACheckPDFToEditState(
+    imported
+){
+
+    // ==========================================
+    // SAFETY
+    // ==========================================
+
+    if(!imported){
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // ALWAYS USE NIGHT SHIFT FOR THIS PDF
+    // ==========================================
+
+    currentShift =
+        "Night";
+
+
+    // ==========================================
+    // CREATE CLEAN STATE
+    // ==========================================
+    //
+    // IMPORTANT:
+    // Missing PDF values stay blank.
+    // Existing Day data is NOT touched.
+    //
+
+    const state =
+        createZeroState(
+            "NIGHT SHIFT"
+        );
+
+
+    // ==========================================
+    // GENERAL
+    // ==========================================
+
+    state.shiftLabel =
+        imported.shiftLabel ||
+        "NIGHT SHIFT";
+
+
+    state.month1 =
+        imported.month1 ||
+        "";
+
+
+    state.month2 =
+        imported.month2 ||
+        "";
+
+
+    // ==========================================
+    // NG DURATION
+    // ==========================================
+
+    state.ngTot =
+        imported.ngTot ||
+        "";
+
+    state.ngPrev =
+        imported.ngPrev ||
+        "";
+
+    state.ngCurr =
+        imported.ngCurr ||
+        "";
+
+
+    state.ngLTime =
+        imported.ngLTime ||
+        "";
+
+    state.ngLSup =
+        imported.ngLSup ||
+        "";
+
+    state.ngLChk =
+        imported.ngLChk ||
+        "";
+
+
+    state.ngSTime =
+        imported.ngSTime ||
+        "";
+
+    state.ngSSup =
+        imported.ngSSup ||
+        "";
+
+    state.ngSChk =
+        imported.ngSChk ||
+        "";
+
+
+    // ==========================================
+    // NG PAIR / ODD
+    // ==========================================
+
+    state.ngPairNum =
+        imported.ngPairNum ??
+        "";
+
+    state.ngPairTime =
+        imported.ngPairTime ||
+        "";
+
+    state.ngOddNum =
+        imported.ngOddNum ??
+        "";
+
+    state.ngOddTime =
+        imported.ngOddTime ||
+        "";
+
+
+    // ==========================================
+    // NG AX
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.ngAX
+        )
+    ){
+
+        state.ngAX =
+            imported.ngAX.map(
+                value =>
+                    value === "" ||
+                    value === null ||
+                    value === undefined
+                        ? ""
+                        : value
+            );
+
+    }
+
+
+    // ==========================================
+    // MAX DURATION
+    // ==========================================
+
+    state.maxTot =
+        imported.maxTot ||
+        "";
+
+    state.maxPrev =
+        imported.maxPrev ||
+        "";
+
+    state.maxCurr =
+        imported.maxCurr ||
+        "";
+
+
+    state.maxLTime =
+        imported.maxLTime ||
+        "";
+
+    state.maxLSup =
+        imported.maxLSup ||
+        "";
+
+    state.maxLChk =
+        imported.maxLChk ||
+        "";
+
+
+    state.maxSTime =
+        imported.maxSTime ||
+        "";
+
+    state.maxSSup =
+        imported.maxSSup ||
+        "";
+
+    state.maxSChk =
+        imported.maxSChk ||
+        "";
+
+
+    // ==========================================
+    // MAX PAIR / ODD
+    // ==========================================
+
+    state.maxPairNum =
+        imported.maxPairNum ??
+        "";
+
+    state.maxPairTime =
+        imported.maxPairTime ||
+        "";
+
+    state.maxOddNum =
+        imported.maxOddNum ??
+        "";
+
+    state.maxOddTime =
+        imported.maxOddTime ||
+        "";
+
+
+    // ==========================================
+    // MAX AX
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.maxAX
+        )
+    ){
+
+        state.maxAX =
+            imported.maxAX.map(
+                value =>
+                    value === "" ||
+                    value === null ||
+                    value === undefined
+                        ? ""
+                        : value
+            );
+
+    }
+
+
+    // ==========================================
+    // MANPOWER ANALYSIS
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.manpowerAnalysisData
+        ) &&
+        imported.manpowerAnalysisData.length
+    ){
+
+        state.manpowerAnalysisData =
+            imported.manpowerAnalysisData.map(
+                row => ({
+
+                    mp:
+                        row.mp ?? "",
+
+                    ng:
+                        row.ng || "",
+
+                    max:
+                        row.max || ""
+
+                })
+            );
+
+    }
+
+
+    // ==========================================
+    // AX DURATION / MANPOWER CHART
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.manpowerAnalysisData
+        ) &&
+        imported.manpowerAnalysisData.length
+    ){
+
+        state.chartPoints =
+            imported.manpowerAnalysisData.map(
+                row => ({
+
+                    label:
+                        `MP ${row.mp}`,
+
+                    ng:
+                        row.ng
+                            ? convertACheckTimeToHours(
+                                row.ng
+                            )
+                            : null,
+
+                    max:
+                        row.max
+                            ? convertACheckTimeToHours(
+                                row.max
+                            )
+                            : null,
+
+                    mp:
+                        row.mp ?? ""
+
+                })
+            );
+
+    }
+
+
+    // ==========================================
+    // AX VARIATION
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.axVariationData
+        )
+    ){
+
+        state.axVariationData =
+            imported.axVariationData.map(
+                row => ({
+
+                    month:
+                        row.month || "",
+
+                    mech:
+                        row.mech ?? "",
+
+                    avio:
+                        row.avio ?? "",
+
+                    ngDur:
+                        row.ngDur ?? "",
+
+                    maxDur:
+                        row.maxDur ?? ""
+
+                })
+            );
+
+    }
+
+
+    // ==========================================
+    // HIL AVERAGES
+    // ==========================================
+
+    if(
+        imported.hils
+    ){
+
+        state.hilsNGAvg =
+            imported.hils.average || "";
+
+        state.hilsNGPrev =
+            imported.hils.previous || "";
+
+        state.hilsNGCurr =
+            imported.hils.current || "";
+
+    }
+
+
+    // ==========================================
+    // HIL HISTORY
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.hils?.history
+        )
+    ){
+
+        state.hilsLabels =
+            imported.hils.history.map(
+                row =>
+                    row.month || ""
+            );
+
+        state.hilsNGData =
+            imported.hils.history.map(
+                row =>
+                    row.value === ""
+                        ? ""
+                        : Number(
+                            row.value
+                        )
+            );
+
+    }
+
+
+    // ==========================================
+    // HILs PER SUPERVISOR
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.hils?.perSuper
+        ) &&
+        imported.hils.perSuper.length
+    ){
+
+        state.hilsSuperNG =
+            imported.hils.perSuper.map(
+                row => ({
+
+                    name:
+                        row.supervisor || "",
+
+                    data:[
+                        row.hils ?? "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ]
+
+                })
+            );
+
+    }
+
+
+    // ==========================================
+    // P/N OUT OF STOCK
+    // ==========================================
+
+    if(
+        imported.parts
+    ){
+
+        state.pnOutNG =
+            imported.parts.outOfStock ?? "";
+
+    }
+
+
+    // ==========================================
+    // TOP REQUESTED P/N
+    // ==========================================
+
+    if(
+        Array.isArray(
+            imported.parts?.topRequested
+        ) &&
+        imported.parts.topRequested.length
+    ){
+
+        state.topPnNG =
+            imported.parts.topRequested.map(
+                row => ({
+
+                    pn:
+                        row.pn || "",
+
+                    mat:
+                        row.materialClass || "",
+
+                    hils:
+                        row.hils ?? "",
+
+                    stock:
+                        row.stock ?? ""
+
+                })
+            );
+
+    }
+
+
+    // ==========================================
+    // FINAL STATE
+    // ==========================================
+
+    appStates.Night =
+        state;
+
+
+    console.log(
+        "A-CHECK PDF STATE READY:",
+        appStates.Night
+    );
+
+}
+
+// ======================================================
+// A-CHECK TIME → DECIMAL HOURS
+// ======================================================
+
+function convertACheckTimeToHours(
+    value
+){
+
+    if(
+        value === null ||
+        value === undefined ||
+        value === ""
+    ){
+
+        return null;
+
+    }
+
+
+    const match =
+        String(value)
+            .match(
+                /^(\d+):(\d{2})$/
+            );
+
+
+    if(!match){
+
+        const numeric =
+            Number(value);
+
+        return Number.isFinite(
+            numeric
+        )
+            ? numeric
+            : null;
+
+    }
+
+
+    const hours =
+        Number(
+            match[1]
+        );
+
+
+    const minutes =
+        Number(
+            match[2]
+        );
+
+
+    return (
+        hours +
+        minutes / 60
+    );
+
+}

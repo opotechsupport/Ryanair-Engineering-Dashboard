@@ -3,6 +3,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <head>
     <meta charset="UTF-8">
@@ -1493,11 +1494,31 @@ onclick="event.stopPropagation();toggleUserMenu(event);">
 
 </header>
 
-    <div class="controls-bar">
-        <div class="month-display" id="display-month">
-            REPORTING MONTH: <span style="color: var(--text-dark);">CARREGANDO...</span>
-        </div>
-    </div>
+<div class="controls-bar">
+
+    <div class="month-display">
+
+        <label style="margin-right:12px;font-weight:600;">
+
+        Analysis Period
+
+    </label>
+
+    <select
+        id="noInfoPeriod"
+        style="
+        padding:8px 14px;
+        border-radius:8px;
+        border:1px solid #ccc;
+        min-width:220px;
+    "
+        onchange="changeNoInfoPeriod(this.value)"></select>
+
+    </select>
+
+</div>
+
+</div>
 
     <div class="kpi-grid">
         <div class="kpi-card">
@@ -1652,13 +1673,256 @@ window.firebaseUpdate = update;
 window.firebaseOnValue = onValue;
 window.firebaseRemove = remove;
 
-const dbRef = ref(database, 'dashboardData');
-        
-        // ======================================================
-        // FWD FIREBASE REFERENCE
-        // ======================================================
+// ======================================================
+// FWD FIREBASE REFERENCE
+// ======================================================
 
-        const fwdRef = ref(database, "dashboardData/FWD");
+const fwdRef =
+    ref(
+        database,
+        "dashboardData/FWD"
+    );
+
+
+// ======================================================
+// NO INFO FIREBASE
+// ======================================================
+
+const NOINFO_COLLECTION =
+    "dashboardData/noInfo";
+
+
+// ======================================================
+// NO INFO CURRENT PERIOD
+// ======================================================
+
+let CURRENT_NOINFO_YEAR =
+    new Date().getFullYear();
+
+let CURRENT_NOINFO_MONTH =
+    new Date().getMonth() + 1;
+
+
+// ======================================================
+// NO INFO PERIOD KEY
+// ======================================================
+
+function getNoInfoPeriodKey(
+    year,
+    month
+){
+
+    return (
+        `${year}-${String(month).padStart(2,"0")}`
+    );
+
+}
+
+// ======================================================
+// LOAD AVAILABLE NO INFO PERIODS
+// ======================================================
+
+async function loadAvailableNoInfoPeriods(){
+
+    const selector =
+        document.getElementById(
+            "noInfoPeriod"
+        );
+
+
+    if(!selector) return;
+
+
+    selector.innerHTML = "";
+
+
+    try{
+
+        const snapshot =
+            await firebaseGet(
+
+                firebaseRef(
+
+                    database,
+
+                    NOINFO_COLLECTION
+
+                )
+
+            );
+
+
+        // ==============================================
+        // PERIODS EXIST
+        // ==============================================
+
+        if(snapshot.exists()){
+
+            const periods =
+                Object.keys(
+                    snapshot.val()
+                )
+                .sort();
+
+
+            periods.forEach(
+                period=>{
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        period;
+
+
+                    const [
+                        year,
+                        month
+                    ] =
+                        period.split("-");
+
+
+                    option.textContent =
+                        new Date(
+
+                            Number(year),
+
+                            Number(month) - 1
+
+                        ).toLocaleDateString(
+
+                            "en-GB",
+
+                            {
+
+                                month:"long",
+
+                                year:"numeric"
+
+                            }
+
+                        );
+
+
+                    selector.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ==============================================
+        // NO PERIODS YET
+        // ==============================================
+
+        else{
+
+            const today =
+                new Date();
+
+
+            const period =
+                getNoInfoPeriodKey(
+
+                    today.getFullYear(),
+
+                    today.getMonth() + 1
+
+                );
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                period;
+
+
+            option.textContent =
+                today.toLocaleDateString(
+
+                    "en-GB",
+
+                    {
+
+                        month:"long",
+
+                        year:"numeric"
+
+                    }
+
+                );
+
+
+            selector.appendChild(
+                option
+            );
+
+        }
+
+
+        // ==============================================
+        // SELECT CURRENT PERIOD
+        // ==============================================
+
+        const currentPeriod =
+            getNoInfoPeriodKey(
+
+                CURRENT_NOINFO_YEAR,
+
+                CURRENT_NOINFO_MONTH
+
+            );
+
+
+        if(
+
+            [
+                ...selector.options
+            ]
+            .some(
+                option =>
+                    option.value ===
+                    currentPeriod
+            )
+
+        ){
+
+            selector.value =
+                currentPeriod;
+
+        }
+        else{
+
+            selector.selectedIndex =
+                selector.options.length - 1;
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Unable to load No Info periods:",
+
+            error
+
+        );
+
+    }
+
+}
 
         // Estado inicial por defeito
         const defaultDb = {
@@ -1698,124 +1962,1345 @@ const dbRef = ref(database, 'dashboardData');
             ]
         };
 
-        // Estado Global
-        let db = defaultDb;
+// ======================================================
+// EMPTY NO INFO DATA FOR NEW PERIOD
+// ======================================================
 
-        // Escuta os dados no Firebase em Tempo Real
-        onValue(dbRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                db = data;
-                renderDashboard();
-            } else {
-                // Se a base de dados estiver vazia (1ª vez), salva os dados por defeito
-                set(dbRef, defaultDb);
-            }
-        });
+const emptyNoInfoDb = {
 
-        Chart.register(ChartDataLabels);
-        let myChart = null;
-        let myCountryChart = null;
+    month: "",
 
-        function renderDashboard() {
-            // Textos Simples
-            document.getElementById('display-month').innerHTML = `REPORTING MONTH: <span style="color: var(--text-dark);">${db.month}</span>`;
-            document.getElementById('display-total').innerText = db.total;
-            document.getElementById('display-kpi1').innerText = db.kpi1;
-            document.getElementById('display-kpi2').innerText = db.kpi2;
+    total: "",
 
-            // Render Portugal
-            let ptHTML = '';
-            db.portugal.forEach(item => {
-                let isDanger = parseFloat(item.val) >= 5.0 ? 'danger' : '';
-                ptHTML += `<div class="stat-group"><span class="stat-label">${item.base}</span><span class="stat-value ${isDanger}">${item.val}%</span></div>`;
-            });
-            ptHTML += `<div class="divider"></div><div class="stat-group total-box"><span class="stat-label">PORTUGAL (%)</span><span class="stat-value">${db.portugalTotal}%</span></div>`;
-            document.getElementById('display-portugal').innerHTML = ptHTML;
+    kpi1: "",
 
-            // Render TOP 3
-            let top3HTML = '';
-            db.top3.forEach(item => {
-                top3HTML += `<div class="stat-group"><span class="stat-label">${item.base}</span><span class="stat-value danger">${item.val}%</span></div>`;
-            });
-            document.getElementById('display-top3').innerHTML = top3HTML;
+    kpi2: "0%",
 
-            // Gráfico Barras
-            const labels = db.chart.map(item => item.base);
-            const data = db.chart.map(item => item.val);
-            const bgColors = data.map(v => v > 8.0 ? '#F1C400' : '#07225B');
+    portugal: [{ base: "FAO", val: "" },
+                { base: "FNC", val: "" },
+                { base: "LIS", val: "" },
+                { base: "OPO", val: "" }],
 
-            if (myChart) {
-                myChart.data.labels = labels;
-                myChart.data.datasets[0].data = data;
-                myChart.data.datasets[0].backgroundColor = bgColors;
-                myChart.update();
-            } else {
-                const ctx = document.getElementById('baseDelayChart').getContext('2d');
-                myChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: { labels: labels, datasets: [{ data: data, backgroundColor: bgColors, borderRadius: 6 }] },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            datalabels: { anchor: 'end', align: 'top', font: { family: 'Montserrat', weight: 'bold', size: 11 }, formatter: v => v.toFixed(1).replace('.', ',') + '%' }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, suggestedMax: Math.max(...data) + 5, grid: { borderDash: [5, 5] }, ticks: { callback: v => v + '%' } },
-                            x: { grid: { display: false }, ticks: { font: { weight: '600' }, color: '#07225B' } }
-                        }
-                    }
-                });
-            }
+    portugalTotal: "",
 
-            // Gráfico Pizza
-            const countryLabels = db.countryChart.map(item => item.country);
-            const countryData = db.countryChart.map(item => item.val);
-            const bluePalette = ['#07225B', '#154C79', '#1B6EA5', '#2E96C4', '#5CB8DD', '#93D2EA', '#0D3A6B', '#3A82B8'];
-            const countryColors = countryData.map((_, i) => bluePalette[i % bluePalette.length]);
+    top3: [{ base: "", val: "" },
+                { base: "", val: "" },
+                { base: "", val: "" }],
 
-            if (myCountryChart) {
-                myCountryChart.data.labels = countryLabels;
-                myCountryChart.data.datasets[0].data = countryData;
-                myCountryChart.data.datasets[0].backgroundColor = countryColors;
-                myCountryChart.update();
-            } else {
-                const ctxCountry = document.getElementById('countryChart').getContext('2d');
-                myCountryChart = new Chart(ctxCountry, {
-                    type: 'pie',
-                    data: { labels: countryLabels, datasets: [{ data: countryData, backgroundColor: countryColors, borderColor: '#fff', borderWidth: 2 }] },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        layout: { padding: 40 },
-                        plugins: {
-                            legend: { display: false },
-                            datalabels: {
-                                labels: {
-                                    percentage: {
-                                        color: '#fff',
-                                        font: { family: 'Montserrat', weight: 'bold', size: 13 },
-                                        formatter: (value, ctx) => {
-                                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                            return total ? (value / total * 100).toFixed(1).replace('.', ',') + '%' : '0%';
-                                        }
-                                    },
-                                    value: {
-                                        anchor: 'end', align: 'end', offset: 10,
-                                        color: (ctx) => ctx.chart.data.datasets[0].backgroundColor[ctx.dataIndex],
-                                        font: { family: 'Montserrat', weight: 'bold', size: 12 },
-                                        formatter: (value, ctx) => {
-                                            const label = ctx.chart.data.labels[ctx.dataIndex];
-                                            return `${label}; ${value}`;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+    chart: [{ base: "ACE", val: "" }, { base: "AGA", val: "" }, { base: "AGP", val: "" },
+                { base: "ALC", val: "" }, { base: "BCN", val: "" }, { base: "BRU", val: "" },
+                { base: "BVA", val: "" }, { base: "CRL", val: "" }, { base: "FAO", val: "" },
+                { base: "FEZ", val: "" }, { base: "FNC", val: "" }, { base: "GRO", val: "" },
+                { base: "IBZ", val: "" }, { base: "LIS", val: "" }, { base: "LPA", val: "" },
+                { base: "MAD", val: "" }, { base: "MRS", val: "" }, { base: "OPO", val: "" },
+                { base: "PMI", val: "" }, { base: "RAK", val: "" }, { base: "SCQ", val: "" },
+                { base: "SVQ", val: "" }, { base: "TFS", val: "" }, { base: "TLS", val: "" },
+                { base: "TNG", val: "" }, { base: "VLC", val: "" }],
+
+    countryChart: [{ country: "Spain", val: "" },
+                { country: "Morocco", val: "" },
+                { country: "Portugal", val: "" },
+                { country: "France", val: "" },
+                { country: "Belgium", val: "" }]
+
+};
+
+        // ======================================================
+// NO INFO CURRENT DATA
+// ======================================================
+
+let db = defaultDb;
+
+// ======================================================
+// APPLY NO INFO PDF DATA TO DASHBOARD
+// ======================================================
+
+window.applyNoInfoPDFToDashboard =
+    function(imported){
+
+        // ==========================================
+        // SAFETY
+        // ==========================================
+
+        if(!imported){
+
+            return;
+
         }
+
+
+        // ==========================================
+        // PORTUGAL DATA
+        // ==========================================
+
+        const portugalData = [
+
+            {
+
+                base:
+                    "FAO",
+
+                val:
+                    imported.portugal?.FAO !== "" &&
+                    imported.portugal?.FAO !== null &&
+                    imported.portugal?.FAO !== undefined
+
+                        ? String(
+                            imported.portugal.FAO
+                        )
+
+                        : ""
+
+            },
+
+            {
+
+                base:
+                    "FNC",
+
+                val:
+                    imported.portugal?.FNC !== "" &&
+                    imported.portugal?.FNC !== null &&
+                    imported.portugal?.FNC !== undefined
+
+                        ? String(
+                            imported.portugal.FNC
+                        )
+
+                        : ""
+
+            },
+
+            {
+
+                base:
+                    "LIS",
+
+                val:
+                    imported.portugal?.LIS !== "" &&
+                    imported.portugal?.LIS !== null &&
+                    imported.portugal?.LIS !== undefined
+
+                        ? String(
+                            imported.portugal.LIS
+                        )
+
+                        : ""
+
+            },
+
+            {
+
+                base:
+                    "OPO",
+
+                val:
+                    imported.portugal?.OPO !== "" &&
+                    imported.portugal?.OPO !== null &&
+                    imported.portugal?.OPO !== undefined
+
+                        ? String(
+                            imported.portugal.OPO
+                        )
+
+                        : ""
+
+            }
+
+        ];
+
+
+        // ==========================================
+        // TOP 3
+        // ==========================================
+
+        const top3Data =
+
+            Array.isArray(
+                imported.top3
+            )
+
+                ? imported.top3.map(
+                    item => ({
+
+                        base:
+                            item.base ??
+                            "",
+
+                        val:
+                            item.value !== "" &&
+                            item.value !== null &&
+                            item.value !== undefined
+
+                                ? String(
+                                    item.value
+                                )
+
+                                : ""
+
+                    })
+                )
+
+                : [];
+
+
+        // ==========================================
+        // ALL BASES
+        // ==========================================
+
+        const baseData =
+
+            Array.isArray(
+                imported.bases
+            )
+
+                ? imported.bases.map(
+                    item => ({
+
+                        base:
+                            item.base ??
+                            "",
+
+                        val:
+                            item.value !== "" &&
+                            item.value !== null &&
+                            item.value !== undefined
+
+                                ? String(
+                                    item.value
+                                )
+
+                                : ""
+
+                    })
+                )
+
+                : [];
+
+
+        // ==========================================
+        // COUNTRIES
+        // ==========================================
+        //
+        // PDF gives percentages.
+        // Edit Visuals currently expects
+        // absolute numbers.
+        //
+        // Example:
+        // 375 × 61.9% = 232
+        // ==========================================
+
+        const countryData =
+
+            Array.isArray(
+                imported.countries
+            )
+
+                ? imported.countries.map(
+                    item => ({
+
+                        country:
+                            item.country ??
+                            "",
+
+                        val:
+
+                            imported.totalDelays !== "" &&
+                            imported.totalDelays !== null &&
+                            imported.totalDelays !== undefined &&
+                            item.percentage !== "" &&
+                            item.percentage !== null &&
+                            item.percentage !== undefined
+
+                                ? String(
+
+                                    Math.round(
+
+                                        Number(
+                                            imported.totalDelays
+                                        )
+
+                                        *
+
+                                        Number(
+                                            item.percentage
+                                        )
+
+                                        /
+
+                                        100
+
+                                    )
+
+                                )
+
+                                : ""
+
+                    })
+                )
+
+                : [];
+
+
+        // ==========================================
+        // UPDATE LOCAL DASHBOARD STATE
+        // ==========================================
+
+        db = {
+
+            ...db,
+
+
+            // ======================================
+            // MONTH
+            // ======================================
+
+            month:
+                imported.month ||
+                db.month ||
+                "",
+
+
+            // ======================================
+            // KPIs
+            // ======================================
+
+            total:
+                imported.totalDelays !== "" &&
+                imported.totalDelays !== null &&
+                imported.totalDelays !== undefined
+
+                    ? String(
+                        imported.totalDelays
+                    )
+
+                    : "",
+
+
+            kpi1:
+                imported.averagePerBase !== "" &&
+                imported.averagePerBase !== null &&
+                imported.averagePerBase !== undefined
+
+                    ? String(
+                        imported.averagePerBase
+                    )
+
+                    : "",
+
+
+            kpi2:
+                imported.percentage !== "" &&
+                imported.percentage !== null &&
+                imported.percentage !== undefined
+
+                    ? String(
+                        imported.percentage
+                    )
+
+                    : "",
+
+
+            // ======================================
+            // PORTUGAL
+            // ======================================
+
+            portugal:
+                portugalData,
+
+
+            portugalTotal:
+
+                imported.portugal?.total !== "" &&
+                imported.portugal?.total !== null &&
+                imported.portugal?.total !== undefined
+
+                    ? String(
+                        imported.portugal.total
+                    )
+
+                    : "",
+
+
+            // ======================================
+            // TOP 3
+            // ======================================
+
+            top3:
+                top3Data,
+
+
+            // ======================================
+            // ALL BASES
+            // ======================================
+
+            chart:
+                baseData,
+
+
+            // ======================================
+            // COUNTRIES
+            // ======================================
+
+            countryChart:
+                countryData
+
+        };
+
+
+        // ==========================================
+        // STORE SELECTED PERIOD
+        // ==========================================
+
+        if(
+            imported._selectedYear !== undefined
+        ){
+
+            CURRENT_NOINFO_YEAR =
+                Number(
+                    imported._selectedYear
+                );
+
+        }
+
+
+        if(
+            imported._selectedMonth !== undefined
+        ){
+
+            CURRENT_NOINFO_MONTH =
+                Number(
+                    imported._selectedMonth
+                );
+
+        }
+
+
+        // ==========================================
+        // REFRESH DASHBOARD
+        // ==========================================
+
+        renderDashboard();
+
+
+        console.log(
+            "NO INFO PDF DATA APPLIED:",
+            db
+        );
+
+    };
+
+        // ======================================================
+// NO INFO LOAD SELECTED PERIOD
+// ======================================================
+
+async function loadNoInfoData(
+    year,
+    month
+){
+
+    CURRENT_NOINFO_YEAR =
+        year;
+
+    CURRENT_NOINFO_MONTH =
+        month;
+
+
+    const period =
+        getNoInfoPeriodKey(
+            year,
+            month
+        );
+
+
+    try{
+
+        const snapshot =
+            await firebaseGet(
+
+                firebaseRef(
+
+                    database,
+
+                    `${NOINFO_COLLECTION}/${period}`
+
+                )
+
+            );
+
+
+        // ==============================================
+        // PERIOD EXISTS
+        // ==============================================
+
+        if(snapshot.exists()){
+
+            db = {
+
+                ...defaultDb,
+
+                ...snapshot.val()
+
+            };
+
+        }
+
+
+        // ==============================================
+        // PERIOD DOES NOT EXIST
+        // ==============================================
+
+        else{
+
+            db = {
+
+                ...emptyNoInfoDb,
+
+                month:
+                    new Date(
+                        year,
+                        month - 1,
+                        1
+                    ).toLocaleDateString(
+
+                        "en-GB",
+
+                        {
+                            month:"long",
+                            year:"numeric"
+                        }
+
+                    )
+
+            };
+
+        }
+
+
+        renderDashboard();
+
+
+        // ==============================================
+        // UPDATE SELECTOR
+        // ==============================================
+
+        const selector =
+            document.getElementById(
+                "noInfoPeriod"
+            );
+
+
+        if(selector){
+
+            selector.value =
+                period;
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Unable to load No Info period:",
+
+            error
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// CHANGE NO INFO PERIOD
+// ======================================================
+
+async function changeNoInfoPeriod(
+    period
+){
+
+    if(!period) return;
+
+
+    const [
+        year,
+        month
+    ] =
+        period
+            .split("-")
+            .map(Number);
+
+
+    await loadNoInfoData(
+        year,
+        month
+    );
+
+}
+
+
+// ======================================================
+// NO INFO GLOBAL FUNCTIONS
+// ======================================================
+
+window.loadAvailableNoInfoPeriods =
+    loadAvailableNoInfoPeriods;
+
+window.loadNoInfoData =
+    loadNoInfoData;
+
+window.changeNoInfoPeriod =
+    changeNoInfoPeriod;
+
+
+// ======================================================
+// CHARTS
+// ======================================================
+
+Chart.register(
+    ChartDataLabels
+);
+
+
+let myChart = null;
+
+let myCountryChart = null;
+
+
+// ======================================================
+// RENDER DASHBOARD
+// ======================================================
+
+function renderDashboard() {
+
+
+    // ==================================================
+    // TEXTOS SIMPLES
+    // ==================================================
+
+    document.getElementById(
+        'display-total'
+    ).innerText =
+        db.total || 0;
+
+
+    document.getElementById(
+        'display-kpi1'
+    ).innerText =
+        db.kpi1 || 0;
+
+
+    document.getElementById(
+        'display-kpi2'
+    ).innerText =
+        db.kpi2 || "0%";
+
+
+    // ==================================================
+    // RENDER PORTUGAL
+    // ==================================================
+
+    let ptHTML = '';
+
+
+    const portugalData =
+        Array.isArray(db.portugal)
+            ? db.portugal
+            : [];
+
+
+    portugalData.forEach(
+        item => {
+
+            const value =
+                Number(item.val) || 0;
+
+
+            const isDanger =
+                value >= 5.0
+                    ? 'danger'
+                    : '';
+
+
+            ptHTML += `
+
+                <div class="stat-group">
+
+                    <span class="stat-label">
+                        ${item.base || ''}
+                    </span>
+
+                    <span class="stat-value ${isDanger}">
+                        ${value}%
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    ptHTML += `
+
+        <div class="divider"></div>
+
+        <div class="stat-group total-box">
+
+            <span class="stat-label">
+                PORTUGAL (%)
+            </span>
+
+            <span class="stat-value">
+                ${Number(db.portugalTotal) || 0}%
+            </span>
+
+        </div>
+
+    `;
+
+
+    document.getElementById(
+        'display-portugal'
+    ).innerHTML =
+        ptHTML;
+
+
+    // ==================================================
+    // RENDER TOP 3
+    // ==================================================
+
+    let top3HTML = '';
+
+
+    const top3Data =
+        Array.isArray(db.top3)
+            ? db.top3
+            : [];
+
+
+    top3Data.forEach(
+        item => {
+
+            const value =
+                Number(item.val) || 0;
+
+
+            top3HTML += `
+
+                <div class="stat-group">
+
+                    <span class="stat-label">
+                        ${item.base || ''}
+                    </span>
+
+                    <span class="stat-value danger">
+                        ${value}%
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    document.getElementById(
+        'display-top3'
+    ).innerHTML =
+        top3HTML;
+
+
+    // ==================================================
+    // DESTROY EXISTING BASE CHART
+    // ==================================================
+
+    const baseCanvas =
+        document.getElementById(
+            'baseDelayChart'
+        );
+
+
+    if(baseCanvas){
+
+        const existingBaseChart =
+            Chart.getChart(
+                baseCanvas
+            );
+
+
+        if(existingBaseChart){
+
+            existingBaseChart.destroy();
+
+        }
+
+    }
+
+
+    myChart = null;
+
+
+    // ==================================================
+    // BASE CHART DATA
+    // ==================================================
+
+    const chartData =
+        Array.isArray(db.chart)
+            ? db.chart
+            : [];
+
+
+    const labels =
+        chartData.map(
+            item =>
+                item.base || ''
+        );
+
+
+    const data =
+        chartData.map(
+            item =>
+                Number(item.val) || 0
+        );
+
+
+    const bgColors =
+        data.map(
+            value =>
+                value > 8.0
+                    ? '#F1C400'
+                    : '#07225B'
+        );
+
+
+    // ==================================================
+    // CREATE BASE CHART
+    // ==================================================
+
+    if(baseCanvas){
+
+        const ctx =
+            baseCanvas.getContext(
+                '2d'
+            );
+
+
+        myChart =
+            new Chart(
+                ctx,
+                {
+
+                    type: 'bar',
+
+                    data: {
+
+                        labels: labels,
+
+                        datasets: [
+
+                            {
+
+                                data: data,
+
+                                backgroundColor:
+                                    bgColors,
+
+                                borderRadius: 6
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+
+                        plugins: {
+
+                            legend: {
+                                display: false
+                            },
+
+
+                            datalabels: {
+
+                                anchor: 'end',
+
+                                align: 'top',
+
+
+                                font: {
+
+                                    family:
+                                        'Montserrat',
+
+                                    weight:
+                                        'bold',
+
+                                    size: 11
+
+                                },
+
+
+                                formatter: value => {
+
+                                    const number =
+                                        Number(value);
+
+
+                                    if(
+                                        !Number.isFinite(
+                                            number
+                                        )
+                                    ){
+
+                                        return '0%';
+
+                                    }
+
+
+                                    return number
+                                        .toFixed(1)
+                                        .replace(
+                                            '.',
+                                            ','
+                                        )
+                                        + '%';
+
+                                }
+
+                            }
+
+                        },
+
+
+                        scales: {
+
+                            y: {
+
+                                beginAtZero: true,
+
+
+                                suggestedMax:
+
+                                    data.length
+                                        ? Math.max(
+                                            ...data
+                                        ) + 5
+                                        : 5,
+
+
+                                grid: {
+
+                                    borderDash:
+                                        [5, 5]
+
+                                },
+
+
+                                ticks: {
+
+                                    callback:
+                                        value =>
+                                            value + '%'
+
+                                }
+
+                            },
+
+
+                            x: {
+
+                                grid: {
+
+                                    display:
+                                        false
+
+                                },
+
+
+                                ticks: {
+
+                                    font: {
+
+                                        weight:
+                                            '600'
+
+                                    },
+
+                                    color:
+                                        '#07225B'
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            );
+
+    }
+
+
+    // ==================================================
+    // DESTROY EXISTING COUNTRY CHART
+    // ==================================================
+
+    const countryCanvas =
+        document.getElementById(
+            'countryChart'
+        );
+
+
+    if(countryCanvas){
+
+        const existingCountryChart =
+            Chart.getChart(
+                countryCanvas
+            );
+
+
+        if(existingCountryChart){
+
+            existingCountryChart.destroy();
+
+        }
+
+    }
+
+
+    myCountryChart = null;
+
+
+    // ==================================================
+    // COUNTRY CHART DATA
+    // ==================================================
+
+    const countryChartData =
+        Array.isArray(
+            db.countryChart
+        )
+            ? db.countryChart
+            : [];
+
+
+    const countryLabels =
+        countryChartData.map(
+            item =>
+                item.country || ''
+        );
+
+
+    const countryData =
+        countryChartData.map(
+            item =>
+                Number(item.val) || 0
+        );
+
+
+    const bluePalette = [
+
+        '#07225B',
+
+        '#154C79',
+
+        '#1B6EA5',
+
+        '#2E96C4',
+
+        '#5CB8DD',
+
+        '#93D2EA',
+
+        '#0D3A6B',
+
+        '#3A82B8'
+
+    ];
+
+
+    const countryColors =
+        countryData.map(
+            (_, index) =>
+                bluePalette[
+                    index %
+                    bluePalette.length
+                ]
+        );
+
+
+    // ==================================================
+    // CREATE COUNTRY PIE CHART
+    // ==================================================
+
+    if(countryCanvas){
+
+        const ctxCountry =
+            countryCanvas.getContext(
+                '2d'
+            );
+
+
+        myCountryChart =
+            new Chart(
+
+                ctxCountry,
+
+                {
+
+                    type: 'pie',
+
+
+                    data: {
+
+                        labels:
+                            countryLabels,
+
+
+                        datasets: [
+
+                            {
+
+                                data:
+                                    countryData,
+
+                                backgroundColor:
+                                    countryColors,
+
+                                borderColor:
+                                    '#fff',
+
+                                borderWidth: 2
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio:
+                            false,
+
+
+                        layout: {
+
+                            padding: 40
+
+                        },
+
+
+                        plugins: {
+
+                            legend: {
+
+                                display:
+                                    false
+
+                            },
+
+
+                            datalabels: {
+
+                                labels: {
+
+                                    // ==================================
+                                    // PERCENTAGE
+                                    // ==================================
+
+                                    percentage: {
+
+                                        color:
+                                            '#fff',
+
+
+                                        font: {
+
+                                            family:
+                                                'Montserrat',
+
+                                            weight:
+                                                'bold',
+
+                                            size: 13
+
+                                        },
+
+
+                                        formatter:
+                                            (
+                                                value,
+                                                ctx
+                                            ) => {
+
+                                                const values =
+                                                    ctx.chart
+                                                        .data
+                                                        .datasets[0]
+                                                        .data
+                                                        .map(
+                                                            v =>
+                                                                Number(v)
+                                                                || 0
+                                                        );
+
+
+                                                const total =
+                                                    values.reduce(
+                                                        (
+                                                            sum,
+                                                            number
+                                                        ) =>
+                                                            sum +
+                                                            number,
+
+                                                        0
+                                                    );
+
+
+                                                const number =
+                                                    Number(value)
+                                                    || 0;
+
+
+                                                if(
+                                                    !total
+                                                ){
+
+                                                    return '0%';
+
+                                                }
+
+
+                                                return (
+
+                                                    number /
+                                                    total *
+                                                    100
+
+                                                )
+                                                .toFixed(1)
+                                                .replace(
+                                                    '.',
+                                                    ','
+                                                )
+                                                + '%';
+
+                                            }
+
+                                    },
+
+
+                                    // ==================================
+                                    // VALUE / COUNTRY
+                                    // ==================================
+
+                                    value: {
+
+                                        anchor:
+                                            'end',
+
+                                        align:
+                                            'end',
+
+                                        offset:
+                                            10,
+
+
+                                        color:
+                                            ctx => {
+
+                                                const colors =
+                                                    ctx.chart
+                                                        .data
+                                                        .datasets[0]
+                                                        .backgroundColor;
+
+
+                                                return (
+                                                    colors[
+                                                        ctx.dataIndex
+                                                    ]
+                                                    ||
+                                                    '#07225B'
+                                                );
+
+                                            },
+
+
+                                        font: {
+
+                                            family:
+                                                'Montserrat',
+
+                                            weight:
+                                                'bold',
+
+                                            size: 12
+
+                                        },
+
+
+                                        formatter:
+                                            (
+                                                value,
+                                                ctx
+                                            ) => {
+
+                                                const label =
+                                                    ctx.chart
+                                                        .data
+                                                        .labels[
+                                                            ctx.dataIndex
+                                                        ]
+                                                    || '';
+
+
+                                                const number =
+                                                    Number(value)
+                                                    || 0;
+
+
+                                                return `${label}; ${number}`;
+
+                                            }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            );
+
+    }
+
+}
 
         const modal = document.getElementById('editModal');
 
@@ -1891,79 +3376,1296 @@ const dbRef = ref(database, 'dashboardData');
             renderCountryEditorRows();
         }
 
-        function saveChanges() {
-            db.month = document.getElementById('edit-month').value;
-            db.total = document.getElementById('edit-total').value;
-            db.kpi1 = document.getElementById('edit-kpi1').value;
-            db.kpi2 = document.getElementById('edit-kpi2').value + "%";
+        async function saveChanges() {
 
-            const ptBases = document.querySelectorAll('.pt-base');
-            const ptVals = document.querySelectorAll('.pt-val');
-            db.portugal = [];
-            for(let i = 0; i < ptBases.length; i++) {
-                db.portugal.push({ base: ptBases[i].value, val: ptVals[i].value });
-            }
-            db.portugalTotal = document.getElementById('edit-portugal-total').value;
+    // ==============================================
+    // BASIC DATA
+    // ==============================================
 
-            const topBases = document.querySelectorAll('.top-base');
-            const topVals = document.querySelectorAll('.top-val');
-            db.top3 = [];
-            for(let i = 0; i < topBases.length; i++) {
-                db.top3.push({ base: topBases[i].value, val: topVals[i].value });
-            }
+    db.month =
+        document.getElementById(
+            'edit-month'
+        ).value;
 
-            const chartBases = document.querySelectorAll('.chart-edit-base');
-            const chartVals = document.querySelectorAll('.chart-edit-val');
-            db.chart = [];
-            for(let i = 0; i < chartBases.length; i++) {
-                db.chart.push({ base: chartBases[i].value, val: parseFloat(chartVals[i].value) || 0 });
-            }
+    db.total =
+        document.getElementById(
+            'edit-total'
+        ).value;
 
-            const countryNames = document.querySelectorAll('.country-edit-name');
-            const countryVals = document.querySelectorAll('.country-edit-val');
-            db.countryChart = [];
-            for(let i = 0; i < countryNames.length; i++) {
-                db.countryChart.push({ country: countryNames[i].value, val: parseFloat(countryVals[i].value) || 0 });
-            }
+    db.kpi1 =
+        document.getElementById(
+            'edit-kpi1'
+        ).value;
 
-            // Guarda os dados atualizados diretamente no Firebase Database
-            set(dbRef, db).then(() => {
-                closeModal();
-            }).catch((error) => {
-                alert("Erro ao gravar dados: " + error);
-            });
+    db.kpi2 =
+        document.getElementById(
+            'edit-kpi2'
+        ).value + "%";
+
+
+    // ==============================================
+    // PORTUGAL
+    // ==============================================
+
+    const ptBases =
+        document.querySelectorAll(
+            '.pt-base'
+        );
+
+    const ptVals =
+        document.querySelectorAll(
+            '.pt-val'
+        );
+
+    db.portugal = [];
+
+    for(
+        let i = 0;
+        i < ptBases.length;
+        i++
+    ){
+
+        db.portugal.push({
+
+            base:
+                ptBases[i].value,
+
+            val:
+                ptVals[i].value
+
+        });
+
+    }
+
+
+    db.portugalTotal =
+        document.getElementById(
+            'edit-portugal-total'
+        ).value;
+
+
+    // ==============================================
+    // TOP 3
+    // ==============================================
+
+    const topBases =
+        document.querySelectorAll(
+            '.top-base'
+        );
+
+    const topVals =
+        document.querySelectorAll(
+            '.top-val'
+        );
+
+    db.top3 = [];
+
+    for(
+        let i = 0;
+        i < topBases.length;
+        i++
+    ){
+
+        db.top3.push({
+
+            base:
+                topBases[i].value,
+
+            val:
+                topVals[i].value
+
+        });
+
+    }
+
+
+    // ==============================================
+    // BAR CHART
+    // ==============================================
+
+    const chartBases =
+        document.querySelectorAll(
+            '.chart-edit-base'
+        );
+
+    const chartVals =
+        document.querySelectorAll(
+            '.chart-edit-val'
+        );
+
+    db.chart = [];
+
+    for(
+        let i = 0;
+        i < chartBases.length;
+        i++
+    ){
+
+        db.chart.push({
+
+            base:
+                chartBases[i].value,
+
+            val:
+                parseFloat(
+                    chartVals[i].value
+                ) || 0
+
+        });
+
+    }
+
+
+    // ==============================================
+    // COUNTRY CHART
+    // ==============================================
+
+    const countryNames =
+        document.querySelectorAll(
+            '.country-edit-name'
+        );
+
+    const countryVals =
+        document.querySelectorAll(
+            '.country-edit-val'
+        );
+
+    db.countryChart = [];
+
+    for(
+        let i = 0;
+        i < countryNames.length;
+        i++
+    ){
+
+        db.countryChart.push({
+
+            country:
+                countryNames[i].value,
+
+            val:
+                parseFloat(
+                    countryVals[i].value
+                ) || 0
+
+        });
+
+    }
+
+
+    // ==============================================
+    // SAVE CURRENT NO INFO PERIOD
+    // ==============================================
+
+    const period =
+        getNoInfoPeriodKey(
+
+            CURRENT_NOINFO_YEAR,
+
+            CURRENT_NOINFO_MONTH
+
+        );
+
+
+    try{
+
+        await firebaseSet(
+
+            firebaseRef(
+
+                database,
+
+                `${NOINFO_COLLECTION}/${period}`
+
+            ),
+
+            db
+
+        );
+
+
+        // ==========================================
+        // CLOSE EDIT MODAL
+        // ==========================================
+
+        closeModal();
+
+
+        // ==========================================
+        // REFRESH AVAILABLE PERIODS
+        // ==========================================
+
+        await loadAvailableNoInfoPeriods();
+
+
+        // ==========================================
+        // KEEP SAVED PERIOD SELECTED
+        // ==========================================
+
+        const selector =
+            document.getElementById(
+                "noInfoPeriod"
+            );
+
+
+        if(selector){
+
+            selector.value =
+                period;
+
         }
 
-        function importData() { alert("Funcionalidade de importar Excel em desenvolvimento!"); }
-        function exportPDF() { window.print(); }
 
-        function resetData() {
+        // ==========================================
+        // RELOAD SAVED PERIOD
+        // ==========================================
+
+        await loadNoInfoData(
+
+            CURRENT_NOINFO_YEAR,
+
+            CURRENT_NOINFO_MONTH
+
+        );
+
+
+        console.log(
+            `No Info data saved successfully: ${period}`
+        );
+
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Error saving No Info data:",
+            error
+        );
+
+        alert(
+            "Erro ao gravar dados: " +
+            error.message
+        );
+
+    }
+
+}
+
+ // ======================================================
+// NO INFO - IMPORT PDF
+// ======================================================
+
+function importData(){
+
+    // ==========================================
+    // CREATE FILE INPUT FIRST
+    // ==========================================
+
+    const fileInput =
+        document.createElement("input");
+
+    fileInput.type =
+        "file";
+
+    fileInput.accept =
+        ".pdf,application/pdf";
+
+    fileInput.style.display =
+        "none";
+
+
+    document.body.appendChild(
+        fileInput
+    );
+
+
+    // ==========================================
+    // HANDLE PDF SELECTION
+    // ==========================================
+
+    fileInput.addEventListener(
+        "change",
+        async function(event){
+
+            const file =
+                event.target.files?.[0];
+
+
+            if(!file){
+
+                fileInput.remove();
+
+                return;
+
+            }
+
+
+            // ======================================
+            // READ SELECTED PERIOD
+            // ======================================
+
+            const selectedYear =
+                fileInput.dataset.year;
+
+            const selectedMonth =
+                fileInput.dataset.month;
+
+
+            try{
+
+                console.log(
+                    "Reading No Info PDF..."
+                );
+
+                console.log(
+                    "Selected period:",
+                    selectedYear,
+                    selectedMonth
+                );
+
+
+                // ==================================
+                // READ PDF
+                // ==================================
+
+                const pdfData =
+                    await extractPDFText(
+                        file
+                    );
+
+
+                // ==================================
+                // PARSE PDF
+                // ==================================
+
+                const importedData =
+                    parseNoInfoPDF(
+                        pdfData
+                    );
+
+
+                // ==================================
+                // FORCE SELECTED PERIOD
+                // ==================================
+
+                importedData.month =
+    `${selectedYear}-${String(
+        selectedMonth
+    ).padStart(2, "0")}`;
+
+importedData._selectedYear =
+    selectedYear;
+
+importedData._selectedMonth =
+    selectedMonth;
+
+                // ==================================
+                // APPLY PDF DATA
+                // ==================================
+
+                applyNoInfoPDFToDashboard(
+                    importedData
+                );
+
+
+                // ==================================
+                // OPEN EDIT VISUALS
+                // ==================================
+
+                openModal();
+
+
+                // ==================================
+                // SUCCESS
+                // ==================================
+
+                showSuccess(
+
+                    "PDF Imported",
+
+                    "No Info data was extracted successfully. Please review the information before saving."
+
+                );
+
+            }
+
+            catch(error){
+
+                console.error(
+                    "NO INFO PDF IMPORT ERROR:",
+                    error
+                );
+
+
+                showError(
+
+                    "PDF Import",
+
+                    "Unable to analyse the selected No Info PDF."
+
+                );
+
+            }
+
+            finally{
+
+                fileInput.remove();
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // OPEN EXISTING ANALYSIS PERIOD MODAL
+    // ==========================================
+
+    openAnalysisPeriodModal(
+
+        function(year, month){
+
+            // ==================================
+            // STORE SELECTED PERIOD
+            // ==================================
+
+            fileInput.dataset.year =
+                String(year);
+
+            fileInput.dataset.month =
+                String(month);
+
+
+            console.log(
+                "PDF import period selected:",
+                year,
+                month
+            );
+
+
+            // ==================================
+            // OPEN FILE EXPLORER
+            // ==================================
+            //
+            // IMPORTANT:
+            // This happens synchronously from
+            // the Continue button click.
+            //
+
+            fileInput.click();
+
+        }
+
+    );
+
+}
+
+        // ======================================================
+// NO INFO - EXPORT PDF
+// ======================================================
+
+async function exportPDF(){
+
+    // ==================================================
+    // START PDF LOADING
+    // ==================================================
+
+    showPDFLoading();
+
+
+    let dashboard =
+        document.getElementById(
+            "noInfoDashboard"
+        );
+
+
+    if(!dashboard){
+
+        hidePDFLoading();
+
+        showError(
+            "PDF Export",
+            "No Info dashboard could not be found."
+        );
+
+        return;
+
+    }
+
+
+    let hidden = [];
+
+
+    try{
+
+        // ==================================================
+        // PREPARE NO INFO PDF HEADER
+        // ==================================================
+
+        const periodLabel =
+            db?.month ||
+            "Unknown Period";
+
+
+        const periodElement =
+            document.getElementById(
+                "noInfoPdfPeriod"
+            );
+
+
+        const generatedElement =
+            document.getElementById(
+                "noInfoPdfGenerated"
+            );
+
+
+        if(periodElement){
+
+            periodElement.textContent =
+                periodLabel;
+
+        }
+
+
+        if(generatedElement){
+
+            generatedElement.textContent =
+                new Date().toLocaleString(
+                    "en-GB"
+                );
+
+        }
+
+
+        // ==================================================
+        // WAIT FOR HEADER TO UPDATE
+        // ==================================================
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    300
+                )
+        );
+
+
+        updatePDFLoading(
+            1,
+            3
+        );
+
+
+        // ==================================================
+        // CAPTURE NO INFO PDF HEADER
+        // ==================================================
+
+        const headerCanvas =
+            await captureNoInfoPdfHeader();
+
+
+        if(!headerCanvas){
+
+            throw new Error(
+                "NO_INFO_PDF_HEADER_NOT_FOUND"
+            );
+
+        }
+
+
+        // ==================================================
+// HIDE DASHBOARD HEADER FOR PDF
+// ==================================================
+
+// The dashboard header contains:
+// .rh-left
+// .rh-actions
+//
+// We hide the whole parent so that the PDF
+// starts directly with the KPI section.
+
+const dashboardHeaderLeft =
+    dashboard.querySelector(
+        ".rh-left"
+    );
+
+
+if(dashboardHeaderLeft){
+
+    const dashboardHeader =
+        dashboardHeaderLeft.parentElement;
+
+
+    if(dashboardHeader){
+
+        dashboardHeader.style.display =
+            "none";
+
+        hidden.push(
+            dashboardHeader
+        );
+
+    }
+
+}
+
+
+// ==================================================
+// HIDE DASHBOARD CONTROLS / MONTH SELECTOR
+// ==================================================
+
+const controlsBar =
+    dashboard.querySelector(
+        ".controls-bar"
+    );
+
+
+if(controlsBar){
+
+    controlsBar.style.display =
+        "none";
+
+    hidden.push(
+        controlsBar
+    );
+
+}
+
+        // ==================================================
+        // HIDE INTERACTIVE MODALS
+        // ==================================================
+
+        const modals =
+            document.querySelectorAll(
+                ".modal-overlay"
+            );
+
+
+        modals.forEach(
+            modal => {
+
+                const display =
+                    getComputedStyle(
+                        modal
+                    ).display;
+
+
+                if(display !== "none"){
+
+                    modal.style.display =
+                        "none";
+
+                    hidden.push(
+                        modal
+                    );
+
+                }
+
+            }
+        );
+
+
+        // ==================================================
+        // WAIT FOR FINAL DASHBOARD RENDER
+        // ==================================================
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    500
+                )
+        );
+
+
+        updatePDFLoading(
+            2,
+            3
+        );
+
+
+        // ==================================================
+        // CAPTURE DASHBOARD
+        // ==================================================
+
+        const canvas =
+            await html2canvas(
+                dashboard,
+                {
+
+                    scale: 2,
+
+                    useCORS: true,
+
+                    allowTaint: true,
+
+                    backgroundColor:
+                        "#F4F6F8",
+
+                    logging: false,
+
+                    scrollX: 0,
+
+                    scrollY: 0
+
+                }
+            );
+
+
+        if(!canvas){
+
+            throw new Error(
+                "NO_INFO_PDF_CANVAS_FAILED"
+            );
+
+        }
+
+
+        // ==================================================
+        // CREATE PDF
+        // ==================================================
+
+        const { jsPDF } =
+            window.jspdf;
+
+
+        const pdf =
+            new jsPDF({
+
+                orientation:
+                    "landscape",
+
+                unit:
+                    "mm",
+
+                format:
+                    "a4",
+
+                compress:
+                    true
+
+            });
+
+
+        const pageWidth =
+            pdf.internal.pageSize.getWidth();
+
+
+        const pageHeight =
+            pdf.internal.pageSize.getHeight();
+
+
+        const margin =
+            5;
+
+
+        const usableWidth =
+            pageWidth -
+            (margin * 2);
+
+
+        // ==================================================
+        // HEADER SIZE
+        // ==================================================
+
+        const headerWidth =
+            usableWidth;
+
+
+        const headerHeight =
+            headerCanvas.height *
+            headerWidth /
+            headerCanvas.width;
+
+
+        // ==================================================
+        // CONTENT AREA
+        // ==================================================
+
+        const contentTop =
+            margin +
+            headerHeight +
+            4;
+
+
+        const footerHeight =
+            6;
+
+
+        const contentAvailableHeight =
+            pageHeight -
+            contentTop -
+            margin -
+            footerHeight;
+
+
+        // ==================================================
+        // SCALE DASHBOARD
+        // ==================================================
+
+        let renderWidth =
+            usableWidth;
+
+
+        let renderHeight =
+            canvas.height *
+            renderWidth /
+            canvas.width;
+
+
+        if(
+            renderHeight >
+            contentAvailableHeight
+        ){
+
+            const ratio =
+                contentAvailableHeight /
+                renderHeight;
+
+
+            renderWidth *=
+                ratio;
+
+
+            renderHeight *=
+                ratio;
+
+        }
+
+
+        const contentX =
+            (
+                pageWidth -
+                renderWidth
+            ) / 2;
+
+
+        // ==================================================
+        // ADD OFFICIAL NO INFO HEADER
+        // ==================================================
+
+        pdf.addImage(
+
+            headerCanvas.toDataURL(
+                "image/png"
+            ),
+
+            "PNG",
+
+            margin,
+
+            margin,
+
+            headerWidth,
+
+            headerHeight,
+
+            "",
+
+            "FAST"
+
+        );
+
+
+        // ==================================================
+        // ADD DASHBOARD CONTENT
+        // ==================================================
+
+        pdf.addImage(
+
+            canvas.toDataURL(
+                "image/png"
+            ),
+
+            "PNG",
+
+            contentX,
+
+            contentTop,
+
+            renderWidth,
+
+            renderHeight,
+
+            "",
+
+            "FAST"
+
+        );
+
+
+        // ==================================================
+        // FOOTER
+        // ==================================================
+
+        pdf.setFont(
+            "helvetica",
+            "normal"
+        );
+
+
+        pdf.setFontSize(
+            7
+        );
+
+
+        pdf.setTextColor(
+            100,
+            110,
+            125
+        );
+
+
+        pdf.text(
+
+            "Ryanair Engineering & Maintenance  •  No Info Delays Report",
+
+            margin,
+
+            pageHeight - 2.5
+
+        );
+
+
+        pdf.text(
+
+            "Page 1 of 1",
+
+            pageWidth - margin,
+
+            pageHeight - 2.5,
+
+            {
+                align:
+                    "right"
+            }
+
+        );
+
+
+        // ==================================================
+        // FINISH LOADING
+        // ==================================================
+
+        updatePDFLoading(
+            3,
+            3
+        );
+
+
+        // ==================================================
+        // FILE NAME
+        // ==================================================
+
+        const cleanPeriod =
+            String(
+                periodLabel
+            )
+
+                .replace(
+                    /[\/\\:*?"<>|]/g,
+                    ""
+                )
+
+                .replace(
+                    /\s+/g,
+                    "_"
+                );
+
+
+        pdf.save(
+
+            `Ryanair_No_Info_Report_${cleanPeriod}.pdf`
+
+        );
+
+
+        // ==================================================
+        // SUCCESS
+        // ==================================================
+
+        showSuccess(
+
+            "PDF Generated",
+
+            "The No Info Delays report has been generated successfully."
+
+        );
+
+    }
+
+
+    catch(error){
+
+        console.error(
+            "NO INFO PDF EXPORT ERROR:",
+            error
+        );
+
+
+        showError(
+
+            "PDF Export",
+
+            "Unable to generate the No Info Delays report."
+
+        );
+
+    }
+
+
+    finally{
+
+        // ==================================================
+        // RESTORE DASHBOARD
+        // ==================================================
+
+        hidden.forEach(
+            element => {
+
+                element.style.display =
+                    "";
+
+            }
+        );
+
+
+        hidePDFLoading();
+
+    }
+
+}
+
+
+// ======================================================
+// GLOBAL
+// ======================================================
+
+window.exportPDF =
+    exportPDF;
+
+        async function resetData(){
+
+    const period =
+        getNoInfoPeriodKey(
+            CURRENT_NOINFO_YEAR,
+            CURRENT_NOINFO_MONTH
+        );
+
+
+    const selector =
+        document.getElementById(
+            "noInfoPeriod"
+        );
+
+
+    const periodLabel =
+        selector?.selectedOptions?.[0]?.textContent
+        || period;
+
 
     showConfirmation(
 
-        "Reset Dashboard",
+        "Reset No Info Data",
 
-        "Are you sure you want to delete all Cloud data and restore the default dashboard values?\n\nThis action cannot be undone.",
+        `Are you sure you want to permanently delete all No Info data for ${periodLabel}?\n\nThis action cannot be undone.`,
 
         async () => {
 
             try{
 
-                await set(dbRef, defaultDb);
+                // ==========================================
+                // DELETE SELECTED PERIOD FROM FIREBASE
+                // ==========================================
+
+                await firebaseRemove(
+
+                    firebaseRef(
+
+                        database,
+
+                        `${NOINFO_COLLECTION}/${period}`
+
+                    )
+
+                );
+
+
+                // ==========================================
+                // CHECK REMAINING PERIODS DIRECTLY
+                // ==========================================
+
+                const snapshot =
+                    await firebaseGet(
+
+                        firebaseRef(
+
+                            database,
+
+                            NOINFO_COLLECTION
+
+                        )
+
+                    );
+
+
+                // ==========================================
+                // NO PERIODS LEFT
+                // ==========================================
+
+                if(
+                    !snapshot.exists()
+                ){
+
+                    // --------------------------------------
+                    // CLEAR SELECTOR
+                    // --------------------------------------
+
+                    if(selector){
+
+                        selector.innerHTML = "";
+
+                        selector.style.display =
+                            "none";
+
+                    }
+
+
+                    // --------------------------------------
+                    // RESET CURRENT PERIOD
+                    // --------------------------------------
+
+                    const today =
+                        new Date();
+
+                    CURRENT_NOINFO_YEAR =
+                        today.getFullYear();
+
+                    CURRENT_NOINFO_MONTH =
+                        today.getMonth() + 1;
+
+
+                    // --------------------------------------
+                    // CLEAR DASHBOARD
+                    // --------------------------------------
+
+                    db = {
+
+                        month: "",
+
+                        total: 0,
+
+                        kpi1: 0,
+
+                        kpi2: "0%",
+
+                        portugal: [],
+
+                        portugalTotal: 0,
+
+                        top3: [],
+
+                        chart: [],
+
+                        countryChart: []
+
+                    };
+
+
+                    // --------------------------------------
+                    // UPDATE DASHBOARD
+                    // --------------------------------------
+
+                    renderDashboard();
+
+
+                    showSuccess(
+
+                        "No Info Data Reset",
+
+                        `${periodLabel} has been permanently deleted. No No Info periods remain.`
+
+                    );
+
+
+                    return;
+
+                }
+
+
+                // ==========================================
+                // OTHER PERIODS STILL EXIST
+                // ==========================================
+
+                // Rebuild selector from Firebase
+                await loadAvailableNoInfoPeriods();
+
+
+                const newSelector =
+                    document.getElementById(
+                        "noInfoPeriod"
+                    );
+
+
+                if(
+                    newSelector &&
+                    newSelector.options.length > 0
+                ){
+
+                    newSelector.style.display =
+                        "";
+
+
+                    const newPeriod =
+                        newSelector.value;
+
+
+                    const [
+                        year,
+                        month
+                    ] =
+                        newPeriod
+                            .split("-")
+                            .map(Number);
+
+
+                    await loadNoInfoData(
+
+                        year,
+
+                        month
+
+                    );
+
+                }
+
 
                 showSuccess(
-                    "Dashboard Reset",
-                    "All dashboard data has been successfully restored to the default values."
+
+                    "No Info Data Reset",
+
+                    `${periodLabel} has been permanently deleted.`
+
                 );
 
-            }catch(error){
+            }
+
+            catch(error){
+
+                console.error(
+                    "No Info reset failed:",
+                    error
+                );
+
 
                 showError(
-                    "Reset Failed",
-                    "An error occurred while restoring the dashboard."
-                );
 
-                console.error(error);
+                    "Reset Failed",
+
+                    "Unable to delete the selected No Info period."
+
+                );
 
             }
 
@@ -1986,6 +4688,11 @@ const dbRef = ref(database, 'dashboardData');
         window.importData = importData;
         window.exportPDF = exportPDF;
         window.resetData = resetData;
+        window.openFwdEditVisuals = openFwdEditVisuals;
+        window.closeFwdEditVisualsInfo = closeFwdEditVisualsInfo;
+        window.openCreateAccountModal = openCreateAccountModal;
+        window.openCreateUserModal = openCreateUserModal;
+        window.createAccountFromWelcome = createAccountFromWelcome;
 
     // ======================================================
     // FWD FIREBASE FUNCTIONS
@@ -2002,26 +4709,22 @@ window.saveDayToFirebase = async function(year, month, day, data) {
 
 };
 
-window.loadDayFromFirebase = function(year, month, day){
+window.loadDayFromFirebase = async function(year, month, day){
 
-    return new Promise((resolve)=>{
-
-        const dayRef = ref(
+    const dayRef =
+        ref(
             database,
-            `dashboardData/FWD/${year}/${String(month).padStart(2,"0")}/${String(day).padStart(2,"0")}`
+            `dashboardData/FWD/${year}/${String(month).padStart(2, "0")}/${String(day).padStart(2, "0")}`
         );
 
-        onValue(dayRef, (snapshot)=>{
+    const snapshot =
+        await get(dayRef);
 
-            resolve(snapshot.val());
-
-        }, {
-            onlyOnce: true
-        });
-
-    });
+    return snapshot.val();
 
 };
+
+
 </script>
 
 
@@ -3429,10 +6132,10 @@ min-height:165px;
 
 .section-header h2{
 
-    margin:0;
+     margin:0;
     font-size:24px;
     font-weight:700;
-    color:#07225B;
+    color:#FFFFFF;
 
 }
 
@@ -3453,10 +6156,10 @@ min-height:165px;
 
 .section-header span{
 
-    display:block;
+   display:block;
     margin-top:10px;
 
-    color:#7D8CA3;
+    color:#D9E2EC;
     font-size:15px;
 
 }
@@ -5826,11 +8529,11 @@ body{
             </button>
 
             <input
-                type="file"
-                id="excel-upload"
-                accept=".xlsx,.xls"
-                style="display:none;"
-                onchange="window.handleExcelUpload(event)">
+    type="file"
+    id="excel-upload"
+    accept=".xlsx,.xls,.pdf"
+    style="display:none;"
+    onchange="window.handleACheckFileUpload(event)">
 
             <button
                 type="button"
@@ -6886,8 +9589,7 @@ body{
     <div class="rh-actions">
 
         <button
-    class="btn btn-white"
-    type="button"
+    class="rh-btn rh-btn-white"
     onclick="openFwdExportModal()"
 >
     Export PDF
@@ -6903,7 +9605,7 @@ body{
 
         <button
             class="rh-btn rh-btn-yellow"
-            onclick="openVisualEditorProtected()">
+            onclick="openFwdEditVisuals()">
 
             Edit Visuals (Manual)
 
@@ -7052,6 +9754,34 @@ onclick="openActiveDaysModal()">
             <div class="exec-value" id="topDelayGroup">-</div>
         </div>
 
+        <div class="exec-card">
+
+    <div class="exec-title">
+        AVERAGE FWD RESOLUTION TIME
+    </div>
+
+    <div
+        class="exec-value"
+        id="averageFWDResolutionTime"
+    >
+        -
+    </div>
+
+    <div
+        style="
+            margin-top:10px;
+            font-size:12px;
+            color:#7A8599;
+            font-weight:600;
+        "
+        id="averageFWDResolutionCount"
+    >
+        No recorded resolution times
+    </div>
+
+</div>
+
+
     </div>
 
     <div class="exec-summary">
@@ -7094,31 +9824,51 @@ onclick="openActiveDaysModal()">
     margin-top:30px;
 ">
 
-    <!-- STANDARD IATA DELAY CODES -->
+    <!-- STANDARD IATA DELAY CODES - RESOLUTION PERFORMANCE -->
 
-    <div style="
+<div
+    style="
         background:white;
         border-radius:18px;
         padding:20px;
         box-shadow:0 6px 18px rgba(0,0,0,.08);
-    ">
+        overflow:hidden;
+    "
+>
 
-        <h3 style="
+    <h3
+        style="
             color:#073590;
             font-size:20px;
             font-weight:700;
-            margin-bottom:20px;
-        ">
-            TOP STANDARD IATA DELAY CODES
-        </h3>
+            margin-bottom:6px;
+        "
+    >
+        STANDARD IATA DELAY CODE PERFORMANCE
+    </h3>
 
-        <div style="height:420px;">
+    <div
+        style="
+            font-size:12px;
+            color:#7A8599;
+            margin-bottom:18px;
+        "
+    >
+        Resolution time analysis by delay code
+    </div>
 
-            <canvas id="delayCodesChart"></canvas>
-
-        </div>
+    <div
+        id="delayCodePerformanceTable"
+        style="
+            width:100%;
+            overflow-x:auto;
+        "
+    >
+        <!-- TABLE GENERATED BY JAVASCRIPT -->
 
     </div>
+
+</div>
 
     <!-- DELAY GROUPS -->
 
@@ -7188,51 +9938,138 @@ onclick="openActiveDaysModal()">
 
     <div class="region-grid">
 
-        <div class="region-card">
+    <!-- ====================================== -->
+    <!-- BASES -->
+    <!-- ====================================== -->
 
-            <div class="region-title">BASES</div>
+    <div class="region-card">
 
-            <div class="region-value" id="countryBases">-</div>
-
+        <div class="region-title">
+            BASES
         </div>
 
-        <div class="region-card">
-
-            <div class="region-title">TOTAL FWD</div>
-
-            <div class="region-value" id="countryFWD">-</div>
-
+        <div
+            class="region-value"
+            id="countryBases"
+        >
+            -
         </div>
 
-        <div class="region-card">
-
-            <div class="region-title">TOTAL NIGHT STOPS</div>
-
-            <div class="region-value" id="countryNS">-</div>
-
-        </div>
-
-        <div class="region-card">
-
-            <div class="region-title">FWD RATE</div>
-
-            <div class="region-value" id="countryRate">-%</div>
-
-        </div>
-
-<div class="exec-card">
-
-    <div class="exec-title">
-        MOST FREQUENT IATA DELAY CODE
     </div>
 
-    <div class="exec-value" id="countryTopDelay">
-        -
+
+    <!-- ====================================== -->
+    <!-- TOTAL FWD -->
+    <!-- ====================================== -->
+
+    <div class="region-card">
+
+        <div class="region-title">
+            TOTAL FWD
+        </div>
+
+        <div
+            class="region-value"
+            id="countryFWD"
+        >
+            -
+        </div>
+
+    </div>
+
+
+    <!-- ====================================== -->
+    <!-- TOTAL NIGHT STOPS -->
+    <!-- ====================================== -->
+
+    <div class="region-card">
+
+        <div class="region-title">
+            TOTAL NIGHT STOPS
+        </div>
+
+        <div
+            class="region-value"
+            id="countryNS"
+        >
+            -
+        </div>
+
+    </div>
+
+
+    <!-- ====================================== -->
+    <!-- FWD RATE -->
+    <!-- ====================================== -->
+
+    <div class="region-card">
+
+        <div class="region-title">
+            FWD RATE
+        </div>
+
+        <div
+            class="region-value"
+            id="countryRate"
+        >
+            -%
+        </div>
+
+    </div>
+
+
+    <!-- ====================================== -->
+    <!-- MOST FREQUENT IATA DELAY CODE -->
+    <!-- ====================================== -->
+
+    <div class="exec-card">
+
+        <div class="exec-title">
+            MOST FREQUENT IATA DELAY CODE
+        </div>
+
+        <div
+            class="exec-value"
+            id="countryTopDelay"
+        >
+            -
+        </div>
+
+    </div>
+
+
+    <!-- ====================================== -->
+    <!-- AVERAGE FWD RESOLUTION -->
+    <!-- ====================================== -->
+
+    <div class="region-card">
+
+        <div class="region-title">
+            AVG. FWD RESOLUTION
+        </div>
+
+        <div
+            class="region-value"
+            id="countryAverageResolution"
+        >
+            -
+        </div>
+
+        <div
+            id="countryAverageResolutionCount"
+            style="
+                margin-top:8px;
+                font-size:11px;
+                font-weight:600;
+                color:#7A8599;
+            "
+        >
+            No recorded times
+        </div>
+
     </div>
 
 </div>
-
-    </div>
 
 <div class="region-chart">
 
@@ -7520,15 +10357,43 @@ Loading...
 
             <select id="baseSort">
 
-                <option value="fwd">First Wave Delays</option>
-<option value="fwdPerDay">FWD per Day</option>
-<option value="rate">FWD Rate</option>
-<option value="nightStops">Night Stops</option>
-<option value="nightStopsPerDay">Night Stops per Day</option>
-<option value="delayCode">Delay Code</option>
-<option value="delayGroup">Delay Group</option>
+    <option value="fwd">
+        First Wave Delays
+    </option>
 
-            </select>
+    <option value="fwdPerDay">
+        FWD per Day
+    </option>
+
+    <option value="rate">
+        FWD Rate
+    </option>
+
+    <option value="nightStops">
+        Night Stops
+    </option>
+
+    <option value="nightStopsPerDay">
+        Night Stops per Day
+    </option>
+
+    <option value="averageDelayTime">
+        Average Delay Time
+    </option>
+
+    <option value="maxDelayTime">
+        Maximum Delay Time
+    </option>
+
+    <option value="delayCode">
+        Delay Code
+    </option>
+
+    <option value="delayGroup">
+        Delay Group
+    </option>
+
+</select>
 
         </div>
 
@@ -7779,32 +10644,53 @@ Loading...
 ">
 
     <th style="
-        padding:14px 14px;
+        padding:10px 8px;
         text-align:left;
-        width:70px;
-        font-size:13px;
-        letter-spacing:.5px;
+        width:52px;
+        font-size:11px;
+        letter-spacing:.4px;
     ">
         CODE
     </th>
 
     <th style="
-        padding:14px;
-        text-align:left;
-        font-size:13px;
-        letter-spacing:.5px;
+        padding:10px 6px;
+        text-align:center;
+        width:55px;
+        font-size:11px;
+        letter-spacing:.4px;
     ">
-        DESCRIPTION
+        EVENTS
     </th>
 
     <th style="
-        padding:14px;
-        text-align:right;
-        width:110px;
-        font-size:13px;
-        letter-spacing:.5px;
+        padding:10px 6px;
+        text-align:center;
+        width:80px;
+        font-size:11px;
+        letter-spacing:.4px;
     ">
-        OCCURRENCES
+        AVG DELAY
+    </th>
+
+    <th style="
+        padding:10px 6px;
+        text-align:center;
+        width:80px;
+        font-size:11px;
+        letter-spacing:.4px;
+    ">
+        MAX DELAY
+    </th>
+
+    <th style="
+        padding:10px 6px;
+        text-align:center;
+        width:70px;
+        font-size:11px;
+        letter-spacing:.4px;
+    ">
+        MAX DATE
     </th>
 
 </tr>
@@ -7847,7 +10733,7 @@ Loading...
 <!-- OPERATIONAL TRENDS -->
 <!-- ===================================================== -->
 
-<div class="section-header">
+<div class="trend-header">
 
     <h2>Operational Trends</h2>
 
@@ -8656,79 +11542,196 @@ function closeUploadProgress(){
 
 async function openActiveDaysModal(){
 
+    // ==================================================
+    // GET CURRENT REPORT PERIOD
+    // ==================================================
 
-const selector = document.getElementById("dashboardPeriod");
+    const selector =
+        document.getElementById(
+            "dashboardPeriod"
+        );
 
-if(selector && selector.value){
 
-    const [year, month] = selector.value.split("-").map(Number);
+    if(
+        selector &&
+        selector.value
+    ){
 
-    currentYear = year;
-    currentMonth = month - 1; // JavaScript usa 0-11
-}
+        const [
+            year,
+            month
+        ] =
+            selector.value
+                .split("-")
+                .map(Number);
 
-   // Guarda os valores atuais do Import Data
-const monthSelect = document.getElementById("calendarMonth");
-const yearInput = document.getElementById("calendarYear");
 
-const previousMonth = monthSelect.value;
-const previousYear = yearInput.value;
+        currentYear =
+            year;
 
-// O modal utiliza sempre o mês do report
-monthSelect.value = currentMonth;
 
-yearInput.value = currentYear;
-
-    if(currentStats?.reportYear){
-
-        yearInput.value = currentStats.reportYear;
+        currentMonth =
+            month - 1;
 
     }
 
-    // Gera o calendário para o mês do report
+
+    // ==================================================
+    // SAVE IMPORT DATA VALUES
+    // ==================================================
+
+    const monthSelect =
+        document.getElementById(
+            "calendarMonth"
+        );
+
+
+    const yearInput =
+        document.getElementById(
+            "calendarYear"
+        );
+
+
+    const previousMonth =
+        monthSelect.value;
+
+
+    const previousYear =
+        yearInput.value;
+
+
+    // ==================================================
+    // SET REPORT MONTH
+    // ==================================================
+
+    monthSelect.value =
+        currentMonth;
+
+
+    yearInput.value =
+        currentYear;
+
+
+    if(
+        currentStats &&
+        currentStats.reportYear
+    ){
+
+        yearInput.value =
+            currentStats.reportYear;
+
+    }
+
+
+    // ==================================================
+    // GENERATE MAIN CALENDAR
+    // ==================================================
+
     generateCalendar();
 
-    await new Promise(resolve => setTimeout(resolve,50));
+
+    // ==================================================
+    // WAIT FOR FIREBASE STATUS
+    // ==================================================
+
+    await refreshCalendarStatus(
+
+        currentYear,
+
+        currentMonth + 1
+
+    );
+
+
+    // ==================================================
+    // COPY ONLY THE CALENDAR GRID
+    // ==================================================
 
     const container =
-        document.getElementById("activeDaysCalendarContainer");
+        document.getElementById(
+            "activeDaysCalendarContainer"
+        );
 
-    const calendar =
-        document.getElementById("calendarContainer");
 
-    container.innerHTML = calendar.innerHTML;
+    const calendarGrid =
+        document.getElementById(
+            "calendarGrid"
+        );
 
-   const topControls = container.querySelector("div[style*='display:flex']");
 
-if(topControls){
+    if(
+        !container ||
+        !calendarGrid
+    ){
 
-    // Esconde completamente a linha dos controlos
-    topControls.style.display = "none";
+        console.error(
+            "Active Days calendar elements not found."
+        );
 
-}
+        return;
 
-    container.querySelectorAll("button").forEach(btn=>{
+    }
 
-        if(btn.innerText.trim() === "Generate Calendar"){
 
-            btn.remove();
-            return;
+    container.innerHTML =
+        calendarGrid.innerHTML;
 
-        }
 
-        btn.removeAttribute("onclick");
-        btn.removeAttribute("onmouseover");
-        btn.removeAttribute("onmouseout");
+    // ==================================================
+    // MAKE DAYS READ-ONLY
+    // ==================================================
 
-        btn.style.cursor = "default";
+    container
+        .querySelectorAll("button")
+        .forEach(
+            btn => {
 
-    });
+                btn.removeAttribute(
+                    "onclick"
+                );
 
-    document.getElementById("activeDaysModal").style.display = "flex";
 
-    // Repõe os valores do Import Data
-    monthSelect.value = previousMonth;
-    yearInput.value = previousYear;
+                btn.removeAttribute(
+                    "onmouseover"
+                );
+
+
+                btn.removeAttribute(
+                    "onmouseout"
+                );
+
+
+                btn.style.cursor =
+                    "default";
+
+
+                btn.style.transform =
+                    "none";
+
+            }
+        );
+
+
+    // ==================================================
+    // SHOW MODAL
+    // ==================================================
+
+    document.getElementById(
+        "activeDaysModal"
+    ).style.display =
+        "flex";
+
+
+    // ==================================================
+    // RESTORE IMPORT DATA VALUES
+    // ==================================================
+
+    monthSelect.value =
+        previousMonth;
+
+
+    yearInput.value =
+        previousYear;
 
 }
 
@@ -9152,15 +12155,41 @@ async function backToFWD(){
 
 
     // ==========================================
-    // SELECT LAST AVAILABLE MONTH
+    // SELECT THE MONTH THAT WAS MANUALLY EDITED
     // ==========================================
 
-    selector.selectedIndex =
-        selector.options.length - 1;
+    const targetPeriod =
+        `${Number(currentYear)}-${String(
+            Number(currentMonth) + 1
+        ).padStart(2,"0")}`;
+
+
+    const targetOption =
+        Array.from(
+            selector.options
+        ).find(
+            option =>
+                option.value === targetPeriod
+        );
+
+
+    if(targetOption){
+
+        selector.value =
+            targetPeriod;
+
+    }
+    else{
+
+        // Fallback: last available period
+        selector.selectedIndex =
+            selector.options.length - 1;
+
+    }
 
 
     // ==========================================
-    // LOAD SELECTED PERIOD
+    // UPDATE DASHBOARD WITH THAT MONTH
     // ==========================================
 
     const [
@@ -9415,16 +12444,70 @@ async function executeImport(mode){
     );
 
 
-    // ==========================================
+        // ==========================================
     // REBUILD DASHBOARD SNAPSHOT
     // ==========================================
 
     await rebuildDashboardSnapshot(
 
         importedYear,
+
         importedMonth
 
     );
+
+
+    // ==========================================
+    // FINAL FORCE SELECT IMPORTED PERIOD
+    // ==========================================
+
+    const dashboardSelector =
+        document.getElementById(
+            "dashboardPeriod"
+        );
+
+
+    if(dashboardSelector){
+
+        const importedPeriod =
+            `${importedYear}-${importedMonth}`;
+
+
+        // Procurar a opção correspondente
+        const importedOption =
+            Array.from(
+                dashboardSelector.options
+            ).find(
+                option =>
+                    option.value ===
+                    importedPeriod
+            );
+
+
+        if(importedOption){
+
+            // Selecionar explicitamente o mês importado
+            dashboardSelector.value =
+                importedOption.value;
+
+
+            importedOption.selected =
+                true;
+
+
+            // Garantir que o browser actualiza visualmente
+            dashboardSelector.dispatchEvent(
+                new Event(
+                    "change",
+                    {
+                        bubbles:true
+                    }
+                )
+            );
+
+        }
+
+    }
 
 
     // ==========================================
@@ -9765,7 +12848,7 @@ function parseFWDCell(value){
 
 }
 
-function generateCalendar() {
+async function generateCalendar() {
 
     const month = parseInt(document.getElementById("calendarMonth").value);
     const year = parseInt(document.getElementById("calendarYear").value);
@@ -9866,39 +12949,8 @@ function generateCalendar() {
 
     calendarGrid.innerHTML = html;
 
-// Se o modal Active Days estiver aberto,
-// atualiza automaticamente a cópia do calendário.
-if(document.getElementById("activeDaysModal").style.display === "flex"){
-
-    const container =
-        document.getElementById("activeDaysCalendarContainer");
-
-    const calendar =
-        document.getElementById("calendarContainer");
-
-    container.innerHTML = calendar.innerHTML;
-
-    container.querySelectorAll("button").forEach(btn=>{
-
-        if(btn.innerText.trim() === "Generate Calendar"){
-
-            btn.remove();
-
-            return;
-
-        }
-
-        btn.removeAttribute("onclick");
-        btn.removeAttribute("onmouseover");
-        btn.removeAttribute("onmouseout");
-
-        btn.style.cursor = "default";
-
-    });
-
-}
-    // Atualiza as cores dos dias guardados
-    refreshCalendarStatus(year, month + 1);
+// Atualiza primeiro as cores dos dias guardados
+await refreshCalendarStatus(year, month + 1);
 
 }
 
@@ -9906,75 +12958,185 @@ if(document.getElementById("activeDaysModal").style.display === "flex"){
 // REFRESH CALENDAR STATUS FROM FIREBASE
 // ======================================================
 
-async function refreshCalendarStatus(year, month){
+async function refreshCalendarStatus(
+    year,
+    month
+){
 
-    const buttons = document.querySelectorAll("#calendarGrid button");
+    const buttons =
+        Array.from(
+            document.querySelectorAll(
+                "#calendarGrid button"
+            )
+        );
 
-    for(const btn of buttons){
 
-        const day = Number(btn.innerText);
+    // ==================================================
+    // LOAD ALL DAYS IN PARALLEL
+    // ==================================================
 
-        const data = await loadDayFromFirebase(year, month, day);
+    const results =
+        await Promise.all(
 
-        if(!data){
+            buttons.map(
+                async btn => {
 
-            btn.style.background = "white";
-            btn.style.color = "#07225B";
-            continue;
+                    const day =
+                        Number(
+                            btn.innerText.trim()
+                        );
+
+
+                    const data =
+                        await loadDayFromFirebase(
+                            year,
+                            month,
+                            day
+                        );
+
+
+                    return {
+                        btn,
+                        data
+                    };
+
+                }
+            )
+
+        );
+
+
+    // ==================================================
+    // APPLY COLOURS
+    // ==================================================
+
+    results.forEach(
+        ({
+            btn,
+            data
+        }) => {
+
+            // ------------------------------------------
+            // NO DATA
+            // ------------------------------------------
+
+            if(!data){
+
+                btn.style.background =
+                    "white";
+
+                btn.style.color =
+                    "#07225B";
+
+                return;
+
+            }
+
+
+            // ------------------------------------------
+            // COUNT FIELDS
+            // ------------------------------------------
+
+            const totalFields =
+                BASES.length * 2;
+
+
+            let filledFields =
+                0;
+
+
+            BASES.forEach(
+                base => {
+
+                    const ns =
+                        data[base]?.nightStop;
+
+
+                    const fwd =
+                        data[base]?.fwd;
+
+
+                    if(
+                        ns !== null &&
+                        ns !== undefined &&
+                        ns !== "" &&
+                        ns !== "-" &&
+                        ns !== "/"
+                    ){
+
+                        filledFields++;
+
+                    }
+
+
+                    if(
+                        fwd !== null &&
+                        fwd !== undefined &&
+                        fwd !== "" &&
+                        fwd !== "-" &&
+                        fwd !== "/"
+                    ){
+
+                        filledFields++;
+
+                    }
+
+                }
+            );
+
+
+            // ------------------------------------------
+            // FULLY ACCOUNTED
+            // ------------------------------------------
+
+            if(
+                filledFields ===
+                totalFields
+            ){
+
+                btn.style.background =
+                    "#27AE60";
+
+                btn.style.color =
+                    "white";
+
+            }
+
+
+            // ------------------------------------------
+            // PARTIALLY ACCOUNTED
+            // ------------------------------------------
+
+            else if(
+                filledFields > 0
+            ){
+
+                btn.style.background =
+                    "#F2C94C";
+
+                btn.style.color =
+                    "#222";
+
+            }
+
+
+            // ------------------------------------------
+            // NO VALID DATA
+            // ------------------------------------------
+
+            else{
+
+                btn.style.background =
+                    "white";
+
+                btn.style.color =
+                    "#07225B";
+
+            }
 
         }
+    );
 
-        let totalFields = BASES.length * 2;
-
-let filledFields = 0;
-
-BASES.forEach(base => {
-
-    const ns = data[base]?.nightStop;
-    const fwd = data[base]?.fwd;
-
-    if (
-        ns !== null &&
-        ns !== undefined &&
-        ns !== "" &&
-        ns !== "-" &&
-        ns !== "/"
-    ){
-        filledFields++;
-    }
-
-    if (
-        fwd !== null &&
-        fwd !== undefined &&
-        fwd !== "" &&
-        fwd !== "-" &&
-        fwd !== "/"
-    ){
-        filledFields++;
-    }
-
-});
-
-        if (filledFields === 0) {
-
-        btn.style.background = "white";
-        btn.style.color = "#07225B";
-
-    }
-    else if (filledFields === totalFields) {
-
-    btn.style.background = "#27AE60";
-    btn.style.color = "white";
-
-    }
-    else {
-
-    btn.style.background = "#F2C94C";
-    btn.style.color = "#222";
-
-    }
-
-    }
 }
 
 // ======================================================
@@ -10732,7 +13894,96 @@ offset:-10,
 
 }
  
-    
+// ======================================================
+// DAILY EDITOR - UNSAVED CHANGES
+// ======================================================
+
+let originalDayEditorData = null;
+
+
+// ======================================================
+// BUILD CURRENT DAY DATA FOR COMPARISON
+// ======================================================
+
+function getCurrentDayEditorData(){
+
+    const data = {};
+
+
+    BASES.forEach(
+        base => {
+
+            const ns =
+                document.getElementById(
+                    "ns_" + base
+                );
+
+
+            const delayEvents =
+                getDelayEvents(base);
+
+
+            data[base] = {
+
+                nightStop:
+                    ns
+                        ? (
+                            ns.value.trim() === ""
+                                ? null
+                                : Number(ns.value)
+                          )
+                        : null,
+
+                fwd:
+                    delayEvents.length,
+
+                delayEvents:
+                    delayEvents.map(
+                        event => ({
+                            ...event
+                        })
+                    )
+
+            };
+
+        }
+    );
+
+
+    return data;
+
+}
+
+
+// ======================================================
+// CHECK FOR UNSAVED CHANGES
+// ======================================================
+
+function hasUnsavedDayChanges(){
+
+    if(
+        !originalDayEditorData
+    ){
+
+        return false;
+
+    }
+
+
+    const currentData =
+        getCurrentDayEditorData();
+
+
+    return (
+        JSON.stringify(
+            currentData
+        ) !==
+        JSON.stringify(
+            originalDayEditorData
+        )
+    );
+
+}    
 
 // ======================================================
 // OPEN DAILY INPUT
@@ -10847,6 +14098,14 @@ document.getElementById("selectedDayTitle").innerHTML = `
 
     });
 
+ // ==================================================
+    // SAVE ORIGINAL STATE
+    // ==================================================
+
+    originalDayEditorData =
+        getCurrentDayEditorData();
+
+
 });
 
 }
@@ -10857,9 +14116,95 @@ document.getElementById("selectedDayTitle").innerHTML = `
 
 function backToCalendar(){
 
-    document.getElementById("dayEditorContainer").style.display = "none";
-    document.getElementById("manualControlsBar").style.display = "flex";
-    document.getElementById("calendarContainer").style.display = "block";
+    // ==================================================
+    // CHECK FOR UNSAVED CHANGES
+    // ==================================================
+
+    if(
+        hasUnsavedDayChanges()
+    ){
+
+        document.getElementById(
+            "saveBeforeBackModal"
+        ).style.display =
+            "flex";
+
+        return;
+
+    }
+
+
+    // ==================================================
+    // NO CHANGES - GO BACK DIRECTLY
+    // ==================================================
+
+    performBackToCalendar();
+
+}
+
+
+// ======================================================
+// ACTUAL BACK ACTION
+// ======================================================
+
+function performBackToCalendar(){
+
+    document.getElementById(
+        "dayEditorContainer"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "manualControlsBar"
+    ).style.display =
+        "flex";
+
+
+    document.getElementById(
+        "calendarContainer"
+    ).style.display =
+        "block";
+
+
+    originalDayEditorData =
+        null;
+
+}
+
+
+// ======================================================
+// DON'T SAVE
+// ======================================================
+
+function dontSaveAndGoBack(){
+
+    document.getElementById(
+        "saveBeforeBackModal"
+    ).style.display =
+        "none";
+
+
+    performBackToCalendar();
+
+}
+
+
+// ======================================================
+// SAVE CHANGES
+// ======================================================
+
+async function saveAndGoBack(){
+
+    document.getElementById(
+        "saveBeforeBackModal"
+    ).style.display =
+        "none";
+
+
+    // Reutiliza exactamente
+    // o Save Day que já existe
+    await saveDayData();
 
 }
 
@@ -10994,32 +14339,171 @@ function generateDailyForm(){
 
                 <div
 
-                    id="delaySuggestions_${base}"
+    id="delaySuggestions_${base}"
 
-                    style="
-                        display:none;
-                        max-height:180px;
-                        overflow:auto;
-                        background:white;
-                        border:1px solid #d6dbe5;
-                        border-radius:8px;
-                        margin-top:6px;
-                    "
+    style="
+        display:none;
+        max-height:180px;
+        overflow:auto;
+        background:white;
+        border:1px solid #d6dbe5;
+        border-radius:8px;
+        margin-top:6px;
+    "
 
-                ></div>
+></div>
 
-                <div
 
-                    id="delayEvents_${base}"
+<!-- FWD RESOLUTION TIME -->
 
-                    style="
-                        display:flex;
-                        flex-wrap:wrap;
-                        gap:8px;
-                        margin-top:12px;
-                    "
+<div
 
-                ></div>
+    id="delayDuration_${base}"
+
+    style="
+        display:none;
+        margin-top:12px;
+        padding:14px;
+        background:#F5F8FC;
+        border:1px solid #D8E2F0;
+        border-radius:10px;
+    "
+
+>
+
+    <div
+        style="
+            font-size:12px;
+            font-weight:700;
+            color:#7A8599;
+            text-transform:uppercase;
+            letter-spacing:.8px;
+            margin-bottom:5px;
+        "
+    >
+        Selected Delay
+    </div>
+
+    <div
+        id="delayDurationCode_${base}"
+        style="
+            font-size:15px;
+            font-weight:800;
+            color:#07225B;
+            margin-bottom:12px;
+        "
+    >
+        -
+    </div>
+
+    <label
+        style="
+            display:block;
+            font-size:13px;
+            font-weight:700;
+            color:#07225B;
+            margin-bottom:7px;
+        "
+    >
+        Resolution Time
+    </label>
+
+    <div
+        style="
+            display:flex;
+            gap:8px;
+            align-items:center;
+        "
+    >
+
+        <input
+            type="number"
+            min="1"
+            step="1"
+            id="delayDurationInput_${base}"
+            placeholder="e.g. 45"
+            style="
+                flex:1;
+                padding:10px 12px;
+                border-radius:8px;
+                border:1px solid #D6DBE5;
+                font-size:14px;
+                font-family:inherit;
+                box-sizing:border-box;
+            "
+        >
+
+        <span
+            style="
+                font-size:13px;
+                font-weight:600;
+                color:#7A8599;
+            "
+        >
+            minutes
+        </span>
+
+    </div>
+
+    <div
+        style="
+            display:flex;
+            gap:8px;
+            margin-top:12px;
+        "
+    >
+
+        <button
+            type="button"
+            onclick="cancelDelayEvent('${base}')"
+            style="
+                flex:1;
+                padding:9px;
+                border:none;
+                border-radius:8px;
+                background:#EEF1F5;
+                color:#5F6B7A;
+                font-weight:700;
+                cursor:pointer;
+            "
+        >
+            Cancel
+        </button>
+
+        <button
+            type="button"
+            onclick="confirmDelayEvent('${base}')"
+            style="
+                flex:1;
+                padding:9px;
+                border:none;
+                border-radius:8px;
+                background:#07225B;
+                color:white;
+                font-weight:700;
+                cursor:pointer;
+            "
+        >
+            Add Delay
+        </button>
+
+    </div>
+
+</div>
+
+
+<div
+
+    id="delayEvents_${base}"
+
+    style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:12px;
+    "
+
+></div>
 
             </div>
 
@@ -11179,18 +14663,77 @@ saveDayToFirebase(
 )
 .then(async () => {
 
-    
+    // ==========================================
+    // REFRESH CALENDAR
+    // ==========================================
 
-    // Atualiza imediatamente as cores
-    refreshCalendarStatus(currentYear, currentMonth + 1);
+    await refreshCalendarStatus(
+        currentYear,
+        currentMonth + 1
+    );
 
-    // Atualiza automaticamente o dashboard
-    await updateFWDDashboard(currentYear, currentMonth + 1);
 
-    // Atualiza novamente o calendário
+    // ==========================================
+    // REFRESH AVAILABLE DASHBOARD PERIODS
+    // AND SELECT EDITED MONTH
+    // ==========================================
+
+    await loadAvailableDashboardPeriods(
+        currentYear,
+        currentMonth + 1
+    );
+
+
+    // ==========================================
+    // UPDATE DASHBOARD
+    // ==========================================
+
+    await updateFWDDashboard(
+        currentYear,
+        currentMonth + 1
+    );
+
+
+    // ==========================================
+    // REFRESH CALENDAR VISUALS
+    // ==========================================
+
     generateCalendar();
 
+// ==============================================
+// MARK CURRENT STATE AS SAVED
+// ==============================================
+
+originalDayEditorData =
+    getCurrentDayEditorData();
+
+    // ==========================================
+    // RETURN TO CALENDAR
+    // ==========================================
+
     backToCalendar();
+
+})
+.catch(error => {
+
+    console.error(
+        "Error saving manual day:",
+        error
+    );
+
+    alert(
+        "Unable to save the selected day."
+    );
+
+
+// ==============================================
+// UPDATE DASHBOARD AFTER RETURN
+// ==============================================
+
+updateFWDDashboard(
+    currentYear,
+    currentMonth + 1
+);
 
 })
 
@@ -11201,6 +14744,7 @@ saveDayToFirebase(
 // =======================================================
 
 const dailyDelayEvents = {};
+const pendingDelayEvents = {};
 
 // ======================================
 // INITIALIZE
@@ -11228,21 +14772,173 @@ function addDelayEvent(base,code){
 
     if(isNaN(code)) return;
 
+    // Guardar temporariamente o código seleccionado
+    pendingDelayEvents[base] = {
+        code
+    };
+
+    const durationBox =
+        document.getElementById(
+            "delayDuration_" + base
+        );
+
+    const durationCode =
+        document.getElementById(
+            "delayDurationCode_" + base
+        );
+
+    const durationInput =
+        document.getElementById(
+            "delayDurationInput_" + base
+        );
+
+    if(!durationBox) return;
+
+    // Mostrar código seleccionado
+    if(durationCode){
+
+        durationCode.textContent =
+            `${code} - ${IATA_DELAY_CODES[code] || "Unknown"}`;
+
+    }
+
+    // Mostrar secção
+    durationBox.style.display = "block";
+
+    // Limpar campo
+    if(durationInput){
+
+        durationInput.value = "";
+
+        setTimeout(()=>{
+
+            durationInput.focus();
+
+        },50);
+
+    }
+
+}
+
+function confirmDelayEvent(base){
+
+    const pending =
+        pendingDelayEvents[base];
+
+    if(!pending) return;
+
+    const durationInput =
+        document.getElementById(
+            "delayDurationInput_" + base
+        );
+
+    if(!durationInput) return;
+
+    const duration =
+        Number(durationInput.value);
+
+    // Validar duração
+    if(!Number.isFinite(duration) || duration <= 0){
+
+        alert(
+            "Please enter a valid resolution time in minutes."
+        );
+
+        durationInput.focus();
+
+        return;
+
+    }
+
+    // Adicionar evento definitivo
     dailyDelayEvents[base].push({
 
-        code
+        code: pending.code,
+
+        duration: Math.round(duration)
 
     });
 
+    // Limpar evento pendente
+    delete pendingDelayEvents[base];
+
+    // Esconder secção
+    const durationBox =
+        document.getElementById(
+            "delayDuration_" + base
+        );
+
+    if(durationBox){
+
+        durationBox.style.display = "none";
+
+    }
+
+    // Limpar pesquisa
+    const input =
+        document.getElementById(
+            "delaySearch_" + base
+        );
+
+    if(input){
+
+        input.value = "";
+
+    }
+
+    // Limpar sugestões
+    const list =
+        document.getElementById(
+            "delaySuggestions_" + base
+        );
+
+    if(list){
+
+        list.innerHTML = "";
+
+        list.style.display = "none";
+
+    }
+
+    // Actualizar visual
     renderDelayEvents(base);
 
-document
-.getElementById(
-    "delaySearch_"+base
-)
-.focus();
+    if(input){
+
+        input.focus();
+
+    }
 
 }
+
+function cancelDelayEvent(base){
+
+    delete pendingDelayEvents[base];
+
+    const durationBox =
+        document.getElementById(
+            "delayDuration_" + base
+        );
+
+    if(durationBox){
+
+        durationBox.style.display = "none";
+
+    }
+
+    const durationInput =
+        document.getElementById(
+            "delayDurationInput_" + base
+        );
+
+    if(durationInput){
+
+        durationInput.value = "";
+
+    }
+
+}
+
 
 // ======================================
 // REMOVE EVENT
@@ -11303,32 +14999,42 @@ function renderDelayEvents(base){
 
         pill.innerHTML=`
 
-            <span>
+    <span>
 
-                ${event.code}
+        ${event.code}
 
-                -
+        -
 
-                ${IATA_DELAY_CODES[event.code] || "Unknown"}
+        ${IATA_DELAY_CODES[event.code] || "Unknown"}
 
-            </span>
+        ${
+            event.duration !== undefined &&
+            event.duration !== null
+            ?
+            ` • ${event.duration} min`
+            :
+            ` • Time not recorded`
+        }
 
-            <span
+    </span>
 
-                style="
-                    cursor:pointer;
-                    font-weight:bold;
-                "
+    <span
 
-                onclick="removeDelayEvent('${base}',${index})"
+        style="
+            cursor:pointer;
+            font-weight:bold;
+            margin-left:2px;
+        "
 
-            >
+        onclick="removeDelayEvent('${base}',${index})"
 
-                ✕
+    >
 
-            </span>
+        ✕
 
-        `;
+    </span>
+
+`;
 
         container.appendChild(pill);
 
@@ -11676,7 +15382,19 @@ function emptyStatistics(){
 
         delayCodes:{},
 
-        delayGroups:{}
+        delayGroups:{},
+
+        // ======================================
+        // FWD RESOLUTION TIME
+        // ======================================
+
+        totalFWDResolutionMinutes:0,
+
+        fwdResolutionCount:0,
+
+        averageFWDResolutionTime:0,
+
+        delayCodePerformance:{}
 
     };
 
@@ -11962,154 +15680,573 @@ function getIATADelayGroup(code){
 
 async function calculateMonthlyStatistics(year, month){
 
-    const monthData = await getMonthData(year, month);
+    const monthData =
+        await getMonthData(year, month);
 
-    const stats = emptyStatistics();
+    const stats =
+        emptyStatistics();
+
+
+    // ======================================
+    // INITIALIZE BASES
+    // ======================================
 
     BASES.forEach(base=>{
 
-    stats.baseStats[base]={
-
-    fwd:0,
-
-    nightStops:0,
-
-    activeDays:0,
-
-    rate:0,
-
-    delayCodes:{},
-
-    delayGroups:{}
-
-};
-
-});
-
-    for(const day in monthData){
-
-        const dayData = monthData[day];
-
-// Um dia só conta como ativo se TODAS as bases tiverem
-// Night Stops e FWD preenchidos
-let completeDay = true;
-
-BASES.forEach(base => {
-
-    const baseData = dayData[base];
-
-    if(
-        !baseData ||
-        baseData.fwd === null ||
-        baseData.fwd === undefined ||
-        baseData.nightStop === null ||
-        baseData.nightStop === undefined
-    ){
-        completeDay = false;
-    }
-
-});
-
-if(completeDay){
-    stats.activeDays++;
-}
-
-        BASES.forEach(base=>{
-
-            const baseData = dayData[base];
-
-            if(!baseData) return;
-
-            const fwd = Number(baseData.fwd) || 0;
-            const ns = Number(baseData.nightStop) || 0;
-
-            // ======================================
-// IATA DELAY CODES
-// ======================================
-
-const delayEvents = baseData.delayEvents || [];
-
-delayEvents.forEach(event=>{
-
-    const code = event.code;
-
-    // ======================================
-    // GLOBAL
-    // ======================================
-
-    stats.delayCodes[code] =
-        (stats.delayCodes[code] || 0) + 1;
-
-    const group = getIATADelayGroup(code);
-
-    stats.delayGroups[group] =
-        (stats.delayGroups[group] || 0) + 1;
-
-    // ======================================
-    // BASE
-    // ======================================
-
-    stats.baseStats[base].delayCodes[code] =
-        (stats.baseStats[base].delayCodes[code] || 0) + 1;
-
-    stats.baseStats[base].delayGroups[group] =
-        (stats.baseStats[base].delayGroups[group] || 0) + 1;
-
-});
-
-// ======================================
-// COUNTRY DELAY CODES
-// ======================================
-
-const country = BASE_COUNTRIES[base];
-
-if(country){
-
-    if(!stats.countryStats[country]){
-
-        stats.countryStats[country]={
+        stats.baseStats[base]={
 
             fwd:0,
 
             nightStops:0,
 
-            bases:0,
+            activeDays:0,
+
+            rate:0,
 
             delayCodes:{},
 
-            delayGroups:{}
+            delayGroups:{},
+
+            // ======================================
+            // BASE DELAY TIME PERFORMANCE
+            // ======================================
+
+            totalDelayMinutes:0,
+
+            timedDelayEvents:0,
+
+            averageDelayMinutes:0,
+
+            maxDelayMinutes:0,
+
+            maxDelayCode:null,
+
+            maxDelayDay:null,
+
+            // ======================================
+            // BASE / DELAY CODE PERFORMANCE
+            // ======================================
+
+            delayCodePerformance:{}
 
         };
 
-    }
+    });
 
-    delayEvents.forEach(event=>{
 
-    const code = event.code;
+    // ======================================
+    // PROCESS MONTH
+    // ======================================
 
-    stats.countryStats[country].delayCodes[code] =
+    for(const day in monthData){
 
-        (stats.countryStats[country].delayCodes[code] || 0) + 1;
+        const dayData =
+            monthData[day];
 
-    const group = getIATADelayGroup(code);
 
-    stats.countryStats[country].delayGroups[group] =
+        // ======================================
+        // COMPLETE DAY
+        // ======================================
 
-        (stats.countryStats[country].delayGroups[group] || 0) + 1;
+        let completeDay = true;
 
-});
+        BASES.forEach(base=>{
 
-}
+            const baseData =
+                dayData[base];
 
-            stats.totalFWD += fwd;
-            stats.totalNightStops += ns;
+            if(
+                !baseData ||
+                baseData.fwd === null ||
+                baseData.fwd === undefined ||
+                baseData.nightStop === null ||
+                baseData.nightStop === undefined
+            ){
 
-            stats.baseStats[base].fwd += fwd;
-            stats.baseStats[base].nightStops += ns;
+                completeDay = false;
 
-            if(fwd>0 || ns>0){
+            }
 
-                stats.baseStats[base].activeDays++;
+        });
+
+
+        if(completeDay){
+
+            stats.activeDays++;
+
+        }
+
+
+        // ======================================
+        // PROCESS EACH BASE
+        // ======================================
+
+        BASES.forEach(base=>{
+
+            const baseData =
+                dayData[base];
+
+            if(!baseData){
+
+                return;
+
+            }
+
+
+            const fwd =
+                Number(baseData.fwd) || 0;
+
+            const ns =
+                Number(baseData.nightStop) || 0;
+
+
+            const baseStats =
+                stats.baseStats[base];
+
+
+            // ======================================
+            // BASE / GLOBAL TOTALS
+            // ======================================
+
+            stats.totalFWD +=
+                fwd;
+
+            stats.totalNightStops +=
+                ns;
+
+
+            baseStats.fwd +=
+                fwd;
+
+            baseStats.nightStops +=
+                ns;
+
+
+            if(
+                fwd > 0 ||
+                ns > 0
+            ){
+
+                baseStats.activeDays++;
+
+            }
+
+
+            // ======================================
+            // DELAY EVENTS
+            // ======================================
+
+            const delayEvents =
+                Array.isArray(
+                    baseData.delayEvents
+                )
+                    ? baseData.delayEvents
+                    : [];
+
+
+            delayEvents.forEach(event=>{
+
+                const code =
+                    Number(event.code);
+
+
+                if(
+                    !Number.isFinite(code)
+                ){
+
+                    return;
+
+                }
+
+
+                const group =
+                    getIATADelayGroup(code);
+
+
+                // ======================================
+                // GLOBAL EVENT COUNT
+                // ======================================
+
+                stats.delayCodes[code] =
+                    (
+                        stats.delayCodes[code] || 0
+                    ) + 1;
+
+
+                stats.delayGroups[group] =
+                    (
+                        stats.delayGroups[group] || 0
+                    ) + 1;
+
+
+                // ======================================
+                // BASE EVENT COUNT
+                // ======================================
+
+                baseStats.delayCodes[code] =
+                    (
+                        baseStats.delayCodes[code] || 0
+                    ) + 1;
+
+
+                baseStats.delayGroups[group] =
+                    (
+                        baseStats.delayGroups[group] || 0
+                    ) + 1;
+
+
+                // ======================================
+                // GLOBAL DELAY CODE PERFORMANCE
+                // ======================================
+
+                if(
+                    !stats.delayCodePerformance[code]
+                ){
+
+                    stats.delayCodePerformance[code]={
+
+                        events:0,
+
+                        timedEvents:0,
+
+                        totalMinutes:0,
+
+                        averageMinutes:0,
+
+                        maxMinutes:0,
+
+                        maxBase:null,
+
+                        maxDay:null
+
+                    };
+
+                }
+
+
+                const performance =
+                    stats.delayCodePerformance[code];
+
+
+                // TODOS os eventos contam
+                performance.events++;
+
+
+                // ======================================
+                // BASE DELAY CODE PERFORMANCE
+                // ======================================
+
+                if(
+                    !baseStats.delayCodePerformance[code]
+                ){
+
+                    baseStats.delayCodePerformance[code]={
+
+                        events:0,
+
+                        timedEvents:0,
+
+                        totalMinutes:0,
+
+                        averageMinutes:0,
+
+                        maxMinutes:0,
+
+                        maxDay:null
+
+                    };
+
+                }
+
+
+                const baseCodePerformance =
+                    baseStats.delayCodePerformance[code];
+
+
+                // TODOS os eventos contam
+                baseCodePerformance.events++;
+
+
+                // ======================================
+                // RESOLUTION TIME
+                // ======================================
+
+                const duration =
+                    Number(event.duration);
+
+
+                // Só eventos com tempo válido
+                if(
+                    Number.isFinite(duration) &&
+                    duration > 0
+                ){
+
+                    // ======================================
+                    // GLOBAL RESOLUTION TIME
+                    // ======================================
+
+                    stats.totalFWDResolutionMinutes +=
+                        duration;
+
+                    stats.fwdResolutionCount++;
+
+
+                    performance.timedEvents++;
+
+                    performance.totalMinutes +=
+                        duration;
+
+
+                    if(
+                        duration >
+                        performance.maxMinutes
+                    ){
+
+                        performance.maxMinutes =
+                            duration;
+
+                        performance.maxBase =
+                            base;
+
+                        performance.maxDay =
+                            day;
+
+                    }
+
+
+                    // ======================================
+                    // BASE TOTAL RESOLUTION TIME
+                    // ======================================
+
+                    baseStats.totalDelayMinutes +=
+                        duration;
+
+                    baseStats.timedDelayEvents++;
+
+
+                    // ======================================
+                    // BASE / DELAY CODE TIME
+                    // ======================================
+
+                    baseCodePerformance.timedEvents++;
+
+                    baseCodePerformance.totalMinutes +=
+                        duration;
+
+
+                    if(
+                        duration >
+                        baseCodePerformance.maxMinutes
+                    ){
+
+                        baseCodePerformance.maxMinutes =
+                            duration;
+
+                        baseCodePerformance.maxDay =
+                            day;
+
+                    }
+
+
+                    // ======================================
+                    // MAX DELAY FOR THIS BASE
+                    // ======================================
+
+                    if(
+                        duration >
+                        baseStats.maxDelayMinutes
+                    ){
+
+                        baseStats.maxDelayMinutes =
+                            duration;
+
+                        baseStats.maxDelayCode =
+                            code;
+
+                        baseStats.maxDelayDay =
+                            day;
+
+                    }
+
+                }
+
+            });
+
+
+            // ======================================
+            // COUNTRY STATISTICS
+            // ======================================
+
+            const country =
+                BASE_COUNTRIES[base];
+
+
+            if(country){
+
+                if(
+                    !stats.countryStats[country]
+                ){
+
+                    stats.countryStats[country]={
+
+                        fwd:0,
+
+                        nightStops:0,
+
+                        bases:0,
+
+                        delayCodes:{},
+
+                        delayGroups:{},
+
+                        totalResolutionMinutes:0,
+
+                        resolutionCount:0,
+
+                        averageResolutionMinutes:0,
+
+                        delayCodePerformance:{}
+
+                    };
+
+                }
+
+
+                const countryData =
+                    stats.countryStats[country];
+
+
+                // --------------------------------------
+                // BASE TOTALS TO COUNTRY
+                // --------------------------------------
+
+                countryData.fwd +=
+                    fwd;
+
+                countryData.nightStops +=
+                    ns;
+
+
+                // --------------------------------------
+                // COUNTRY DELAY EVENTS
+                // --------------------------------------
+
+                delayEvents.forEach(event=>{
+
+                    const code =
+                        Number(event.code);
+
+
+                    if(
+                        !Number.isFinite(code)
+                    ){
+
+                        return;
+
+                    }
+
+
+                    const group =
+                        getIATADelayGroup(code);
+
+
+                    // ======================================
+                    // COUNTRY EVENT COUNT
+                    // ======================================
+
+                    countryData.delayCodes[code] =
+                        (
+                            countryData.delayCodes[code] || 0
+                        ) + 1;
+
+
+                    countryData.delayGroups[group] =
+                        (
+                            countryData.delayGroups[group] || 0
+                        ) + 1;
+
+
+                    // ======================================
+                    // COUNTRY DELAY CODE PERFORMANCE
+                    // ======================================
+
+                    if(
+                        !countryData.delayCodePerformance[code]
+                    ){
+
+                        countryData.delayCodePerformance[code]={
+
+                            events:0,
+
+                            timedEvents:0,
+
+                            totalMinutes:0,
+
+                            averageMinutes:0,
+
+                            maxMinutes:0,
+
+                            maxBase:null,
+
+                            maxDay:null
+
+                        };
+
+                    }
+
+
+                    const countryPerformance =
+                        countryData
+                            .delayCodePerformance[code];
+
+
+                    countryPerformance.events++;
+
+
+                    // ======================================
+                    // COUNTRY RESOLUTION TIME
+                    // ======================================
+
+                    const duration =
+                        Number(event.duration);
+
+
+                    if(
+                        Number.isFinite(duration) &&
+                        duration > 0
+                    ){
+
+                        countryData.totalResolutionMinutes +=
+                            duration;
+
+                        countryData.resolutionCount++;
+
+
+                        countryPerformance.timedEvents++;
+
+                        countryPerformance.totalMinutes +=
+                            duration;
+
+
+                        if(
+                            duration >
+                            countryPerformance.maxMinutes
+                        ){
+
+                            countryPerformance.maxMinutes =
+                                duration;
+
+                            countryPerformance.maxBase =
+                                base;
+
+                            countryPerformance.maxDay =
+                                day;
+
+                        }
+
+                    }
+
+                });
 
             }
 
@@ -12117,192 +16254,467 @@ if(country){
 
     }
 
-    // Todas as bases contam, mesmo que tenham zero movimentos
-stats.activeBases = BASES.length;
 
-// ======================================
-// CALCULATE RATE FOR EACH BASE
-// ======================================
+    // ======================================
+    // ACTIVE BASES
+    // ======================================
 
-Object.values(stats.baseStats).forEach(base=>{
+    stats.activeBases =
+        BASES.length;
 
-    base.rate =
-        base.nightStops
-            ? (base.fwd / base.nightStops) * 100
+
+    // ======================================
+    // GLOBAL FWD RESOLUTION TIME
+    // ======================================
+
+    stats.averageFWDResolutionTime =
+        stats.fwdResolutionCount > 0
+
+            ? stats.totalFWDResolutionMinutes /
+              stats.fwdResolutionCount
+
             : 0;
 
-});
 
-// ======================================
-// ADDITIONAL MONTHLY CALCULATIONS
-// ======================================
+    // ======================================
+    // GLOBAL DELAY CODE AVERAGES
+    // ======================================
 
-// Médias
-stats.averageFWDPerBase =
-    stats.activeBases
-        ? stats.totalFWD / stats.activeBases
-        : 0;
+    Object.values(
+        stats.delayCodePerformance
+    )
+    .forEach(performance=>{
 
-stats.averageNightStopsPerBase =
-    stats.activeBases
-        ? stats.totalNightStops / stats.activeBases
-        : 0;
+        performance.averageMinutes =
+            performance.timedEvents > 0
 
-stats.averageFWDPerDay =
-    stats.activeDays
-        ? stats.totalFWD / stats.activeDays
-        : 0;
+                ? performance.totalMinutes /
+                  performance.timedEvents
 
-stats.averageNightStopsPerDay =
-    stats.activeDays
-        ? stats.totalNightStops / stats.activeDays
-        : 0;
+                : 0;
 
-// Percentagem FWD
-stats.fwdPercentage =
-    stats.totalNightStops
-        ? (stats.totalFWD / stats.totalNightStops) * 100
-        : 0;
+    });
 
-// Ranking completo
-stats.ranking = Object.entries(stats.baseStats)
-    .sort((a,b)=>b[1].rate-a[1].rate);
 
-  
-stats.topBases = stats.ranking.slice(0,3);
+    // ======================================
+    // BASE METRICS
+    // ======================================
 
-// Dados preparados para gráficos
-stats.chartData = {
+    Object.values(
+        stats.baseStats
+    )
+    .forEach(base=>{
 
-    labels: stats.ranking.map(item=>item[0]),
+        // --------------------------------------
+        // FWD RATE
+        // --------------------------------------
 
-    fwd: stats.ranking.map(item=>item[1].fwd),
+        base.rate =
+            base.nightStops > 0
 
-    nightStops: stats.ranking.map(item=>item[1].nightStops)
+                ? (
+                    base.fwd /
+                    base.nightStops
+                  ) * 100
 
-};
+                : 0;
 
-// Bases sem qualquer atividade
-stats.inactiveBases = BASES.filter(base=>{
 
-    const b = stats.baseStats[base];
+        // --------------------------------------
+        // BASE AVERAGE DELAY TIME
+        // --------------------------------------
 
-    return b.fwd===0 && b.nightStops===0;
+        base.averageDelayMinutes =
+            base.timedDelayEvents > 0
 
-});
+                ? (
+                    base.totalDelayMinutes /
+                    base.timedDelayEvents
+                  )
 
-// ======================================
-// COUNTRY STATISTICS
-// ======================================
+                : 0;
 
-Object.entries(stats.baseStats).forEach(([base,data])=>{
 
-    const country = BASE_COUNTRIES[base];
+        // --------------------------------------
+        // AVERAGE PER DELAY CODE
+        // --------------------------------------
 
-    if(!country) return;
+        Object.values(
+            base.delayCodePerformance || {}
+        )
+        .forEach(performance=>{
 
-    if(!stats.countryStats[country]){
+            performance.averageMinutes =
+                performance.timedEvents > 0
 
-    stats.countryStats[country]={
+                    ? (
+                        performance.totalMinutes /
+                        performance.timedEvents
+                      )
 
-        fwd:0,
+                    : 0;
 
-        nightStops:0,
+        });
 
-        bases:0,
+    });
 
-        delayCodes:{},
 
-        delayGroups:{}
+    // ======================================
+    // COUNTRY METRICS
+    // ======================================
+
+    Object.values(
+        stats.countryStats
+    )
+    .forEach(country=>{
+
+        // --------------------------------------
+        // FWD RATE
+        // --------------------------------------
+
+        country.percentage =
+            country.nightStops > 0
+
+                ? (
+                    country.fwd /
+                    country.nightStops
+                  ) * 100
+
+                : 0;
+
+
+        // --------------------------------------
+        // AVERAGE FWD RESOLUTION
+        // --------------------------------------
+
+        country.averageResolutionMinutes =
+            country.resolutionCount > 0
+
+                ? (
+                    country.totalResolutionMinutes /
+                    country.resolutionCount
+                  )
+
+                : 0;
+
+
+        // --------------------------------------
+        // AVERAGE PER DELAY CODE
+        // --------------------------------------
+
+        Object.values(
+            country.delayCodePerformance || {}
+        )
+        .forEach(performance=>{
+
+            performance.averageMinutes =
+                performance.timedEvents > 0
+
+                    ? (
+                        performance.totalMinutes /
+                        performance.timedEvents
+                      )
+
+                    : 0;
+
+        });
+
+    });
+
+
+    // ======================================
+    // MONTHLY AVERAGES
+    // ======================================
+
+    stats.averageFWDPerBase =
+        stats.activeBases > 0
+
+            ? (
+                stats.totalFWD /
+                stats.activeBases
+              )
+
+            : 0;
+
+
+    stats.averageNightStopsPerBase =
+        stats.activeBases > 0
+
+            ? (
+                stats.totalNightStops /
+                stats.activeBases
+              )
+
+            : 0;
+
+
+    stats.averageFWDPerDay =
+        stats.activeDays > 0
+
+            ? (
+                stats.totalFWD /
+                stats.activeDays
+              )
+
+            : 0;
+
+
+    stats.averageNightStopsPerDay =
+        stats.activeDays > 0
+
+            ? (
+                stats.totalNightStops /
+                stats.activeDays
+              )
+
+            : 0;
+
+
+    // ======================================
+    // FWD PERCENTAGE
+    // ======================================
+
+    stats.fwdPercentage =
+        stats.totalNightStops > 0
+
+            ? (
+                stats.totalFWD /
+                stats.totalNightStops
+              ) * 100
+
+            : 0;
+
+
+    // ======================================
+    // BASE RANKING
+    // ======================================
+
+    stats.ranking =
+        Object.entries(
+            stats.baseStats
+        )
+        .sort(
+            (a,b)=>
+                b[1].rate -
+                a[1].rate
+        );
+
+
+    stats.topBases =
+        stats.ranking.slice(0,3);
+
+
+    // ======================================
+    // CHART DATA
+    // ======================================
+
+    stats.chartData = {
+
+        labels:
+            stats.ranking.map(
+                item=>item[0]
+            ),
+
+        fwd:
+            stats.ranking.map(
+                item=>item[1].fwd
+            ),
+
+        nightStops:
+            stats.ranking.map(
+                item=>item[1].nightStops
+            )
 
     };
 
-}
 
-    stats.countryStats[country].fwd += data.fwd;
+    // ======================================
+    // INACTIVE BASES
+    // ======================================
 
-    stats.countryStats[country].nightStops += data.nightStops;
+    stats.inactiveBases =
+        BASES.filter(base=>{
 
-    stats.countryStats[country].bases++;
+            const b =
+                stats.baseStats[base];
 
-});
+            return (
+                b.fwd === 0 &&
+                b.nightStops === 0
+            );
 
-// Percentagem por país
+        });
 
-Object.values(stats.countryStats).forEach(country=>{
 
-    country.percentage =
-        country.nightStops
-            ? (country.fwd/country.nightStops)*100
-            : 0;
+    // ======================================
+    // COUNTRY BASE COUNTS
+    // ======================================
 
-});
+    Object.entries(
+        stats.baseStats
+    )
+    .forEach(([base,data])=>{
 
-// Ranking países
+        const country =
+            BASE_COUNTRIES[base];
 
-stats.countryRanking = Object.entries(stats.countryStats)
-.sort((a,b)=>b[1].fwd-a[1].fwd);
+        if(!country){
 
-// ======================================
-// DELAY SUMMARY
-// ======================================
+            return;
 
-// Código mais frequente
-stats.topDelayCode = null;
+        }
 
-const delayRanking = Object.entries(stats.delayCodes)
-    .sort((a,b)=>b[1]-a[1]);
 
-if(delayRanking.length){
+        if(
+            !stats.countryStats[country]
+        ){
 
-    const [code,count] = delayRanking[0];
+            stats.countryStats[country]={
 
-    stats.topDelayCode = {
+                fwd:0,
 
-    code,
+                nightStops:0,
 
-    description:
-        IATA_DELAY_CODES[code] || "Unknown",
+                bases:0,
 
-    group:
-        getIATADelayGroup(code),
+                delayCodes:{},
 
-    count
+                delayGroups:{},
 
-};
+                totalResolutionMinutes:0,
 
-}
+                resolutionCount:0,
 
-// Grupo mais frequente
-stats.topDelayGroup = null;
+                averageResolutionMinutes:0,
 
-const groupRanking = Object.entries(stats.delayGroups)
-    .sort((a,b)=>b[1]-a[1]);
+                delayCodePerformance:{}
 
-if(groupRanking.length){
+            };
 
-    const [group,count] = groupRanking[0];
+        }
 
-    const totalEvents =
-        Object.values(stats.delayGroups)
-            .reduce((a,b)=>a+b,0);
 
-    stats.topDelayGroup = {
+        stats.countryStats[country].bases++;
 
-        group,
+    });
 
-        count,
 
-        percentage:
-            totalEvents
-                ? (count / totalEvents * 100)
-                : 0
+    // ======================================
+    // COUNTRY RANKING
+    // ======================================
 
-    };
+    stats.countryRanking =
+        Object.entries(
+            stats.countryStats
+        )
+        .sort(
+            (a,b)=>
+                b[1].fwd -
+                a[1].fwd
+        );
 
-}
 
-return stats;
+    // ======================================
+    // TOP DELAY CODE
+    // ======================================
+
+    stats.topDelayCode =
+        null;
+
+
+    const delayRanking =
+        Object.entries(
+            stats.delayCodes
+        )
+        .sort(
+            (a,b)=>
+                b[1] -
+                a[1]
+        );
+
+
+    if(delayRanking.length){
+
+        const [code,count] =
+            delayRanking[0];
+
+
+        stats.topDelayCode={
+
+            code,
+
+            description:
+                IATA_DELAY_CODES[code]
+                    || "Unknown",
+
+            group:
+                getIATADelayGroup(code),
+
+            count
+
+        };
+
+    }
+
+
+    // ======================================
+    // TOP DELAY GROUP
+    // ======================================
+
+    stats.topDelayGroup =
+        null;
+
+
+    const groupRanking =
+        Object.entries(
+            stats.delayGroups
+        )
+        .sort(
+            (a,b)=>
+                b[1] -
+                a[1]
+        );
+
+
+    if(groupRanking.length){
+
+        const [group,count] =
+            groupRanking[0];
+
+
+        const totalEvents =
+            Object.values(
+                stats.delayGroups
+            )
+            .reduce(
+                (a,b)=>
+                    a + b,
+                0
+            );
+
+
+        stats.topDelayGroup={
+
+            group,
+
+            count,
+
+            percentage:
+                totalEvents > 0
+
+                    ? (
+                        count /
+                        totalEvents
+                      ) * 100
+
+                    : 0
+
+        };
+
+    }
+
+
+    return stats;
 
 }
 
@@ -12428,8 +16840,7 @@ async function loadAvailableDashboardPeriods(selectedYear = null, selectedMonth 
 
 
             option.value =
-                `${period.year}-${period.month}`;
-
+                `${period.year}-${String(period.month).padStart(2,"0")}`;
 
             option.textContent =
                 new Date(
@@ -12473,7 +16884,9 @@ async function loadAvailableDashboardPeriods(selectedYear = null, selectedMonth 
         ){
 
             const target =
-                `${Number(selectedYear)}-${Number(selectedMonth)}`;
+    `${Number(selectedYear)}-${String(
+        Number(selectedMonth)
+    ).padStart(2,"0")}`;
 
 
             const exists =
@@ -12646,6 +17059,8 @@ updateBaseAnalysis();
 
 updateBaseHistoryChart();
 
+updateTopDelayCodes();
+
 updateOperationalTrends();
 
 updateDelayCharts(stats);
@@ -12653,6 +17068,8 @@ updateDelayCharts(stats);
 updateDelayGroupsChart(stats);
 
 updateRegionalChart(stats);
+
+updateDelayCodePerformanceTable();
 
 
 // ======================================
@@ -12713,29 +17130,76 @@ function updateRegionalCards(country){
     let fwd = 0;
     let nightStops = 0;
 
+    let resolutionMinutes = 0;
+let resolutionCount = 0;
+
+
+// ======================================
+// CALCULATE FWD RESOLUTION FROM
+// RECORDED DELAY CODE TIMES
+// ======================================
+
+function addCountryResolutionTimes(countryData){
+
+    if(!countryData) return;
+
+
+    Object.values(
+        countryData.delayCodePerformance || {}
+    )
+    .forEach(performance => {
+
+        resolutionMinutes +=
+            Number(performance.totalMinutes) || 0;
+
+        resolutionCount +=
+            Number(performance.timedEvents) || 0;
+
+    });
+
+}
+
     if(country === "ALL"){
 
-        Object.values(stats.countryStats).forEach(c => {
+    Object.values(
+        stats.countryStats
+    )
+    .forEach(c => {
 
-            bases += c.bases;
-            fwd += c.fwd;
-            nightStops += c.nightStops;
+        bases += c.bases;
 
-        });
+        fwd += c.fwd;
 
-    }else{
+        nightStops += c.nightStops;
 
-        const c = stats.countryStats[country];
 
-        if(c){
+        // Somar apenas os tempos efectivamente registados
+        addCountryResolutionTimes(c);
 
-            bases = c.bases;
-            fwd = c.fwd;
-            nightStops = c.nightStops;
+    });
 
-        }
+}
+
+else{
+
+    const c =
+        stats.countryStats[country];
+
+    if(c){
+
+        bases = c.bases;
+
+        fwd = c.fwd;
+
+        nightStops = c.nightStops;
+
+
+        // Apenas tempos registados neste país
+        addCountryResolutionTimes(c);
 
     }
+
+}
 
     const rate =
     nightStops > 0
@@ -12752,6 +17216,54 @@ function updateRegionalCards(country){
 
     document.getElementById("countryRate").innerText =
         rate + "%";
+
+// ======================================
+// AVERAGE FWD RESOLUTION TIME
+// ======================================
+
+const averageResolutionElement =
+    document.getElementById(
+        "countryAverageResolution"
+    );
+
+const averageResolutionCountElement =
+    document.getElementById(
+        "countryAverageResolutionCount"
+    );
+
+
+if(averageResolutionElement){
+
+    if(resolutionCount > 0){
+
+        const average =
+            resolutionMinutes /
+            resolutionCount;
+
+        averageResolutionElement.innerText =
+            `${Math.round(average)} min`;
+
+    }else{
+
+        averageResolutionElement.innerText =
+            "-";
+
+    }
+
+}
+
+
+if(averageResolutionCountElement){
+
+    averageResolutionCountElement.innerText =
+
+        resolutionCount > 0
+
+            ? `Based on ${resolutionCount} recorded FWD`
+
+            : "No recorded times";
+
+}
 
 // ======================================
 // MOST FREQUENT IATA DELAY CODE
@@ -13290,19 +17802,208 @@ function getRegionalDelayStats(country){
 
 }
 
+window.changeRegionalDelayPerformanceSort = function(sort){
+
+    const container =
+        document.getElementById(
+            "regionalDelayCodesTable"
+        );
+
+    if(!container) return;
+
+    container.dataset.sort = sort;
+
+    updateRegionalDelayCharts(
+        typeof selectedCountry !== "undefined"
+            ? selectedCountry
+            : "ALL"
+    );
+
+};
+
+
 // ======================================
 // REGIONAL OVERVIEW CHART
 // ======================================
 
-function updateRegionalDelayCodesTable(delayCodes){
+function updateRegionalDelayCodesTable(
+    delayCodes,
+    country = "ALL"
+){
 
     const container =
         document.getElementById("regionalDelayCodesTable");
 
     if(!container) return;
 
-    const ranking = Object.entries(delayCodes)
-        .sort((a,b)=>b[1]-a[1]);
+let performance = {};
+
+
+// ======================================
+// COUNTRY-SPECIFIC PERFORMANCE
+// ======================================
+
+if(country === "ALL"){
+
+    Object.values(
+        stats.countryStats || {}
+    )
+    .forEach(countryData=>{
+
+        Object.entries(
+            countryData.delayCodePerformance || {}
+        )
+        .forEach(
+            ([code,data])=>{
+
+                if(!performance[code]){
+
+                    performance[code] = {
+
+                        events:0,
+
+                        timedEvents:0,
+
+                        totalMinutes:0,
+
+                        averageMinutes:0,
+
+                        maxMinutes:0,
+
+                        maxBase:null
+
+                    };
+
+                }
+
+
+                performance[code].events +=
+                    data.events || 0;
+
+                performance[code].timedEvents +=
+                    data.timedEvents || 0;
+
+                performance[code].totalMinutes +=
+                    data.totalMinutes || 0;
+
+
+                if(
+                    (data.maxMinutes || 0) >
+                    performance[code].maxMinutes
+                ){
+
+                    performance[code].maxMinutes =
+                        data.maxMinutes;
+
+                    performance[code].maxBase =
+                        data.maxBase;
+
+                }
+
+            }
+        );
+
+    });
+
+}
+else{
+
+    performance =
+        stats
+            .countryStats?.[country]
+            ?.delayCodePerformance || {};
+
+}
+
+Object.values(performance)
+.forEach(data=>{
+
+    data.averageMinutes =
+        data.timedEvents > 0
+
+            ? data.totalMinutes /
+              data.timedEvents
+
+            : 0;
+
+});
+
+    const ranking =
+    Object.keys(delayCodes)
+        .map(code => [
+
+            code,
+
+            performance[code] || {
+
+                events:
+                    delayCodes[code] || 0,
+
+                timedEvents:0,
+
+                totalMinutes:0,
+
+                averageMinutes:0,
+
+                maxMinutes:0,
+
+                maxBase:null
+
+            }
+
+        ]);
+
+    const sortBy =
+    container.dataset.sort || "average";
+    
+    ranking.sort(
+    (a,b)=>{
+
+        switch(sortBy){
+
+            case "average":
+
+                return (
+                    b[1].averageMinutes -
+                    a[1].averageMinutes
+                );
+
+
+            case "max":
+
+                return (
+                    b[1].maxMinutes -
+                    a[1].maxMinutes
+                );
+
+
+            case "events":
+
+                return (
+                    b[1].events -
+                    a[1].events
+                );
+
+
+            case "code":
+
+                return (
+                    Number(a[0]) -
+                    Number(b[0])
+                );
+
+
+            default:
+
+                return (
+                    b[1].averageMinutes -
+                    a[1].averageMinutes
+                );
+
+        }
+
+    }
+);
 
     const subtitle =
     document.getElementById(
@@ -13317,136 +18018,328 @@ if(subtitle){
 
 }
 
-    let html = `
+ // ======================================
+// HTML
+// ======================================
 
-<div style="
-border:1px solid #EEF2F6;
-border-radius:14px;
-background:white;
-overflow:hidden;
-">
+let html = `
 
-<table style="
-width:100%;
-border-collapse:collapse;
-font-size:14px;
-">
+    <div
+        style="
+            display:flex;
+            justify-content:flex-end;
+            align-items:center;
+            margin-bottom:14px;
+        "
+    >
 
-<thead style="
-position:sticky;
-top:0;
-z-index:10;
-">
+        <div
+            style="
+                display:flex;
+                align-items:center;
+                gap:8px;
+                background:#F7F9FC;
+                border:1px solid #E3E8F0;
+                border-radius:10px;
+                padding:6px 8px 6px 12px;
+            "
+        >
 
-<tr style="
-background:linear-gradient(
-90deg,
-#07225B,
-#073590
-);
-color:white;
-">
+            <span
+                style="
+                    font-size:11px;
+                    font-weight:800;
+                    color:#7A8599;
+                    text-transform:uppercase;
+                    letter-spacing:.5px;
+                "
+            >
+                Sort by
+            </span>
 
-<th style="padding:14px 18px;text-align:left;width:90px;">
-CODE
-</th>
+            <select
+                id="regionalDelayPerformanceSort"
+                onchange="window.changeRegionalDelayPerformanceSort(this.value)"
+                style="
+                    border:none;
+                    background:transparent;
+                    color:#07225B;
+                    font-size:12px;
+                    font-weight:800;
+                    cursor:pointer;
+                    outline:none;
+                    padding:5px 24px 5px 4px;
+                    min-width:155px;
+                "
+            >
 
-<th style="padding:14px 18px;text-align:left;">
-DESCRIPTION
-</th>
+                <option
+                    value="average"
+                    ${sortBy === "average" ? "selected" : ""}
+                >
+                    Average Resolution
+                </option>
 
-<th style="padding:14px 18px;text-align:right;width:120px;">
-EVENTS
-</th>
+                <option
+                    value="max"
+                    ${sortBy === "max" ? "selected" : ""}
+                >
+                    Max Resolution
+                </option>
 
-</tr>
+                <option
+                    value="events"
+                    ${sortBy === "events" ? "selected" : ""}
+                >
+                    Events
+                </option>
 
-</thead>
+                <option
+                    value="code"
+                    ${sortBy === "code" ? "selected" : ""}
+                >
+                    Delay Code
+                </option>
 
-<tbody>
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div
+        style="
+            overflow-x:auto;
+            width:100%;
+            border:1px solid #E5EAF1;
+            border-radius:12px;
+            overflow:hidden;
+            background:#FFFFFF;
+        "
+    >
+
+        <table
+            style="
+                width:100%;
+                border-collapse:collapse;
+                table-layout:fixed;
+            "
+        >
+
+            <thead>
+
+                <tr
+                    style="
+                        background:#07225B;
+                        color:#FFFFFF;
+                    "
+                >
+
+                    <th
+                        style="
+                            width:70px;
+                            text-align:left;
+                            padding:13px 18px;
+                            font-size:11px;
+                            font-weight:800;
+                            letter-spacing:.6px;
+                        "
+                    >
+                        CODE
+                    </th>
+
+                    <th
+                        style="
+                            text-align:left;
+                            padding:13px 18px;
+                            font-size:11px;
+                            font-weight:800;
+                            letter-spacing:.6px;
+                        "
+                    >
+                        DESCRIPTION
+                    </th>
+
+                    <th
+                        style="
+                            width:100px;
+                            text-align:right;
+                            padding:13px 18px;
+                            font-size:11px;
+                            font-weight:800;
+                            letter-spacing:.6px;
+                        "
+                    >
+                        EVENTS
+                    </th>
+
+                    <th
+                        style="
+                            width:120px;
+                            text-align:right;
+                            padding:13px 18px;
+                            font-size:11px;
+                            font-weight:800;
+                            letter-spacing:.6px;
+                        "
+                    >
+                        AVG. TIME
+                    </th>
+
+                    <th
+                        style="
+                            width:120px;
+                            text-align:right;
+                            padding:13px 18px;
+                            font-size:11px;
+                            font-weight:800;
+                            letter-spacing:.6px;
+                        "
+                    >
+                        MAX TIME
+                    </th>
+
+                    <th
+                        style="
+                            width:90px;
+                            text-align:right;
+                            padding:13px 18px;
+                            font-size:11px;
+                            font-weight:800;
+                            letter-spacing:.6px;
+                        "
+                    >
+                        BASE
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
 `;
 
-    ranking.forEach(([code,count])=>{
+
+// ======================================
+// ROWS
+// ======================================
+
+ranking.forEach(
+    ([code,data])=>{
+
+        const hasTime =
+            data.timedEvents > 0;
+
 
         html += `
 
-<tr
-style="
-border-bottom:1px solid #EEF2F6;
-transition:.2s;
-"
-onmouseover="this.style.background='#FFF9E6'"
-onmouseout="this.style.background='white'"
->
+            <tr>
 
-<td style="padding:12px 18px;">
+                <td
+                    style="
+                        padding:12px 18px;
+                        font-weight:800;
+                    "
+                >
+                    ${code}
+                </td>
 
-<span style="
-display:inline-block;
-background:#07225B;
-color:white;
-padding:5px 10px;
-border-radius:8px;
-font-weight:700;
-font-size:13px;
-min-width:42px;
-text-align:center;
-">
 
-${code}
+                <td
+                    style="
+                        padding:12px 18px;
+                        font-weight:600;
+                    "
+                >
+                    ${
+                        IATA_DELAY_CODES[code]
+                        || "Unknown"
+                    }
+                </td>
 
-</span>
 
-</td>
+                <td
+                    style="
+                        padding:12px 18px;
+                        text-align:right;
+                        font-weight:800;
+                    "
+                >
+                    ${data.events}
+                </td>
 
-<td style="padding:12px 18px;">
 
-<div style="
-font-weight:600;
-color:#07225B;
-line-height:1.25;
-">
+                <td
+                    style="
+                        padding:12px 18px;
+                        text-align:right;
+                        font-weight:800;
+                    "
+                >
+                    ${
+                        hasTime
+                            ? `${Math.round(
+                                data.averageMinutes
+                              )} min`
+                            : "-"
+                    }
+                </td>
 
-${IATA_DELAY_CODES[code] || "Unknown"}
 
-</div>
+                <td
+                    style="
+                        padding:12px 18px;
+                        text-align:right;
+                        font-weight:800;
+                        color:#C0392B;
+                    "
+                >
+                    ${
+                        hasTime
+                            ? `${Math.round(
+                                data.maxMinutes
+                              )} min`
+                            : "-"
+                    }
+                </td>
 
-</td>
 
-<td style="
-padding:12px 18px;
-text-align:right;
-">
+                <td
+                    style="
+                        padding:12px 18px;
+                        text-align:right;
+                        font-weight:800;
+                    "
+                >
+                    ${
+                        hasTime &&
+                        data.maxBase
+                            ? data.maxBase
+                            : "-"
+                    }
+                </td>
 
-<span style="
-font-weight:800;
-font-size:16px;
-color:#FDB813;
-">
+            </tr>
 
-${count}
+        `;
 
-</span>
+    }
+);
 
-</td>
 
-</tr>
+html += `
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 `;
 
-    });
 
-    html += `
-
-</tbody>
-
-</table>
-
-</div>
-
-`;
-
-    container.innerHTML = html;
+container.innerHTML = html;
 
 }
 
@@ -13599,7 +18492,10 @@ function updateRegionalDelayCharts(country = "ALL"){
 // REGIONAL DELAY CODES TABLE
 // ======================================
 
-updateRegionalDelayCodesTable(delayCodes);
+updateRegionalDelayCodesTable(
+    delayCodes,
+    country
+);
 
 // ======================================
 // REGIONAL DELAY GROUPS CHART
@@ -14394,6 +19290,12 @@ if(!showZero){
             case "nightStopsPerDay":
                 return (data.activeDays ? data.nightStops/data.activeDays : 0) > 0;
 
+case "averageDelayTime":
+    return data.averageDelayMinutes > 0;
+
+case "maxDelayTime":
+    return data.maxDelayMinutes > 0;
+
             case "delayCode":
                 return (data.delayCodes?.[selectedDelayCode] || 0) > 0;
 
@@ -14438,6 +19340,21 @@ if(selectedCountry !== "ALL"){
             (b[1].activeDays ? b[1].nightStops / b[1].activeDays : 0) -
             (a[1].activeDays ? a[1].nightStops / a[1].activeDays : 0)
         );
+
+case "averageDelayTime":
+
+    return (
+        b[1].averageDelayMinutes -
+        a[1].averageDelayMinutes
+    );
+
+
+case "maxDelayTime":
+
+    return (
+        b[1].maxDelayMinutes -
+        a[1].maxDelayMinutes
+    );
 
     case "delayCode":
 
@@ -14488,6 +19405,19 @@ case "delayGroup":
                     : 0
             ).toFixed(1)
         );
+
+case "averageDelayTime":
+
+    return Number(
+        data.averageDelayMinutes.toFixed(1)
+    );
+
+
+case "maxDelayTime":
+
+    return Number(
+        data.maxDelayMinutes.toFixed(1)
+    );
 
     case "rate":
         return Number(formatNumber(data.rate));
@@ -14653,25 +19583,110 @@ layout:{
     padding:14,
     cornerRadius:10,
 
-    label:function(context){
+    callbacks:{
 
-    const metric = document.getElementById("baseSort").value;
-    const value = context.raw;
+        label:function(context){
 
-    switch(metric){
+            const metric =
+                document.getElementById("baseSort").value;
 
-        case "rate":
-            return value.toFixed(1) + "%";
+            const value =
+                context.raw;
 
-        case "fwdPerDay":
-        case "nightStopsPerDay":
-            return value.toFixed(1);
+            const base =
+                context.chart.data.labels[
+                    context.dataIndex
+                ];
 
-        default:
-            return Math.round(value);
+            const baseData =
+                currentStats?.baseStats?.[base];
+
+
+            switch(metric){
+
+                case "rate":
+
+                    return (
+                        value.toFixed(1) +
+                        "%"
+                    );
+
+
+                case "fwdPerDay":
+
+                case "nightStopsPerDay":
+
+                    return value.toFixed(1);
+
+
+                case "averageDelayTime":
+
+                    return (
+                        value.toFixed(1) +
+                        " min"
+                    );
+
+
+                case "maxDelayTime":{
+
+                    const lines = [];
+
+
+                    lines.push(
+                        value.toFixed(1) +
+                        " min"
+                    );
+
+
+                    if(
+                        baseData &&
+                        baseData.maxDelayCode !== null &&
+                        baseData.maxDelayCode !== undefined
+                    ){
+
+                        const code =
+                            baseData.maxDelayCode;
+
+                        const description =
+                            IATA_DELAY_CODES[code] ||
+                            "Unknown";
+
+
+                        lines.push(
+                            `IATA Code: ${code} - ${description}`
+                        );
+
+                    }
+
+
+                    if(
+                        baseData &&
+                        baseData.maxDelayDay !== null &&
+                        baseData.maxDelayDay !== undefined
+                    ){
+
+                        lines.push(
+                            `Day: ${baseData.maxDelayDay}`
+                        );
+
+                    }
+
+
+                    return lines;
+
+                }
+
+
+                default:
+
+                    return Math.round(value);
+
+            }
+
+        }
+
     }
 
-}
 },
 
                 datalabels:{
@@ -14697,27 +19712,37 @@ layout:{
 
     formatter:function(value){
 
-        const metric =
-            document.getElementById("baseSort").value;
+    const metric =
+        document.getElementById("baseSort").value;
 
-        switch(metric){
+    switch(metric){
 
-            case "rate":
+        case "rate":
 
-                return value.toFixed(1) + "%";
+            return value.toFixed(1) + "%";
 
-            case "fwdPerDay":
-            case "nightStopsPerDay":
 
-                return value.toFixed(1);
+        case "fwdPerDay":
 
-            default:
+        case "nightStopsPerDay":
 
-                return Math.round(value);
+            return value.toFixed(1);
 
-        }
+
+        case "averageDelayTime":
+
+        case "maxDelayTime":
+
+            return value.toFixed(1) + " min";
+
+
+        default:
+
+            return Math.round(value);
 
     }
+
+}
 
 }
 
@@ -14905,6 +19930,56 @@ document.getElementById("topDelayGroup").innerHTML =
         : "-";
 
 // ======================================
+// AVERAGE FWD RESOLUTION TIME
+// ======================================
+
+const averageResolutionElement =
+    document.getElementById(
+        "averageFWDResolutionTime"
+    );
+
+const averageResolutionCountElement =
+    document.getElementById(
+        "averageFWDResolutionCount"
+    );
+
+if(averageResolutionElement){
+
+    if(stats.fwdResolutionCount > 0){
+
+        averageResolutionElement.textContent =
+            `${Math.round(
+                stats.averageFWDResolutionTime
+            )} min`;
+
+    }else{
+
+        averageResolutionElement.textContent =
+            "-";
+
+    }
+
+}
+
+if(averageResolutionCountElement){
+
+    if(stats.fwdResolutionCount > 0){
+
+        averageResolutionCountElement.textContent =
+            `Based on ${
+                stats.fwdResolutionCount
+            } recorded FWD events`;
+
+    }else{
+
+        averageResolutionCountElement.textContent =
+            "No recorded resolution times";
+
+    }
+
+}
+
+// ======================================
 // COUNTRY SUMMARY TABLE
 // ======================================
 
@@ -15043,67 +20118,591 @@ function updateTopDelayCodes(){
 
     if(!currentStats) return;
 
+
     const base =
-        document.getElementById("analysisBase").value;
+        document.getElementById(
+            "analysisBase"
+        )?.value;
+
 
     const body =
-        document.getElementById("topDelayCodesBody");
+        document.getElementById(
+            "topDelayCodesBody"
+        );
+
 
     if(!body) return;
 
+
     body.innerHTML = "";
 
-    const delayCodes =
-        currentStats.baseStats?.[base]?.delayCodes || {};
 
-    Object.entries(delayCodes)
+    // ======================================
+    // DELAY CODE PERFORMANCE FOR SELECTED BASE
+    // ======================================
 
-        .sort((a,b)=>b[1]-a[1])
+    const performance =
+        currentStats
+            .baseStats
+            ?. [base]
+            ?.delayCodePerformance
+            || {};
+
+
+    // ======================================
+    // TOP 3 BY EVENTS
+    // ======================================
+
+    Object.entries(performance)
+
+        .sort(
+            (a,b) =>
+                (b[1].events || 0) -
+                (a[1].events || 0)
+        )
 
         .slice(0,3)
 
-        .forEach(([code,value])=>{
+        .forEach(
+            ([code,data]) => {
 
-            const row =
-                document.createElement("tr");
 
-            row.style.borderBottom =
-                "1px solid #EEF2F6";
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
 
-            row.innerHTML = `
 
-<td style="
-    padding:14px;
-    font-weight:700;
-    color:#07225B;
-">
-    ${code}
-</td>
+                row.style.borderBottom =
+                    "1px solid #EEF2F6";
 
-<td style="
-    padding:14px;
-    color:#374151;
-    font-weight:500;
-">
-    ${IATA_DELAY_CODES[code] || "Unknown"}
-</td>
 
-<td style="
-    padding:14px;
-    text-align:right;
-    font-weight:700;
-    color:#07225B;
-">
-    ${value}
-</td>
+                const hasTime =
+                    Number(data.timedEvents) > 0;
 
-`;
 
-            body.appendChild(row);
+                // ======================================
+                // VALUES
+                // ======================================
 
-        });
+                const events =
+                    Number(data.events) || 0;
+
+
+                const average =
+                    Number(data.averageMinutes) || 0;
+
+
+                const max =
+                    Number(data.maxMinutes) || 0;
+
+
+                const maxDay =
+                    data.maxDay !== null &&
+                    data.maxDay !== undefined
+                        ? data.maxDay
+                        : "-";
+
+
+                // ======================================
+                // ROW
+                // ======================================
+
+                row.innerHTML = `
+
+                    <!-- CODE -->
+
+                    <td style="
+                        padding:10px 8px;
+                        font-weight:800;
+                        color:#07225B;
+                        text-align:left;
+                    ">
+
+                        <span style="
+                            display:inline-flex;
+                            align-items:center;
+                            justify-content:center;
+                            min-width:30px;
+                            height:23px;
+                            padding:0 5px;
+                            border-radius:5px;
+                            background:#07225B;
+                            color:white;
+                            font-size:10px;
+                            font-weight:800;
+                        ">
+                            ${code}
+                        </span>
+
+                    </td>
+
+
+                    <!-- EVENTS -->
+
+                    <td style="
+                        padding:10px 5px;
+                        text-align:center;
+                        font-weight:800;
+                        color:#FDB813;
+                        font-size:12px;
+                    ">
+                        ${events}
+                    </td>
+
+
+                    <!-- AVERAGE DELAY -->
+
+                    <td style="
+                        padding:10px 5px;
+                        text-align:center;
+                        font-weight:800;
+                        color:#07225B;
+                        font-size:12px;
+                    ">
+
+                        ${
+                            hasTime
+                                ? `${Math.round(
+                                    average
+                                  )} min`
+                                : "-"
+                        }
+
+                    </td>
+
+
+                    <!-- MAX DELAY -->
+
+                    <td style="
+                        padding:10px 5px;
+                        text-align:center;
+                        font-weight:800;
+                        color:${
+                            hasTime
+                                ? "#C0392B"
+                                : "#7A8599"
+                        };
+                        font-size:12px;
+                    ">
+
+                        ${
+                            hasTime
+                                ? `${Math.round(
+                                    max
+                                  )} min`
+                                : "-"
+                        }
+
+                    </td>
+
+
+                    <!-- MAX DATE -->
+
+                    <td style="
+                        padding:10px 5px;
+                        text-align:center;
+                        font-weight:800;
+                        color:#07225B;
+                        font-size:12px;
+                    ">
+
+                        ${
+                            hasTime
+                                ? maxDay
+                                : "-"
+                        }
+
+                    </td>
+
+                `;
+
+
+                body.appendChild(
+                    row
+                );
+
+            }
+        );
 
 }
+
+function changeDelayPerformanceSort(sort){
+
+    const container =
+        document.getElementById(
+            "delayCodePerformanceTable"
+        );
+
+    if(!container)
+        return;
+
+    container.dataset.sort =
+        sort;
+
+    updateDelayCodePerformanceTable();
+
+}
+
+
+function updateDelayCodePerformanceTable(){
+
+    const container =
+        document.getElementById(
+            "delayCodePerformanceTable"
+        );
+
+    if(!container || !currentStats)
+        return;
+
+
+    const performance =
+        currentStats.delayCodePerformance || {};
+
+
+    const sortBy =
+        container.dataset.sort || "average";
+
+
+    const ranking =
+        Object.entries(performance);
+
+
+    // ======================================
+    // SORT
+    // ======================================
+
+    ranking.sort(
+        (a,b)=>{
+
+            switch(sortBy){
+
+                case "average":
+
+                    return (
+                        b[1].averageMinutes -
+                        a[1].averageMinutes
+                    );
+
+
+                case "max":
+
+                    return (
+                        b[1].maxMinutes -
+                        a[1].maxMinutes
+                    );
+
+
+                case "events":
+
+                    return (
+                        b[1].events -
+                        a[1].events
+                    );
+
+
+                case "code":
+
+                    return (
+                        Number(a[0]) -
+                        Number(b[0])
+                    );
+
+
+                default:
+
+                    return (
+                        b[1].averageMinutes -
+                        a[1].averageMinutes
+                    );
+
+            }
+
+        }
+    );
+
+
+    // ======================================
+    // SELECTOR
+    // ======================================
+
+    let html = `
+
+        <div
+            style="
+                display:flex;
+                justify-content:flex-end;
+                align-items:center;
+                gap:10px;
+                margin-bottom:16px;
+            "
+        >
+
+            <label
+                style="
+                    font-size:12px;
+                    font-weight:700;
+                    color:#7A8599;
+                    text-transform:uppercase;
+                    letter-spacing:.5px;
+                "
+            >
+                Sort by
+            </label>
+
+
+            <select
+
+                id="delayPerformanceSort"
+
+                onchange="
+                    changeDelayPerformanceSort(this.value)
+                "
+
+                style="
+                    padding:8px 12px;
+                    border:1px solid #D8E2F0;
+                    border-radius:8px;
+                    background:white;
+                    color:#07225B;
+                    font-size:13px;
+                    font-weight:700;
+                    cursor:pointer;
+                    outline:none;
+                "
+            >
+
+                <option
+                    value="average"
+                    ${sortBy === "average" ? "selected" : ""}
+                >
+                    Average Resolution
+                </option>
+
+
+                <option
+                    value="max"
+                    ${sortBy === "max" ? "selected" : ""}
+                >
+                    Max Resolution
+                </option>
+
+
+                <option
+                    value="events"
+                    ${sortBy === "events" ? "selected" : ""}
+                >
+                    Events
+                </option>
+
+
+                <option
+                    value="code"
+                    ${sortBy === "code" ? "selected" : ""}
+                >
+                    Delay Code
+                </option>
+
+            </select>
+
+        </div>
+
+    `;
+
+
+    // ======================================
+    // NO DATA
+    // ======================================
+
+    if(!ranking.length){
+
+        html += `
+
+            <div
+                style="
+                    padding:35px 20px;
+                    text-align:center;
+                    color:#7A8599;
+                    font-size:14px;
+                "
+            >
+
+                No FWD resolution times recorded.
+
+            </div>
+
+        `;
+
+        container.innerHTML = html;
+
+        return;
+
+    }
+
+
+    // ======================================
+    // TABLE
+    // ======================================
+
+    html += `
+
+        <div
+            style="
+                width:100%;
+                overflow-x:auto;
+            "
+        >
+
+            <table
+                class="operationalSummaryTable"
+                style="
+                    min-width:720px;
+                "
+            >
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            CODE
+                        </th>
+
+                        <th>
+                            DESCRIPTION
+                        </th>
+
+                        <th>
+                            EVENTS
+                        </th>
+
+                        <th>
+                            AVG. RESOLUTION
+                        </th>
+
+                        <th>
+                            MAX RESOLUTION
+                        </th>
+
+                        <th>
+                            BASE - MAX
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+
+    ranking.forEach(
+        ([code,data])=>{
+
+            html += `
+
+                <tr>
+
+                    <td
+                        style="
+                            font-weight:800;
+                        "
+                    >
+                        ${code}
+                    </td>
+
+
+                    <td
+                        style="
+                            text-align:left;
+                        "
+                    >
+                        ${
+                            IATA_DELAY_CODES[code]
+                            || "Unknown"
+                        }
+                    </td>
+
+
+                    <td>
+                        ${data.events}
+                    </td>
+
+
+                    <td
+    style="
+        font-weight:800;
+    "
+>
+    ${
+        data.timedEvents > 0
+            ? `${Math.round(
+                data.averageMinutes
+              )} min`
+            : "-"
+    }
+</td>
+
+
+<td
+    style="
+        font-weight:800;
+        color:#C0392B !important;
+    "
+>
+    ${
+        data.timedEvents > 0
+            ? `${Math.round(
+                data.maxMinutes
+              )} min`
+            : "-"
+    }
+</td>
+
+
+<td
+    style="
+        font-weight:800;
+    "
+>
+    ${
+        data.timedEvents > 0 &&
+        data.maxBase
+            ? data.maxBase
+            : "-"
+    }
+</td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    // ======================================
+    // RENDER EVERYTHING TOGETHER
+    // ======================================
+
+    container.innerHTML = html;
+
+}
+
+
+
 
 // ======================================
 // BASE ANALYSIS
@@ -16333,9 +21932,44 @@ document.addEventListener(
 
     "DOMContentLoaded",
 
-    () => {
+    async () => {
 
         startApplication();
+
+
+        // ==============================================
+        // NO INFO INITIALIZATION
+        // ==============================================
+
+        await loadAvailableNoInfoPeriods();
+
+
+        const selector =
+            document.getElementById(
+                "noInfoPeriod"
+            );
+
+
+        if(
+            selector &&
+            selector.value
+        ){
+
+            const [
+                year,
+                month
+            ] =
+                selector.value
+                    .split("-")
+                    .map(Number);
+
+
+            await loadNoInfoData(
+                year,
+                month
+            );
+
+        }
 
     }
 
@@ -16744,13 +22378,15 @@ color:#07225B;
 
     </div>
 
-    <div
+   <div
     id="activeDaysCalendarContainer"
     style="
-    display:flex;
-    justify-content:center;
-    margin-bottom:30px;
-    ">
+        display:block;
+        width:100%;
+        max-width:560px;
+        margin:0 auto 30px auto;
+    "
+>
 
         Loading...
 
@@ -17457,7 +23093,7 @@ Preparing..
         class="userMenuButton"
         onclick="openLoginModal()">
 
-        🔐 Administrator Login
+        Administrator Login
 
     </button>
 
@@ -17467,7 +23103,7 @@ Preparing..
         style="display:none;"
         onclick="closeUserMenu(); openUserManagement();">
 
-        👥 Manage Users
+        Manage Users
 
     </button>
 
@@ -17477,7 +23113,7 @@ Preparing..
         style="display:none;"
         onclick="closeUserMenu(); openActivityLogs()">
 
-        📋 Activity Logs
+        Activity Logs
 
     </button>
 
@@ -17487,9 +23123,20 @@ Preparing..
         style="display:none;"
         onclick="closeUserMenu(); openUserSettings()">
 
-        ⚙ Settings
+        Settings
 
     </button>
+
+    <button
+        id="menuMigrationButton"
+        class="userMenuButton"
+        style="display:none;"
+        onclick="closeUserMenu(); openDataMigrationModal() ">
+
+        Migrate Report Data
+
+    </button>
+
 
     <div class="userMenuDivider"></div>
 
@@ -17499,7 +23146,7 @@ Preparing..
         style="display:none;"
         onclick="closeUserMenu(); logoutUser()">
 
-        🚪 Logout
+        Logout
 
     </button>
 
@@ -17526,7 +23173,7 @@ EDIT USER MODAL
 
             <div class="modalTitle">
 
-                👤 Edit User
+                Edit User
 
             </div>
 
@@ -17691,7 +23338,7 @@ EDIT USER MODAL
                 class="btn btn-red"
                 onclick="deleteUser()">
 
-                🗑 Delete User
+                Delete User
 
             </button>
 
@@ -17733,7 +23380,7 @@ EDIT USER MODAL
 
         <div class="modalTitle">
 
-            👥 User Management
+            User Management
 
         </div>
 
@@ -17768,7 +23415,7 @@ EDIT USER MODAL
                 <input
                     id="userSearchInput"
                     class="auth-input"
-                    placeholder="🔍 Search by name or username..."
+                    placeholder="Search by name or username..."
                     oninput="renderUsersTable()">
 
                 <select
@@ -17800,7 +23447,7 @@ EDIT USER MODAL
                 class="rh-btn rh-btn-green"
                 onclick="openCreateUserModal()">
 
-                ➕ Create User
+                Create User
 
             </button>
 
@@ -17873,7 +23520,7 @@ ACTIVITY LOGS
                         color:#07225B;
                     "
                 >
-                    📋 Activity Logs
+                    Activity Logs
                 </h2>
 
                 <p
@@ -17942,7 +23589,7 @@ ACTIVITY LOGS
                 class="btn btn-yellow"
                 onclick="exportAuditLogs()"
             >
-                📥 Export Logs
+                Export Logs
             </button>
 
         </div>
@@ -18070,7 +23717,7 @@ SETTINGS CENTER
                         font-size:28px;
                     "
                 >
-                    ⚙️ Settings
+                    Settings
                 </h2>
 
                 <p
@@ -18612,17 +24259,17 @@ CONFIRMATION MODAL
                 class="btn btn-yellow"
                 onclick="startupLogin()"
             >
-                🔐 Login
+                Login
             </button>
 
 
             <button
-                id="welcomeGuestButton"
-                class="btn btn-white"
-                onclick="continueAsGuest()"
-            >
-                Continue as Guest
-            </button>
+    id="welcomeCreateAccountButton"
+    class="btn btn-white"
+    onclick="openCreateAccountModal()"
+>
+Create Account
+</button>
 
 
             <button
@@ -19351,6 +24998,285 @@ CREATE USER MODAL
                 </strong>
 
             </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    id="noInfoPdfReportHeader"
+    style="
+        display:none;
+        width:100%;
+        box-sizing:border-box;
+        padding:18px 22px;
+        background:#07225B;
+        color:#fff;
+        font-family:Arial, sans-serif;
+    "
+>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:30px;
+        "
+    >
+
+        <!-- ==========================================
+             LEFT SIDE
+        =========================================== -->
+
+        <div
+            style="
+                display:flex;
+                align-items:center;
+                gap:18px;
+            "
+        >
+
+            <img
+                src="ryanair-logo-2.png"
+                style="
+                    height:48px;
+                    object-fit:contain;
+                "
+            >
+
+            <div>
+
+                <div
+                    style="
+                        font-size:25px;
+                        font-weight:800;
+                        letter-spacing:.5px;
+                    "
+                >
+
+                    <span style="color:#F1C400;">
+                        NO INFO DELAYS
+                    </span>
+
+                    MONTHLY REPORT
+
+                </div>
+
+
+                <div
+                    style="
+                        margin-top:5px;
+                        font-size:12px;
+                        opacity:.82;
+                    "
+                >
+                    Engineering & Maintenance
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             RIGHT SIDE
+        =========================================== -->
+
+        <div
+            style="
+                text-align:right;
+                min-width:260px;
+                font-size:12px;
+            "
+        >
+
+            <!-- REPORTING PERIOD -->
+
+            <div>
+
+                <span style="opacity:.65;">
+                    Reporting Period
+                </span>
+
+                <strong
+                    id="noInfoPdfPeriod"
+                    style="
+                        display:block;
+                        margin-top:3px;
+                        font-size:15px;
+                    "
+                >
+                    -
+                </strong>
+
+            </div>
+
+
+            <!-- GENERATED -->
+
+            <div
+                style="
+                    margin-top:8px;
+                "
+            >
+
+                <span style="opacity:.65;">
+                    Generated
+                </span>
+
+                <strong
+                    id="noInfoPdfGenerated"
+                    style="
+                        display:block;
+                        margin-top:3px;
+                        font-size:13px;
+                    "
+                >
+                    -
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+     SAVE BEFORE LEAVING MODAL
+====================================================== -->
+
+<div
+    id="saveBeforeBackModal"
+    class="notificationOverlay"
+    style="display:none;"
+>
+
+    <div
+        class="notificationBox confirmationBox"
+        style="max-width:520px;"
+    >
+
+        <div class="confirmationIcon">
+            ⚠️
+        </div>
+
+        <div
+            class="notificationTitle"
+        >
+            Unsaved Changes
+        </div>
+
+        <div
+            class="notificationMessage"
+        >
+            You have unsaved changes for this day.<br>
+            Do you want to save them before leaving?
+        </div>
+
+        <div
+            style="
+                display:flex;
+                justify-content:center;
+                gap:15px;
+                margin-top:30px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <button
+                class="btn btn-white"
+                onclick="dontSaveAndGoBack()"
+                style="
+                    min-width:150px;
+                "
+            >
+                Don't Save
+            </button>
+
+
+            <button
+                class="btn btn-green"
+                onclick="saveAndGoBack()"
+                style="
+                    min-width:150px;
+                "
+            >
+                Save Changes
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+     FWD EDIT VISUALS INFORMATION
+====================================================== -->
+
+<div
+    id="fwdEditVisualsInfoModal"
+    class="notificationOverlay"
+    style="display:none;"
+>
+
+    <div
+        class="notificationBox confirmationBox"
+        style="
+            max-width:520px;
+        "
+    >
+
+        <div class="confirmationIcon">
+            ℹ
+        </div>
+
+
+        <div class="notificationTitle">
+            FWD Dashboard Structure
+        </div>
+
+
+        <div
+            class="notificationMessage"
+            style="
+                line-height:1.6;
+            "
+        >
+
+            The FWD dashboard structure and titles
+            are standardized and cannot be edited manually.
+
+            <br><br>
+
+            Dashboard content is automatically generated
+            from the imported FWD data.
+
+        </div>
+
+
+        <div
+            style="
+                display:flex;
+                justify-content:center;
+                margin-top:25px;
+            "
+        >
+
+            <button
+                class="btn btn-white"
+                onclick="closeFwdEditVisualsInfo()"
+                style="
+                    min-width:140px;
+                "
+            >
+                Got it
+            </button>
 
         </div>
 
