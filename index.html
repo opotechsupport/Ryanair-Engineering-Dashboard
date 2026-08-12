@@ -1328,6 +1328,134 @@
 
 }
 
+/* =========================================================
+   iPAD — HOME USER CARD
+========================================================= */
+
+@media (min-width:768px) and (max-width:1180px){
+
+    .home-user-card{
+
+        width:clamp(
+            280px,
+            27vw,
+            360px
+        );
+
+        max-width:30vw;
+
+        padding:clamp(
+            16px,
+            1.8vw,
+            22px
+        );
+
+        gap:clamp(
+            12px,
+            1.5vw,
+            18px
+        );
+
+        border-radius:20px;
+
+        box-sizing:border-box;
+
+    }
+
+
+    .home-user-avatar{
+
+        width:clamp(
+            52px,
+            5.5vw,
+            64px
+        );
+
+        height:clamp(
+            52px,
+            5.5vw,
+            64px
+        );
+
+        min-width:clamp(
+            52px,
+            5.5vw,
+            64px
+        );
+
+        box-sizing:border-box;
+
+    }
+
+
+    .home-user-name{
+
+        font-size:clamp(
+            18px,
+            2vw,
+            24px
+        );
+
+    }
+
+
+    .home-user-welcome{
+
+        font-size:clamp(
+            11px,
+            1.1vw,
+            14px
+        );
+
+    }
+
+
+    .home-user-role{
+
+        font-size:clamp(
+            10px,
+            1vw,
+            13px
+        );
+
+    }
+
+
+    .home-user-lastlogin{
+
+        margin-top:12px;
+
+        font-size:clamp(
+            9px,
+            .9vw,
+            11px
+        );
+
+    }
+
+
+    .home-user-lastlogin-value{
+
+        font-size:clamp(
+            11px,
+            1.1vw,
+            14px
+        );
+
+    }
+
+
+    .home-user-status{
+
+        font-size:clamp(
+            9px,
+            .9vw,
+            12px
+        );
+
+    }
+
+}
 
 
 </style>
@@ -20949,8 +21077,275 @@ span:last-child {
     box-sizing: border-box !important;
 }
 
+/* =========================================================
+   iPAD — IATA DELAY PERFORMANCE TABLE
+========================================================= */
+
+@media (min-width:768px) and (max-width:1180px){
+
+    #delayCodePerformanceTable{
+
+        width:100% !important;
+
+        max-width:100% !important;
+
+        min-width:0 !important;
+
+        overflow:hidden !important;
+
+        box-sizing:border-box;
+
+    }
 
 
+    #delayCodePerformanceTable > div{
+
+        width:100% !important;
+
+        max-width:100% !important;
+
+        overflow:hidden !important;
+
+        box-sizing:border-box;
+
+    }
+
+
+    #delayCodePerformanceTable table{
+
+        width:100% !important;
+
+        min-width:0 !important;
+
+        max-width:100% !important;
+
+        table-layout:fixed !important;
+
+        border-collapse:collapse;
+
+        font-size:11px !important;
+
+    }
+
+
+    #delayCodePerformanceTable th,
+    #delayCodePerformanceTable td{
+
+        box-sizing:border-box;
+
+        padding:9px 4px !important;
+
+        font-size:11px !important;
+
+        line-height:1.2 !important;
+
+        overflow:hidden;
+
+        word-break:normal;
+
+        overflow-wrap:anywhere;
+
+    }
+
+
+    /* CODE */
+
+    #delayCodePerformanceTable th:nth-child(1),
+    #delayCodePerformanceTable td:nth-child(1){
+
+        width:9% !important;
+
+        text-align:center;
+
+    }
+
+
+    /* DESCRIPTION */
+
+    #delayCodePerformanceTable th:nth-child(2),
+    #delayCodePerformanceTable td:nth-child(2){
+
+        width:29% !important;
+
+        text-align:left;
+
+    }
+
+
+    /* EVENTS */
+
+    #delayCodePerformanceTable th:nth-child(3),
+    #delayCodePerformanceTable td:nth-child(3){
+
+        width:10% !important;
+
+        text-align:center;
+
+    }
+
+
+    /* AVG */
+
+    #delayCodePerformanceTable th:nth-child(4),
+    #delayCodePerformanceTable td:nth-child(4){
+
+        width:17% !important;
+
+        text-align:center;
+
+    }
+
+
+    /* MAX */
+
+    #delayCodePerformanceTable th:nth-child(5),
+    #delayCodePerformanceTable td:nth-child(5){
+
+        width:18% !important;
+
+        text-align:center;
+
+    }
+
+
+    /* BASE */
+
+    #delayCodePerformanceTable th:nth-child(6),
+    #delayCodePerformanceTable td:nth-child(6){
+
+        width:17% !important;
+
+        text-align:center;
+
+    }
+
+
+    #delayCodePerformanceTable th{
+
+        white-space:normal !important;
+
+        font-size:10px !important;
+
+        line-height:1.1 !important;
+
+    }
+
+
+    #delayCodePerformanceTable td{
+
+        white-space:normal !important;
+
+    }
+
+}
+
+/* =========================================================
+   iPAD — REPORT HEADER
+   2 x 2 ACTION BUTTONS
+========================================================= */
+
+@media (min-width:768px) and (max-width:1180px){
+
+    .rh-header{
+
+        width:100%;
+
+        box-sizing:border-box;
+
+        padding:16px 20px;
+
+        gap:18px;
+
+    }
+
+
+    .rh-left{
+
+        min-width:0;
+
+        flex:1 1 auto;
+
+        gap:14px;
+
+    }
+
+
+    .rh-logo{
+
+        height:48px;
+
+        flex-shrink:0;
+
+    }
+
+
+    .rh-content{
+
+        min-width:0;
+
+    }
+
+
+    .rh-title{
+
+        font-size:clamp(
+            18px,
+            2.1vw,
+            24px
+        );
+
+        line-height:1.1;
+
+    }
+
+
+    .rh-subtitle{
+
+        font-size:11px;
+
+    }
+
+
+    .rh-actions{
+
+        width:330px;
+
+        max-width:38%;
+
+        flex-shrink:0;
+
+        display:grid !important;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap:9px;
+
+        margin-left:auto;
+
+    }
+
+
+    .rh-btn{
+
+        width:100%;
+
+        min-width:0;
+
+        height:38px;
+
+        padding:
+            0 8px;
+
+        font-size:11px;
+
+        white-space:nowrap;
+
+        box-sizing:border-box;
+
+    }
+
+}
     </style>
 
 <!-- ===================================================== -->
