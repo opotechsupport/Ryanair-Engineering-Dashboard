@@ -821,21 +821,6 @@
     }
 
 
-    .home-user-card{
-
-        width:300px;
-
-        max-width:
-            calc(100vw - 40px);
-
-        top:20px;
-
-        right:20px;
-
-        box-sizing:border-box;
-
-    }
-
 }
 
 
@@ -1025,28 +1010,6 @@
     }
 
 
-    .home-user-card{
-
-        top:15px;
-
-        left:15px;
-
-        right:15px;
-
-        width:auto;
-
-        max-width:none;
-
-        box-sizing:border-box;
-
-        padding:15px;
-
-        gap:12px;
-
-        border-radius:16px;
-
-    }
-
 }
 
 
@@ -1156,56 +1119,7 @@
     }
 
 
-    .home-user-card{
-
-        top:12px;
-
-        left:12px;
-
-        right:12px;
-
-        width:auto;
-
-        padding:12px;
-
-        gap:10px;
-
-    }
-
-
-    .home-user-avatar{
-
-        width:48px;
-
-        height:48px;
-
-        min-width:48px;
-
-    }
-
-
-    .home-user-name{
-
-        font-size:16px;
-
-    }
-
-
-    .home-user-role{
-
-        font-size:11px;
-
-    }
-
-
-    .home-user-lastlogin,
-    .home-user-lastlogin-value,
-    .home-user-status{
-
-        font-size:10px;
-
-    }
-
+   
 }
 
 
@@ -1332,29 +1246,21 @@
    iPAD — HOME USER CARD
 ========================================================= */
 
-@media (min-width:768px) and (max-width:1180px){
+@media (min-width:700px) and (max-width:1300px){
 
     .home-user-card{
 
-        width:clamp(
-            280px,
-            27vw,
-            360px
-        );
+        top:20px;
 
-        max-width:30vw;
+        right:20px;
 
-        padding:clamp(
-            16px,
-            1.8vw,
-            22px
-        );
+        width:300px;
 
-        gap:clamp(
-            12px,
-            1.5vw,
-            18px
-        );
+        max-width:calc(100vw - 40px);
+
+        padding:18px;
+
+        gap:14px;
 
         border-radius:20px;
 
@@ -1362,111 +1268,19 @@
 
     }
 
-
-    .home-user-avatar{
-
-        width:clamp(
-            52px,
-            5.5vw,
-            64px
-        );
-
-        height:clamp(
-            52px,
-            5.5vw,
-            64px
-        );
-
-        min-width:clamp(
-            52px,
-            5.5vw,
-            64px
-        );
-
-        box-sizing:border-box;
-
-    }
-
-
-    .home-user-name{
-
-        font-size:clamp(
-            18px,
-            2vw,
-            24px
-        );
-
-    }
-
-
-    .home-user-welcome{
-
-        font-size:clamp(
-            11px,
-            1.1vw,
-            14px
-        );
-
-    }
-
-
-    .home-user-role{
-
-        font-size:clamp(
-            10px,
-            1vw,
-            13px
-        );
-
-    }
-
-
-    .home-user-lastlogin{
-
-        margin-top:12px;
-
-        font-size:clamp(
-            9px,
-            .9vw,
-            11px
-        );
-
-    }
-
-
-    .home-user-lastlogin-value{
-
-        font-size:clamp(
-            11px,
-            1.1vw,
-            14px
-        );
-
-    }
-
-
-    .home-user-status{
-
-        font-size:clamp(
-            9px,
-            .9vw,
-            12px
-        );
-
-    }
-
 }
-
 
 </style>
 
 <div
     class="home-user-card"
-    onclick="console.log('CLICK'); toggleUserMenu(event)">
+    onclick="console.log('CLICK'); toggleUserMenu(event)"
+>
 
     <div
-        id="homeUserAvatar"
-        class="home-user-avatar">
+    id="homeUserAvatar"
+    class="home-user-avatar"
+>
 
         GU
 
@@ -21346,6 +21160,107 @@ span:last-child {
     }
 
 }
+
+/* =========================================================
+   REGIONAL CHARTS — RESPONSIVE
+========================================================= */
+
+/* iPad / medium screens */
+@media (min-width:768px) and (max-width:1200px){
+
+    .regional-charts-grid{
+
+        grid-template-columns:1fr !important;
+
+        gap:20px !important;
+
+        width:100% !important;
+
+    }
+
+
+    /* IATA DELAY CODES TABLE */
+    .regional-charts-grid > div:first-child{
+
+        width:100% !important;
+
+        min-width:0 !important;
+
+        box-sizing:border-box !important;
+
+    }
+
+
+    /* DELAY GROUPS CHART */
+    .regional-charts-grid > div:last-child{
+
+        width:100% !important;
+
+        min-width:0 !important;
+
+        box-sizing:border-box !important;
+
+    }
+
+
+    /* Chart container */
+    .regional-charts-grid > div:last-child > div{
+
+        width:100% !important;
+
+        max-width:100% !important;
+
+        height:420px !important;
+
+        box-sizing:border-box !important;
+
+    }
+
+
+    .regional-charts-grid canvas{
+
+        max-width:100% !important;
+
+    }
+
+}
+
+
+/* =========================================================
+   SMALLER SCREENS
+========================================================= */
+
+@media (max-width:767px){
+
+    .regional-charts-grid{
+
+        grid-template-columns:1fr !important;
+
+        gap:16px !important;
+
+    }
+
+
+    .regional-charts-grid > div{
+
+        width:100% !important;
+
+        min-width:0 !important;
+
+        box-sizing:border-box !important;
+
+        padding:16px !important;
+
+    }
+
+
+    .regional-charts-grid > div:last-child > div{
+
+        height:360px !important;
+
+    }
+
+}
     </style>
 
 <!-- ===================================================== -->
@@ -23071,12 +22986,12 @@ stroke-width="0.35">
 
         <div>
 
-            <div style="
-                display:grid;
-                grid-template-columns:2.5fr .7fr;
-                gap:18px;
-                align-items:start;
-            ">
+            <div class="regional-charts-grid" style="
+    display:grid;
+    grid-template-columns:2.5fr .7fr;
+    gap:18px;
+    align-items:start;
+">
 
                 <!-- DELAY CODES -->
 
