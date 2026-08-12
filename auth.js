@@ -977,15 +977,19 @@ const user = snapshot.val();
 
         localStorage.setItem(
 
-            SESSION_STORAGE_KEY,
+    SESSION_STORAGE_KEY,
 
-            JSON.stringify({
+    JSON.stringify({
 
-                username
+        username,
 
-            })
+        role: user.profile.role,
 
-        );
+        fullName: user.profile.fullName
+
+    })
+
+);
 
         // =====================================
         // LOGIN SUCCESS
@@ -1351,6 +1355,19 @@ console.log("CREATE ADMIN CLICKED");
     const confirmPassword =
         document.getElementById("setupPassword2").value;
 
+    const masterKey =
+    document
+        .getElementById("setupMasterKey")
+        .value
+        .trim();
+
+    const photoFile =
+    document
+        .getElementById("setupPhotoInput")
+        ?.files?.[0];
+
+let photo = null;
+
     // ======================================
     // VALIDATION
     // ======================================
@@ -1372,6 +1389,61 @@ console.log("CREATE ADMIN CLICKED");
 
     if(!validateSetupPasswordMatch()) return;
 
+if(masterKey.length < 8){
+
+    showError(
+
+        "Invalid Master Key",
+
+        "The Master Security Key must contain at least 8 characters."
+
+    );
+
+    return;
+
+}
+
+
+    if(photoFile){
+
+    photo =
+        await new Promise(
+            (resolve,reject) => {
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function(event){
+
+                        resolve(
+                            event.target.result
+                        );
+
+                    };
+
+
+                reader.onerror =
+                    function(){
+
+                        reject(
+                            new Error(
+                                "PHOTO_READ_FAILED"
+                            )
+                        );
+
+                    };
+
+
+                reader.readAsDataURL(
+                    photoFile
+                );
+
+            }
+        );
+
+}
 
 
     // ======================================
@@ -1463,6 +1535,16 @@ console.log("CREATE ADMIN CLICKED");
     // CREATE USER
     // ======================================
 
+    const masterKeySalt =
+    generateSalt();
+
+
+const masterKeyHash =
+    await hashPassword(
+        masterKey,
+        masterKeySalt
+    );
+
 
     const user = await createUser({
 
@@ -1472,9 +1554,13 @@ console.log("CREATE ADMIN CLICKED");
 
     password,
 
-    role: USER_ROLES.ADMIN,
+    role:
+        USER_ROLES.ADMIN,
 
-    createdBy: "SYSTEM"
+    createdBy:
+        "SYSTEM",
+
+    photo
 
 });
 
@@ -1490,7 +1576,28 @@ console.log("CREATE ADMIN CLICKED");
 
     CURRENT_USER = user;
 
+await firebaseSet(
 
+    firebaseRef(
+        database,
+        "system/security"
+    ),
+
+    {
+
+        masterKeyHash,
+
+        masterKeySalt,
+
+        createdAt:
+            Date.now(),
+
+        createdBy:
+            username
+
+    }
+
+);
 
     localStorage.setItem(
 
@@ -1677,10 +1784,24 @@ function updateUserInterface(){
             ? "block"
             : "none";
 
+document.getElementById(
+    "menuDataManagementButton"
+).style.display =
+
+    hasPermission(
+        PERMISSIONS.MANAGE_USERS
+    )
+
+        ? "block"
+
+        : "none";
+
     document.getElementById("menuSettingsButton").style.display =
         logged
             ? "block"
             : "none";
+
+
 
 }
 
@@ -2930,11 +3051,21 @@ function getSetupAdministrator(){
 
         </div>
 
-        <div class="setupText" style="margin-bottom:35px;">
 
-            Create the first Administrator account for the dashboard.
+        <div
+            class="setupText"
+            style="margin-bottom:28px;"
+        >
+
+            Create the first Administrator account
+            and configure the site's Master Security Key.
 
         </div>
+
+
+        <!-- =====================================
+             FULL NAME
+        ====================================== -->
 
         <label class="input-label">
 
@@ -2950,9 +3081,112 @@ function getSetupAdministrator(){
             autocomplete="name"
         >
 
+
+      <!-- =====================================
+     PROFILE PHOTO
+====================================== -->
+
+<label
+    class="input-label"
+    style="margin-top:14px;"
+>
+    Profile Photo
+</label>
+
+<div
+    style="
+        display:flex;
+        align-items:center;
+        gap:18px;
+        margin-top:8px;
+        padding:4px 0 2px;
+    "
+>
+
+    <!-- PHOTO -->
+
+    <div
+        id="setupPhotoPreviewContainer"
+        style="
+            width:82px;
+            height:82px;
+            min-width:82px;
+            border-radius:50%;
+            background:#EEF4FD;
+            border:3px solid #F4C400;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            box-sizing:border-box;
+            box-shadow:0 3px 10px rgba(8,43,115,.10);
+            font-size:27px;
+        "
+    >
+        👤
+    </div>
+
+
+    <!-- PHOTO CONTROLS -->
+
+    <div
+        style="
+            display:flex;
+            flex-direction:column;
+            align-items:flex-start;
+            gap:7px;
+        "
+    >
+
+        <label
+            for="setupPhotoInput"
+            class="btn btn-white"
+            style="
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                gap:7px;
+                min-height:38px;
+                padding:0 15px;
+                cursor:pointer;
+                box-sizing:border-box;
+                font-size:13px;
+            "
+        >
+            Choose Photo
+        </label>
+
+        <input
+            id="setupPhotoInput"
+            type="file"
+            accept="image/*"
+            onchange="previewSetupPhoto(this)"
+            style="display:none;"
+        >
+
+        <span
+            style="
+                font-size:11px;
+                line-height:1.3;
+                color:#7A879A;
+            "
+        >
+            JPG or PNG • Optional
+        </span>
+
+    </div>
+
+</div>
+
+
+        <!-- =====================================
+             USERNAME
+        ====================================== -->
+
         <label
             class="input-label"
-            style="margin-top:18px;">
+            style="margin-top:12px;"
+        >
 
             Username
 
@@ -2969,13 +3203,18 @@ function getSetupAdministrator(){
 
         <div
             id="setupUsernameStatus"
-            class="authHint">
+            class="authHint"
+        ></div>
 
-        </div>
+
+        <!-- =====================================
+             PASSWORD
+        ====================================== -->
 
         <label
             class="input-label"
-            style="margin-top:18px;">
+            style="margin-top:12px;"
+        >
 
             Password
 
@@ -2991,13 +3230,18 @@ function getSetupAdministrator(){
 
         <div
             id="setupPasswordStrength"
-            class="authHint">
+            class="authHint"
+        ></div>
 
-        </div>
+
+        <!-- =====================================
+             CONFIRM PASSWORD
+        ====================================== -->
 
         <label
             class="input-label"
-            style="margin-top:18px;">
+            style="margin-top:12px;"
+        >
 
             Confirm Password
 
@@ -3013,23 +3257,89 @@ function getSetupAdministrator(){
 
         <div
             id="setupPasswordMatch"
-            class="authHint">
+            class="authHint"
+        ></div>
+
+
+        <!-- =====================================
+             MASTER KEY
+        ====================================== -->
+
+        <label
+            class="input-label"
+            style="margin-top:16px;"
+        >
+
+            Master Security Key
+
+        </label>
+
+
+        <div
+            style="
+                display:flex;
+                gap:10px;
+                align-items:center;
+            "
+        >
+
+            <input
+                id="setupMasterKey"
+                class="auth-input"
+                type="password"
+                placeholder="Create a secure master key"
+                autocomplete="new-password"
+                style="flex:1;"
+            >
+
+
+            <button
+                type="button"
+                class="btn btn-white"
+                onclick="generateSetupMasterKey()"
+                style="
+                    white-space:nowrap;
+                    height:44px;
+                "
+            >
+
+                🔑 Generate Key
+
+            </button>
 
         </div>
+
+
+        <div
+            id="setupMasterKeyStatus"
+            class="authHint"
+        >
+
+            Required for sensitive administrator operations.
+
+        </div>
+
+
+        <!-- =====================================
+             ACTIONS
+        ====================================== -->
 
         <div class="setupButtonsRight">
 
             <button
                 class="btn btn-white"
-                onclick="showSetupStep(1)">
+                onclick="showSetupStep(1)"
+            >
 
                 ← Back
 
             </button>
 
+
             <button
                 class="btn btn-yellow"
-                onclick="createFirstAdministrator()">
+                onclick="createFirstAdministrator()"
+            >
 
                 Create Administrator →
 
@@ -3038,6 +3348,138 @@ function getSetupAdministrator(){
         </div>
 
     `;
+
+}
+
+function previewSetupPhoto(input){
+
+    const file =
+        input?.files?.[0];
+
+    const preview =
+        document.getElementById(
+            "setupPhotoPreviewContainer"
+        );
+
+
+    if(
+        !file ||
+        !preview
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        !file.type.startsWith("image/")
+    ){
+
+        showError(
+            "Invalid Photo",
+            "Please select an image file."
+        );
+
+        input.value = "";
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(event){
+
+            preview.innerHTML = `
+
+                <img
+                    src="${event.target.result}"
+                    alt="Profile preview"
+                    style="
+                        width:100%;
+                        height:100%;
+                        object-fit:cover;
+                        display:block;
+                    "
+                >
+
+            `;
+
+        };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+function generateSetupMasterKey(){
+
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+
+
+    let key = "";
+
+
+    const array =
+        new Uint32Array(24);
+
+
+    crypto.getRandomValues(
+        array
+    );
+
+
+    array.forEach(
+        value => {
+
+            key +=
+                chars[
+                    value %
+                    chars.length
+                ];
+
+        }
+    );
+
+
+    const input =
+        document.getElementById(
+            "setupMasterKey"
+        );
+
+
+    if(input){
+
+        input.type =
+            "text";
+
+        input.value =
+            key;
+
+    }
+
+
+    const status =
+        document.getElementById(
+            "setupMasterKeyStatus"
+        );
+
+
+    if(status){
+
+        status.style.color =
+            "#2E8B57";
+
+        status.textContent =
+            "✓ Strong Master Key generated. Save it securely.";
+
+    }
 
 }
 
@@ -3704,121 +4146,724 @@ function createUserRow(user){
 }
 
 // ======================================================
-// USER ACTIONS
+// MASTER SECURITY KEY — DISABLE USER
+// ======================================================
+
+let MASTER_KEY_TARGET_USERNAME = null;
+let MASTER_KEY_ACTION = null;
+
+
+function openMasterKeyModal(username, action){
+
+    const user =
+        USERS_CACHE.find(
+            u => u.profile.username === username
+        );
+
+
+    if(!user){
+
+        showError(
+            "User Management",
+            "User not found."
+        );
+
+        return;
+
+    }
+
+
+    // =========================================
+    // STORE OPERATION
+    // =========================================
+
+    MASTER_KEY_TARGET_USERNAME =
+        username;
+
+    MASTER_KEY_ACTION =
+        action;
+
+
+    const modal =
+        document.getElementById(
+            "masterKeyModal"
+        );
+
+    const target =
+        document.getElementById(
+            "masterKeyTargetUser"
+        );
+
+    const input =
+        document.getElementById(
+            "masterKeyInput"
+        );
+
+    const title =
+        document.querySelector(
+            "#masterKeyModal .modalTitle"
+        );
+
+    const button =
+        document.getElementById(
+            "masterKeyConfirmButton"
+        );
+
+
+    if(
+        !modal ||
+        !target ||
+        !input
+    ){
+
+        showError(
+            "Security",
+            "The Master Security Key window could not be opened."
+        );
+
+        return;
+
+    }
+
+
+    // =========================================
+    // TARGET USER
+    // =========================================
+
+    target.textContent =
+        `${user.profile.fullName} (@${username})`;
+
+
+    // =========================================
+    // ENABLE
+    // =========================================
+
+    if(action === "enable"){
+
+        if(title){
+
+            title.textContent =
+                "🔓 Enable User";
+
+        }
+
+        if(button){
+
+            button.textContent =
+                "🔓 Enable User";
+
+        }
+
+    }
+
+
+    // =========================================
+    // DISABLE
+    // =========================================
+
+    else if(action === "disable"){
+
+        if(title){
+
+            title.textContent =
+                "🔐 Disable User";
+
+        }
+
+        if(button){
+
+            button.textContent =
+                "🔒 Disable User";
+
+        }
+
+    }
+
+
+    // =========================================
+    // RESET INPUT
+    // =========================================
+
+    input.value = "";
+
+    input.type =
+        "password";
+
+
+    // =========================================
+    // SHOW
+    // =========================================
+
+    modal.style.display =
+        "flex";
+
+
+    setTimeout(
+        () => input.focus(),
+        100
+    );
+
+}
+
+
+// ======================================================
+// CLOSE MASTER KEY MODAL
+// ======================================================
+
+function closeMasterKeyModal(){
+
+    const modal =
+        document.getElementById(
+            "masterKeyModal"
+        );
+
+
+    const input =
+        document.getElementById(
+            "masterKeyInput"
+        );
+
+
+    if(input){
+
+        input.value = "";
+
+        input.type =
+            "password";
+
+    }
+
+
+    MASTER_KEY_TARGET_USERNAME =
+        null;
+
+
+    if(modal){
+
+        modal.style.display =
+            "none";
+
+    }
+
+}
+
+// ======================================================
+// VERIFY MASTER KEY AND DISABLE USER
+// ======================================================
+
+async function verifyMasterKeyAndDisable(){
+
+    const username =
+        MASTER_KEY_TARGET_USERNAME;
+
+
+    if(!username){
+
+        closeMasterKeyModal();
+
+        return;
+
+    }
+
+
+    const input =
+        document.getElementById(
+            "masterKeyInput"
+        );
+
+
+    const button =
+        document.getElementById(
+            "masterKeyConfirmButton"
+        );
+
+
+    const masterKey =
+        input?.value.trim();
+
+
+    // =========================================
+    // EMPTY KEY
+    // =========================================
+
+    if(!masterKey){
+
+        showWarning(
+
+            "Master Key Required",
+
+            "Please enter the Master Security Key."
+
+        );
+
+        if(input){
+
+            input.focus();
+
+        }
+
+        return;
+
+    }
+
+
+    try{
+
+        if(button){
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                "Verifying...";
+
+        }
+
+
+        // =========================================
+        // LOAD SECURITY CONFIGURATION
+        // =========================================
+
+        const snapshot =
+            await firebaseGet(
+
+                firebaseRef(
+
+                    database,
+
+                    "system/security"
+
+                )
+
+            );
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            showError(
+
+                "Security Configuration",
+
+                "The Master Security Key has not been configured."
+
+            );
+
+            return;
+
+        }
+
+
+        const security =
+            snapshot.val();
+
+
+        if(
+            !security.masterKeyHash ||
+            !security.masterKeySalt
+        ){
+
+            showError(
+
+                "Security Configuration",
+
+                "The Master Security Key configuration is incomplete."
+
+            );
+
+            return;
+
+        }
+
+
+        // =========================================
+        // HASH ENTERED KEY
+        // =========================================
+
+        const enteredHash =
+            await hashPassword(
+
+                masterKey,
+
+                security.masterKeySalt
+
+            );
+
+
+        // =========================================
+        // INVALID KEY
+        // =========================================
+
+        if(
+            enteredHash !==
+            security.masterKeyHash
+        ){
+
+            showError(
+
+                "Invalid Master Key",
+
+                "The Master Security Key is incorrect. The user was not disabled."
+
+            );
+
+            if(input){
+
+                input.select();
+
+            }
+
+            return;
+
+        }
+
+
+        // =========================================
+        // KEY VALID — DISABLE USER
+        // =========================================
+
+        if(
+    MASTER_KEY_ACTION === "enable"
+){
+
+    await enableUserWithMasterKey(
+        username
+    );
+
+}
+else if(
+    MASTER_KEY_ACTION === "disable"
+){
+
+    await disableUserWithMasterKey(
+        username
+    );
+
+}
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Master Key verification failed:",
+
+            error
+
+        );
+
+
+        showError(
+
+            "Security Error",
+
+            "Unable to verify the Master Security Key."
+
+        );
+
+    }
+
+    finally{
+
+        if(button){
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Disable User";
+
+        }
+
+    }
+
+}
+
+async function enableUserWithMasterKey(username){
+
+    const user =
+        USERS_CACHE.find(
+            u => u.profile.username === username
+        );
+
+
+    if(!user){
+
+        closeMasterKeyModal();
+
+        showError(
+            "User Management",
+            "User not found."
+        );
+
+        return;
+
+    }
+
+
+    await firebaseUpdate(
+
+        firebaseRef(
+            database,
+            `${AUTH_COLLECTION}/${username}`
+        ),
+
+        {
+            profile:{
+                ...user.profile,
+                active:true
+            }
+        }
+
+    );
+
+
+    user.profile.active =
+        true;
+
+
+    await writeAuditLog(
+        "ENABLE_USER",
+        `${username} — Master Security Key verified.`
+    );
+
+
+    closeMasterKeyModal();
+
+    renderUsersTable();
+    renderUserStats();
+
+
+    showSuccess(
+        "User Enabled",
+        `${user.profile.fullName} has been enabled successfully.`
+    );
+
+}
+
+
+// ======================================================
+// SHOW / HIDE MASTER KEY
+// ======================================================
+
+function toggleMasterKeyVisibility(){
+
+    const input =
+        document.getElementById(
+            "masterKeyInput"
+        );
+
+
+    if(!input){
+
+        return;
+
+    }
+
+
+    input.type =
+        input.type === "password"
+            ? "text"
+            : "password";
+
+}
+
+
+// ======================================================
+// DISABLE USER AFTER MASTER KEY VALIDATION
+// ======================================================
+
+async function disableUserWithMasterKey(username){
+
+    const user =
+        USERS_CACHE.find(
+
+            u =>
+                u.profile.username ===
+                username
+
+        );
+
+
+    if(!user){
+
+        closeMasterKeyModal();
+
+        showError(
+
+            "User Management",
+
+            "User not found."
+
+        );
+
+        return;
+
+    }
+
+
+    // =========================================
+    // FIREBASE
+    // =========================================
+
+    await firebaseUpdate(
+
+        firebaseRef(
+
+            database,
+
+            `${AUTH_COLLECTION}/${username}`
+
+        ),
+
+        {
+
+            profile:{
+
+                ...user.profile,
+
+                active:false
+
+            }
+
+        }
+
+    );
+
+
+    // =========================================
+    // LOCAL CACHE
+    // =========================================
+
+    user.profile.active =
+        false;
+
+
+    // =========================================
+    // AUDIT
+    // =========================================
+
+    await writeAuditLog(
+
+        "DISABLE_USER",
+
+        `${username} — Master Security Key verified.`
+
+    );
+
+
+    // =========================================
+    // CLOSE MODAL
+    // =========================================
+
+    closeMasterKeyModal();
+
+
+    // =========================================
+    // REFRESH
+    // =========================================
+
+    renderUsersTable();
+
+    renderUserStats();
+
+
+    // =========================================
+    // SUCCESS
+    // =========================================
+
+    showSuccess(
+
+        "User Disabled",
+
+        `${user.profile.fullName} has been disabled successfully.`
+
+    );
+
+}
+
+// ======================================================
+// USER STATUS
 // ======================================================
 
 async function toggleUserStatus(username){
 
     try{
 
-        const user = USERS_CACHE.find(
-
-            u => u.profile.username === username
-
-        );
+        const user =
+            USERS_CACHE.find(
+                u => u.profile.username === username
+            );
 
         if(!user){
 
             showError(
-
                 "User Management",
-
                 "User not found."
-
             );
 
             return;
-
         }
 
-        // Não permitir desativar o próprio utilizador
+
+        // =========================================
+        // CANNOT DISABLE YOURSELF
+        // =========================================
 
         if(
-
             CURRENT_USER &&
-
-            CURRENT_USER.profile.username === username
-
+            CURRENT_USER.profile.username === username &&
+            user.profile.active
         ){
 
             showWarning(
-
                 "Operation Not Allowed",
-
                 "You cannot disable your own account."
+            );
 
+            return;
+        }
+
+
+        // =========================================
+        // USER IS DISABLED → ENABLE
+        // =========================================
+
+        if(!user.profile.active){
+
+            openMasterKeyModal(
+                username,
+                "enable"
             );
 
             return;
 
         }
 
-        const active = !user.profile.active;
 
-        await firebaseUpdate(
+        // =========================================
+        // USER IS ACTIVE → DISABLE
+        // =========================================
 
-            firebaseRef(
-
-                database,
-
-                `${AUTH_COLLECTION}/${username}`
-
-            ),
-
-            {
-
-                profile:{
-
-                    ...user.profile,
-
-                    active
-
-                }
-
-            }
-
-        );
-
-        user.profile.active = active;
-
-        await writeAuditLog(
-
-            active
-
-                ? "ENABLE_USER"
-
-                : "DISABLE_USER",
-
-            `${username}`
-
-        );
-
-        renderUsersTable();
-renderUserStats();
-        showSuccess(
-
-            "User Updated",
-
-            active
-
-                ? "User enabled successfully."
-
-                : "User disabled successfully."
-
+        openMasterKeyModal(
+            username,
+            "disable"
         );
 
     }
 
     catch(error){
 
-        console.error(error);
+        console.error(
+            "Toggle user status failed:",
+            error
+        );
 
         showError(
-
             "User Management",
-
             "Unable to update user."
-
         );
 
     }
@@ -12229,13 +13274,665 @@ function openDataMigrationModal(){
         "modal-overlay";
 
 
+    // ==========================================
+    // MODAL HTML
+    // ==========================================
+
     modal.innerHTML = `
 
+        <style>
+
+            /* ==================================
+               MIGRATION MODAL
+               ================================== */
+
+            #dataMigrationModal
+                .modal-overlay{
+
+                background:
+                    rgba(
+                        3,
+                        18,
+                        52,
+                        0.62
+                    );
+
+                backdrop-filter:
+                    blur(5px);
+
+                -webkit-backdrop-filter:
+                    blur(5px);
+
+            }
+
+
+            #dataMigrationModal
+                .migration-modal{
+
+                width:
+                    min(
+                        680px,
+                        calc(
+                            100vw - 40px
+                        )
+                    );
+
+                max-height:
+                    calc(
+                        100vh - 40px
+                    );
+
+                overflow-y:
+                    auto;
+
+                background:
+                    #ffffff;
+
+                border-radius:
+                    18px;
+
+                box-shadow:
+                    0 24px 60px
+                    rgba(
+                        0,
+                        0,
+                        0,
+                        0.25
+                    );
+
+                padding:
+                    32px 34px 28px;
+
+                box-sizing:
+                    border-box;
+
+                animation:
+                    migrationModalIn
+                    0.22s
+                    ease-out;
+
+            }
+
+
+            @keyframes migrationModalIn{
+
+                from{
+
+                    opacity:
+                        0;
+
+                    transform:
+                        translateY(
+                            10px
+                        )
+                        scale(
+                            0.98
+                        );
+
+                }
+
+                to{
+
+                    opacity:
+                        1;
+
+                    transform:
+                        translateY(
+                            0
+                        )
+                        scale(
+                            1
+                        );
+
+                }
+
+            }
+
+
+            /* ==================================
+               HEADER
+               ================================== */
+
+            #dataMigrationModal
+                .migration-header{
+
+                display:
+                    flex;
+
+                align-items:
+                    center;
+
+                gap:
+                    20px;
+
+                padding-bottom:
+                    24px;
+
+                border-bottom:
+                    3px solid
+                    #F4C400;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-icon{
+
+                width:
+                    64px;
+
+                height:
+                    64px;
+
+                flex:
+                    0 0 64px;
+
+                display:
+                    flex;
+
+                align-items:
+                    center;
+
+                justify-content:
+                    center;
+
+                border-radius:
+                    18px;
+
+                background:
+                    rgba(
+                        7,
+                        34,
+                        91,
+                        0.08
+                    );
+
+                color:
+                    #07225B;
+
+                font-size:
+                    30px;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-title{
+
+                margin:
+                    0;
+
+                color:
+                    #07225B;
+
+                font-size:
+                    26px;
+
+                font-weight:
+                    800;
+
+                line-height:
+                    1.15;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-subtitle{
+
+                margin:
+                    7px 0 0;
+
+                color:
+                    #6B7280;
+
+                font-size:
+                    14px;
+
+                line-height:
+                    1.5;
+
+            }
+
+
+            /* ==================================
+               FORM
+               ================================== */
+
+            #dataMigrationModal
+                .migration-form{
+
+                margin-top:
+                    26px;
+
+                display:
+                    flex;
+
+                flex-direction:
+                    column;
+
+                gap:
+                    16px;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-row{
+
+                display:
+                    grid;
+
+                grid-template-columns:
+                    42px
+                    100px
+                    1fr;
+
+                align-items:
+                    center;
+
+                gap:
+                    14px;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-field-icon{
+
+                width:
+                    42px;
+
+                height:
+                    42px;
+
+                display:
+                    flex;
+
+                align-items:
+                    center;
+
+                justify-content:
+                    center;
+
+                border-radius:
+                    12px;
+
+                background:
+                    #EEF4FF;
+
+                color:
+                    #07225B;
+
+                font-size:
+                    19px;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-label{
+
+                color:
+                    #14213D;
+
+                font-size:
+                    14px;
+
+                font-weight:
+                    700;
+
+            }
+
+
+            #dataMigrationModal
+                select.form-control{
+
+                width:
+                    100%;
+
+                min-height:
+                    44px;
+
+                padding:
+                    0 40px 0 14px;
+
+                border:
+                    1px solid
+                    #D5DCE8;
+
+                border-radius:
+                    10px;
+
+                background:
+                    #FFFFFF;
+
+                color:
+                    #17213A;
+
+                font-size:
+                    14px;
+
+                font-family:
+                    inherit;
+
+                outline:
+                    none;
+
+                cursor:
+                    pointer;
+
+                transition:
+                    border-color
+                    0.15s ease,
+                    box-shadow
+                    0.15s ease;
+
+            }
+
+
+            #dataMigrationModal
+                select.form-control:hover{
+
+                border-color:
+                    #9EB2D6;
+
+            }
+
+
+            #dataMigrationModal
+                select.form-control:focus{
+
+                border-color:
+                    #07225B;
+
+                box-shadow:
+                    0 0 0 3px
+                    rgba(
+                        7,
+                        34,
+                        91,
+                        0.10
+                    );
+
+            }
+
+
+            /* ==================================
+               WARNING
+               ================================== */
+
+            #dataMigrationModal
+                #migrationWarning{
+
+                margin-top:
+                    22px !important;
+
+                padding:
+                    14px 16px !important;
+
+                border-radius:
+                    10px !important;
+
+                background:
+                    #FFF8DC !important;
+
+                border:
+                    1px solid
+                    #F4D35E !important;
+
+                color:
+                    #263248;
+
+                font-size:
+                    13px !important;
+
+                line-height:
+                    1.55 !important;
+
+            }
+
+
+            /* ==================================
+               ACTIONS
+               ================================== */
+
+            #dataMigrationModal
+                .migration-actions{
+
+                display:
+                    flex;
+
+                justify-content:
+                    flex-end;
+
+                align-items:
+                    center;
+
+                gap:
+                    12px;
+
+                margin-top:
+                    26px;
+
+                padding-top:
+                    22px;
+
+                border-top:
+                    1px solid
+                    #E4E8EF;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-cancel{
+
+                min-width:
+                    100px;
+
+                min-height:
+                    42px;
+
+                padding:
+                    0 18px;
+
+                border:
+                    1px solid
+                    #C9D2E2;
+
+                border-radius:
+                    10px;
+
+                background:
+                    #FFFFFF;
+
+                color:
+                    #07225B;
+
+                font-family:
+                    inherit;
+
+                font-size:
+                    14px;
+
+                font-weight:
+                    700;
+
+                cursor:
+                    pointer;
+
+                transition:
+                    all
+                    0.15s
+                    ease;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-cancel:hover{
+
+                background:
+                    #F4F7FC;
+
+                border-color:
+                    #07225B;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-move{
+
+                min-width:
+                    120px;
+
+                min-height:
+                    42px;
+
+                padding:
+                    0 20px;
+
+                border:
+                    none;
+
+                border-radius:
+                    10px;
+
+                background:
+                    #F4C400;
+
+                color:
+                    #07225B;
+
+                font-family:
+                    inherit;
+
+                font-size:
+                    14px;
+
+                font-weight:
+                    800;
+
+                cursor:
+                    pointer;
+
+                box-shadow:
+                    0 4px 10px
+                    rgba(
+                        244,
+                        196,
+                        0,
+                        0.20
+                    );
+
+                transition:
+                    transform
+                    0.15s ease,
+                    box-shadow
+                    0.15s ease,
+                    opacity
+                    0.15s ease;
+
+            }
+
+
+            #dataMigrationModal
+                .migration-move:hover:not(:disabled){
+
+                transform:
+                    translateY(
+                        -1px
+                    );
+
+                box-shadow:
+                    0 6px 14px
+                    rgba(
+                        244,
+                        196,
+                        0,
+                        0.28
+                    );
+
+            }
+
+
+            #dataMigrationModal
+                .migration-move:disabled{
+
+                background:
+                    #E5E7EB;
+
+                color:
+                    #9CA3AF;
+
+                cursor:
+                    not-allowed;
+
+                box-shadow:
+                    none;
+
+                opacity:
+                    1;
+
+            }
+
+
+            /* ==================================
+               MOBILE
+               ================================== */
+
+            @media(
+                max-width: 600px
+            ){
+
+                #dataMigrationModal
+                    .migration-modal{
+
+                    width:
+                        calc(
+                            100vw - 24px
+                        );
+
+                    padding:
+                        24px 20px;
+
+                }
+
+
+                #dataMigrationModal
+                    .migration-row{
+
+                    grid-template-columns:
+                        38px
+                        75px
+                        1fr;
+
+                    gap:
+                        10px;
+
+                }
+
+
+                #dataMigrationModal
+                    .migration-field-icon{
+
+                    width:
+                        38px;
+
+                    height:
+                        38px;
+
+                }
+
+            }
+
+        </style>
+
+
         <div
-            class="modal-content"
-            style="
-                max-width: 520px;
-            "
+            class="migration-modal"
         >
 
             <!-- ==================================
@@ -12243,16 +13940,30 @@ function openDataMigrationModal(){
                  ================================== -->
 
             <div
-                class="modal-header"
+                class="migration-header"
             >
+
+                <div
+                    class="migration-icon"
+                >
+
+                    ⇄
+
+                </div>
+
 
                 <div>
 
-                    <h2>
+                    <h2
+                        class="migration-title"
+                    >
                         Migrate Report Data
                     </h2>
 
-                    <p>
+
+                    <p
+                        class="migration-subtitle"
+                    >
                         Move complete report data
                         between reporting periods.
                     </p>
@@ -12263,90 +13974,124 @@ function openDataMigrationModal(){
 
 
             <!-- ==================================
-                 REPORT
+                 FORM
                  ================================== -->
 
             <div
-                class="form-group"
-                style="margin-top:20px;"
+                class="migration-form"
             >
 
-                <label>
-                    Report
-                </label>
+                <!-- REPORT -->
 
-                <select
-                    id="migrationReport"
-                    class="form-control"
+                <div
+                    class="migration-row"
                 >
 
-                    <option value="noinfo">
-                        No Info
-                    </option>
-
-                    <option value="fwd">
-                        FWD
-                    </option>
-
-                    <option value="acheck">
-                        A-Check
-                    </option>
-
-                </select>
-
-            </div>
+                    <div
+                        class="migration-field-icon"
+                    >
+                        ▣
+                    </div>
 
 
-            <!-- ==================================
-                 FROM
-                 ================================== -->
+                    <label
+                        class="migration-label"
+                        for="migrationReport"
+                    >
+                        Report
+                    </label>
 
-            <div
-                class="form-group"
-                style="margin-top:15px;"
-            >
 
-                <label>
-                    From
-                </label>
+                    <select
+                        id="migrationReport"
+                        class="form-control"
+                    >
 
-                <select
-                    id="migrationFrom"
-                    class="form-control"
+                        <option value="noinfo">
+                            No Info
+                        </option>
+
+                        <option value="fwd">
+                            FWD
+                        </option>
+
+                        <option value="acheck">
+                            A-Check
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- FROM -->
+
+                <div
+                    class="migration-row"
                 >
 
-                    <option value="">
-                        Select source period
-                    </option>
-
-                </select>
-
-            </div>
+                    <div
+                        class="migration-field-icon"
+                    >
+                        ▣
+                    </div>
 
 
-            <!-- ==================================
-                 TO
-                 ================================== -->
+                    <label
+                        class="migration-label"
+                        for="migrationFrom"
+                    >
+                        From
+                    </label>
 
-            <div
-                class="form-group"
-                style="margin-top:15px;"
-            >
 
-                <label>
-                    To
-                </label>
+                    <select
+                        id="migrationFrom"
+                        class="form-control"
+                    >
 
-                <select
-                    id="migrationTo"
-                    class="form-control"
+                        <option value="">
+                            Select source period
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TO -->
+
+                <div
+                    class="migration-row"
                 >
 
-                    <option value="">
-                        Select destination period
-                    </option>
+                    <div
+                        class="migration-field-icon"
+                    >
+                        ▣
+                    </div>
 
-                </select>
+
+                    <label
+                        class="migration-label"
+                        for="migrationTo"
+                    >
+                        To
+                    </label>
+
+
+                    <select
+                        id="migrationTo"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select destination period
+                        </option>
+
+                    </select>
+
+                </div>
 
             </div>
 
@@ -12359,13 +14104,6 @@ function openDataMigrationModal(){
                 id="migrationWarning"
                 style="
                     display:none;
-                    margin-top:18px;
-                    padding:12px 14px;
-                    border-radius:8px;
-                    background:rgba(255,180,0,0.12);
-                    border:1px solid rgba(255,180,0,0.35);
-                    font-size:13px;
-                    line-height:1.5;
                 "
             ></div>
 
@@ -12375,15 +14113,12 @@ function openDataMigrationModal(){
                  ================================== -->
 
             <div
-                class="modal-actions"
-                style="
-                    margin-top:25px;
-                "
+                class="migration-actions"
             >
 
                 <button
                     type="button"
-                    class="btn-secondary"
+                    class="migration-cancel"
                     onclick="
                         closeDataMigrationModal()
                     "
@@ -12394,7 +14129,7 @@ function openDataMigrationModal(){
 
                 <button
                     type="button"
-                    class="btn-primary"
+                    class="migration-move"
                     id="migrationMoveButton"
                     onclick="
                         executeDataMigration()
@@ -12444,7 +14179,6 @@ function openDataMigrationModal(){
     loadMigrationPeriods();
 
 }
-
 
 // ======================================================
 // CLOSE DATA MIGRATION MODAL
@@ -12501,7 +14235,7 @@ async function loadMigrationPeriods(){
 
 
     // ==========================================
-    // RESET SELECTORS
+    // RESET
     // ==========================================
 
     fromSelect.innerHTML = `
@@ -12515,7 +14249,7 @@ async function loadMigrationPeriods(){
     toSelect.innerHTML = `
 
         <option value="">
-            Loading periods...
+            Select destination period
         </option>
 
     `;
@@ -12529,6 +14263,15 @@ async function loadMigrationPeriods(){
         // ==========================================
         // NO INFO
         // ==========================================
+        //
+        // Firebase:
+        //
+        // dashboardData
+        //    └── noInfo
+        //         ├── 2026-06
+        //         └── 2026-07
+        //
+        // ==========================================
 
         if(
             report === "noinfo"
@@ -12538,8 +14281,11 @@ async function loadMigrationPeriods(){
                 await firebaseGet(
 
                     firebaseRef(
+
                         database,
-                        NOINFO_COLLECTION
+
+                        "dashboardData/noInfo"
+
                     )
 
                 );
@@ -12563,8 +14309,19 @@ async function loadMigrationPeriods(){
                                 .test(period)
                         ){
 
+                            const [
+                                year,
+                                month
+                            ] =
+                                period.split("-");
+
+
                             periods.push(
-                                period
+
+                                `${year}-${String(
+                                    Number(month)
+                                ).padStart(2,"0")}`
+
                             );
 
                         }
@@ -12580,6 +14337,16 @@ async function loadMigrationPeriods(){
         // ==========================================
         // FWD
         // ==========================================
+        //
+        // Firebase:
+        //
+        // dashboardData
+        //    └── FWD
+        //         └── 2026
+        //              ├── 06
+        //              └── 07
+        //
+        // ==========================================
 
         else if(
             report === "fwd"
@@ -12589,8 +14356,11 @@ async function loadMigrationPeriods(){
                 await firebaseGet(
 
                     firebaseRef(
+
                         database,
-                        FWD_DATA_COLLECTION
+
+                        "dashboardData/FWD"
+
                     )
 
                 );
@@ -12610,7 +14380,23 @@ async function loadMigrationPeriods(){
                     year => {
 
                         if(
-                            !/^\d{4}$/.test(year)
+                            !/^\d{4}$/
+                                .test(year)
+                        ){
+
+                            return;
+
+                        }
+
+
+                        const yearData =
+                            data[year];
+
+
+                        if(
+                            !yearData ||
+                            typeof yearData !==
+                                "object"
                         ){
 
                             return;
@@ -12619,7 +14405,7 @@ async function loadMigrationPeriods(){
 
 
                         Object.keys(
-                            data[year] || {}
+                            yearData
                         ).forEach(
                             month => {
 
@@ -12630,7 +14416,9 @@ async function loadMigrationPeriods(){
 
                                     periods.push(
 
-                                        `${year}-${String(month).padStart(2,"0")}`
+                                        `${year}-${String(
+                                            Number(month)
+                                        ).padStart(2,"0")}`
 
                                     );
 
@@ -12650,86 +14438,71 @@ async function loadMigrationPeriods(){
         // ==========================================
         // A-CHECK
         // ==========================================
+        //
+        // Firebase:
+        //
+        // dashboardData
+        //    └── acheck
+        //         ├── 2026-06
+        //         └── 2026-07
+        //
+        // ==========================================
 
         else if(
             report === "acheck"
         ){
 
-            /*
-             * A-CHECK collection/path will be
-             * connected here using the existing
-             * A-CHECK Firebase structure.
-             *
-             * We deliberately do not guess the
-             * collection/path.
-             */
+            const snapshot =
+                await firebaseGet(
+
+                    firebaseRef(
+
+                        database,
+
+                        "dashboardData/acheck"
+
+                    )
+
+                );
+
 
             if(
-                typeof A_CHECK_DATA_COLLECTION !==
-                "undefined"
+                snapshot.exists()
             ){
 
-                const snapshot =
-                    await firebaseGet(
-
-                        firebaseRef(
-                            database,
-                            A_CHECK_DATA_COLLECTION
-                        )
-
-                    );
+                const data =
+                    snapshot.val();
 
 
-                if(
-                    snapshot.exists()
-                ){
+                Object.keys(
+                    data
+                ).forEach(
+                    period => {
 
-                    const data =
-                        snapshot.val();
+                        if(
+                            /^\d{4}-\d{1,2}$/
+                                .test(period)
+                        ){
 
-
-                    // Supports:
-                    // collection/year/month
-
-                    Object.keys(
-                        data
-                    ).forEach(
-                        year => {
-
-                            if(
-                                !/^\d{4}$/.test(year)
-                            ){
-
-                                return;
-
-                            }
+                            const [
+                                year,
+                                month
+                            ] =
+                                period.split("-");
 
 
-                            Object.keys(
-                                data[year] || {}
-                            ).forEach(
-                                month => {
+                            periods.push(
 
-                                    if(
-                                        /^\d{1,2}$/
-                                            .test(month)
-                                    ){
+                                `${year}-${String(
+                                    Number(month)
+                                ).padStart(2,"0")}`
 
-                                        periods.push(
-
-                                            `${year}-${String(month).padStart(2,"0")}`
-
-                                        );
-
-                                    }
-
-                                }
                             );
 
                         }
-                    );
 
-                }
+                    }
+                );
 
             }
 
@@ -12741,9 +14514,11 @@ async function loadMigrationPeriods(){
         // ==========================================
 
         periods =
-            [...new Set(
-                periods
-            )];
+            [
+                ...new Set(
+                    periods
+                )
+            ];
 
 
         // ==========================================
@@ -12751,13 +14526,16 @@ async function loadMigrationPeriods(){
         // ==========================================
 
         periods.sort(
-            (a,b) =>
+            (
+                a,
+                b
+            ) =>
                 b.localeCompare(a)
         );
 
 
         // ==========================================
-        // SOURCE SELECT
+        // SOURCE PERIODS
         // ==========================================
 
         fromSelect.innerHTML = `
@@ -12781,6 +14559,7 @@ async function loadMigrationPeriods(){
                 option.value =
                     period;
 
+
                 option.textContent =
                     formatMigrationPeriod(
                         period
@@ -12796,14 +14575,33 @@ async function loadMigrationPeriods(){
 
 
         // ==========================================
-        // DESTINATION SELECT
+        // NO SOURCE DATA
+        // ==========================================
+
+        if(
+            periods.length === 0
+        ){
+
+            fromSelect.innerHTML = `
+
+                <option value="">
+                    No available periods
+                </option>
+
+            `;
+
+        }
+
+
+        // ==========================================
+        // DESTINATION PERIODS
         // ==========================================
         //
-        // We allow ANY reporting month/year,
-        // not only months that already exist.
+        // IMPORTANT:
+        // Destination does NOT need to exist.
         //
-        // This is important because the destination
-        // may be a completely new period.
+        // We therefore generate a complete
+        // selectable calendar range.
         // ==========================================
 
         const currentDate =
@@ -12833,7 +14631,9 @@ async function loadMigrationPeriods(){
             ){
 
                 const period =
-                    `${year}-${String(month).padStart(2,"0")}`;
+                    `${year}-${String(
+                        month
+                    ).padStart(2,"0")}`;
 
 
                 const option =
@@ -12844,6 +14644,7 @@ async function loadMigrationPeriods(){
 
                 option.value =
                     period;
+
 
                 option.textContent =
                     formatMigrationPeriod(
@@ -12861,11 +14662,7 @@ async function loadMigrationPeriods(){
 
 
         // ==========================================
-        // DEFAULT DESTINATION
-        // ==========================================
-        //
-        // Select the month immediately before
-        // the source when possible.
+        // SOURCE CHANGE
         // ==========================================
 
         fromSelect.onchange =
@@ -12875,7 +14672,11 @@ async function loadMigrationPeriods(){
                     fromSelect.value;
 
 
-                if(!source){
+                if(
+                    !source
+                ){
+
+                    updateMigrationWarning();
 
                     return;
 
@@ -12891,8 +14692,13 @@ async function loadMigrationPeriods(){
                         .map(Number);
 
 
+                // ==================================
+                // PREVIOUS MONTH
+                // ==================================
+
                 let previousMonth =
                     month - 1;
+
 
                 let previousYear =
                     year;
@@ -12911,17 +14717,27 @@ async function loadMigrationPeriods(){
 
 
                 const previousPeriod =
-                    `${previousYear}-${String(previousMonth).padStart(2,"0")}`;
+                    `${previousYear}-${String(
+                        previousMonth
+                    ).padStart(2,"0")}`;
 
 
-                if(
+                // ==================================
+                // SELECT PREVIOUS MONTH
+                // ==================================
+
+                const destinationExists =
                     Array.from(
                         toSelect.options
                     ).some(
                         option =>
                             option.value ===
                             previousPeriod
-                    )
+                    );
+
+
+                if(
+                    destinationExists
                 ){
 
                     toSelect.value =
@@ -12966,6 +14782,7 @@ async function loadMigrationPeriods(){
             </option>
 
         `;
+
 
         toSelect.innerHTML = `
 
@@ -13251,27 +15068,79 @@ async function executeDataMigration(){
 
 
     // ==========================================
-    // FINAL CONFIRMATION
+    // FIREBASE PATHS
     // ==========================================
 
-    const confirmed =
-        confirm(
+    const paths =
+        getMigrationFirebasePaths(
 
-            `Are you sure you want to move all ${reportLabel} data from ${formatMigrationPeriod(from)} to ${formatMigrationPeriod(to)}?\n\n` +
-
-            `The destination will receive a complete copy of the source data.\n\n` +
-
-            `The source period will only be deleted after the destination has been saved successfully.`
+            report,
+            from,
+            to
 
         );
 
 
-    if(!confirmed){
+    if(
+        !paths
+    ){
+
+        showError(
+
+            "Data Migration",
+
+            "The Firebase structure for this report is not configured."
+
+        );
 
         return;
 
     }
 
+
+    // ==========================================
+    // FIRST CONFIRMATION
+    // ==========================================
+
+    showConfirmation(
+
+        "Migrate Report Data",
+
+        `You are about to move all ${reportLabel} data from ${formatMigrationPeriod(from)} to ${formatMigrationPeriod(to)}. The source data will only be deleted after the destination has been successfully verified.`,
+
+        async ()=>{
+
+            await performDataMigration(
+
+                report,
+                from,
+                to,
+                reportLabel,
+                paths
+
+            );
+
+        },
+
+        "Move Data"
+
+    );
+
+}
+
+// ======================================================
+// PERFORM DATA MIGRATION
+// ======================================================
+
+async function performDataMigration(
+
+    report,
+    from,
+    to,
+    reportLabel,
+    paths
+
+){
 
     try{
 
@@ -13286,47 +15155,10 @@ async function executeDataMigration(){
 
             "Migrating Report Data...",
 
-            20,
+            15,
 
             `Reading ${reportLabel} data...`
 
-        );
-
-
-        // ==========================================
-        // BUILD FIREBASE PATHS
-        // ==========================================
-
-        const paths =
-            getMigrationFirebasePaths(
-
-                report,
-                from,
-                to
-
-            );
-
-
-        if(
-            !paths
-        ){
-
-            throw new Error(
-                "MIGRATION_PATH_NOT_AVAILABLE"
-            );
-
-        }
-
-
-        console.log(
-            "Migration source:",
-            paths.source
-        );
-
-
-        console.log(
-            "Migration destination:",
-            paths.destination
         );
 
 
@@ -13364,16 +15196,403 @@ async function executeDataMigration(){
 
 
         // ==========================================
-        // WRITE DESTINATION
+        // CHECK DESTINATION
         // ==========================================
 
         updateLoading(
 
-            "Migrating Report Data...",
+            "Checking Destination...",
 
-            55,
+            30,
 
-            `Writing data to ${formatMigrationPeriod(to)}...`
+            `Checking ${formatMigrationPeriod(to)}...`
+
+        );
+
+
+        const destinationSnapshot =
+            await firebaseGet(
+
+                firebaseRef(
+
+                    database,
+
+                    paths.destination
+
+                )
+
+            );
+
+
+        const destinationExists =
+            destinationSnapshot.exists();
+
+
+        // ==========================================
+        // DESTINATION EXISTS
+        // ==========================================
+
+        if(
+            destinationExists
+        ){
+
+            hideLoading();
+
+
+            showConfirmation(
+
+                "Replace Existing Data",
+
+                `${reportLabel} data already exists for ${formatMigrationPeriod(to)}. Do you want to replace the existing destination data with the data from ${formatMigrationPeriod(from)}? The source will only be deleted after the replacement has been verified.`,
+
+                async ()=>{
+
+                    await replaceMigrationDestination(
+
+                        sourceData,
+                        reportLabel,
+                        from,
+                        to,
+                        paths
+
+                    );
+
+                },
+
+                "Replace Data"
+
+            );
+
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // DESTINATION DOES NOT EXIST
+        // ==========================================
+
+        await writeAndVerifyMigration(
+
+            sourceData,
+            reportLabel,
+            from,
+            to,
+            paths
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "DATA MIGRATION ERROR:",
+
+            error
+
+        );
+
+
+        hideLoading();
+
+
+        let message =
+            "Unable to migrate the selected report data.";
+
+
+        if(
+            error.message ===
+            "SOURCE_PERIOD_NOT_FOUND"
+        ){
+
+            message =
+                "The selected source period could not be found. No data was deleted.";
+
+        }
+
+
+        else if(
+            error.message ===
+            "DESTINATION_VERIFICATION_FAILED"
+        ){
+
+            message =
+                "The destination could not be verified. The original data was NOT deleted.";
+
+        }
+
+
+        else if(
+            error.message ===
+            "DESTINATION_DATA_MISMATCH"
+        ){
+
+            message =
+                "The copied data does not match the original data. The original period was NOT deleted.";
+
+        }
+
+
+        showError(
+
+            "Migration Failed",
+
+            message
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// REFRESH DASHBOARD AFTER MIGRATION
+// ======================================================
+
+async function refreshDashboardAfterMigration(
+    report,
+    period
+){
+
+    try{
+
+        // ==========================================
+        // NO INFO
+        // ==========================================
+
+        if(report === "noinfo"){
+
+            const [
+                year,
+                month
+            ] =
+                period
+                    .split("-")
+                    .map(Number);
+
+
+            // Actualiza a lista de períodos
+            if(
+                typeof window.loadAvailableNoInfoPeriods ===
+                "function"
+            ){
+
+                await window.loadAvailableNoInfoPeriods();
+
+            }
+
+
+            // Selecciona o período de destino
+            const selector =
+                document.getElementById(
+                    "noInfoPeriod"
+                );
+
+
+            if(selector){
+
+                selector.value =
+                    period;
+
+            }
+
+
+            // Carrega os dados do novo período
+            if(
+                typeof window.loadNoInfoData ===
+                "function"
+            ){
+
+                await window.loadNoInfoData(
+                    year,
+                    month
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // FWD
+        // ==========================================
+
+        if(report === "fwd"){
+
+            const [
+                year,
+                month
+            ] =
+                period
+                    .split("-")
+                    .map(Number);
+
+
+            // Actualiza o período interno
+            currentYear =
+                year;
+
+            currentMonth =
+                month - 1;
+
+
+            // Actualiza o selector
+            const selector =
+                document.getElementById(
+                    "dashboardPeriod"
+                );
+
+
+            if(selector){
+
+                // Primeiro reconstrói os períodos
+                if(
+                    typeof loadAvailableDashboardPeriods ===
+                    "function"
+                ){
+
+                    await loadAvailableDashboardPeriods(
+                        year,
+                        month
+                    );
+
+                }
+
+
+                selector.value =
+                    period;
+
+            }
+
+
+            // Carrega o dashboard FWD
+            if(
+                typeof updateFWDDashboard ===
+                "function"
+            ){
+
+                await updateFWDDashboard(
+                    year,
+                    month
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // A-CHECK
+        // ==========================================
+
+        if(report === "acheck"){
+
+            const [
+                year,
+                month
+            ] =
+                period
+                    .split("-")
+                    .map(Number);
+
+
+            // Actualiza o período interno
+            CURRENT_ACHECK_YEAR =
+                year;
+
+            CURRENT_ACHECK_MONTH =
+                month;
+
+
+            // Actualiza o selector
+            const selector =
+                document.getElementById(
+                    "analysis-period"
+                );
+
+
+            if(
+                typeof loadAvailableACheckPeriods ===
+                "function"
+            ){
+
+                await loadAvailableACheckPeriods();
+
+            }
+
+
+            if(selector){
+
+                selector.value =
+                    period;
+
+            }
+
+
+            // Carrega os dados do período migrado
+            if(
+                typeof loadACheckData ===
+                "function"
+            ){
+
+                await loadACheckData(
+                    year,
+                    month
+                );
+
+            }
+
+            return;
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(
+            "DASHBOARD REFRESH AFTER MIGRATION ERROR:",
+            error
+        );
+
+    }
+
+}
+
+// ======================================================
+// WRITE AND VERIFY MIGRATION
+// ======================================================
+
+async function writeAndVerifyMigration(
+
+    sourceData,
+    reportLabel,
+    from,
+    to,
+    paths
+
+){
+
+    try{
+
+        // ==========================================
+        // CREATE DESTINATION
+        // ==========================================
+
+        updateLoading(
+
+            "Creating Report Period...",
+
+            50,
+
+            `Creating ${formatMigrationPeriod(to)}...`
 
         );
 
@@ -13401,14 +15620,14 @@ async function executeDataMigration(){
 
             "Verifying Migration...",
 
-            75,
+            70,
 
-            "Checking destination data..."
+            "Checking copied data..."
 
         );
 
 
-        const destinationSnapshot =
+        const verificationSnapshot =
             await firebaseGet(
 
                 firebaseRef(
@@ -13423,11 +15642,31 @@ async function executeDataMigration(){
 
 
         if(
-            !destinationSnapshot.exists()
+            !verificationSnapshot.exists()
         ){
 
             throw new Error(
                 "DESTINATION_VERIFICATION_FAILED"
+            );
+
+        }
+
+
+        const verificationData =
+            verificationSnapshot.val();
+
+
+        // ==========================================
+        // COMPARE DATA
+        // ==========================================
+
+        if(
+            JSON.stringify(sourceData) !==
+            JSON.stringify(verificationData)
+        ){
+
+            throw new Error(
+                "DESTINATION_DATA_MISMATCH"
             );
 
         }
@@ -13462,7 +15701,7 @@ async function executeDataMigration(){
 
 
         // ==========================================
-        // AUDIT LOG
+        // AUDIT
         // ==========================================
 
         await writeAuditLog(
@@ -13470,6 +15709,36 @@ async function executeDataMigration(){
             "MIGRATE_REPORT_DATA",
 
             `Moved ${reportLabel} data from ${formatMigrationPeriod(from)} to ${formatMigrationPeriod(to)}.`
+
+        );
+
+
+        // ==========================================
+        // REFRESH DASHBOARD
+        // ==========================================
+
+        updateLoading(
+
+            "Refreshing Dashboard...",
+
+            95,
+
+            `Loading ${formatMigrationPeriod(to)}...`
+
+        );
+
+
+        await refreshDashboardAfterMigration(
+
+            reportLabel === "No Info"
+                ? "noinfo"
+
+            : reportLabel === "FWD"
+                ? "fwd"
+
+            : "acheck",
+
+            to
 
         );
 
@@ -13490,27 +15759,25 @@ async function executeDataMigration(){
 
 
         await new Promise(
+
             resolve =>
+
                 setTimeout(
+
                     resolve,
+
                     500
+
                 )
+
         );
 
 
         hideLoading();
 
 
-        // ==========================================
-        // CLOSE MODAL
-        // ==========================================
-
         closeDataMigrationModal();
 
-
-        // ==========================================
-        // SUCCESS
-        // ==========================================
 
         showSuccess(
 
@@ -13525,31 +15792,19 @@ async function executeDataMigration(){
     catch(error){
 
         console.error(
-            "DATA MIGRATION ERROR:",
+
+            "WRITE MIGRATION ERROR:",
+
             error
+
         );
 
 
         hideLoading();
 
 
-        // ==========================================
-        // ERROR MESSAGE
-        // ==========================================
-
         let message =
-            "Unable to migrate the selected report data.";
-
-
-        if(
-            error.message ===
-            "SOURCE_PERIOD_NOT_FOUND"
-        ){
-
-            message =
-                "The selected source period could not be found.";
-
-        }
+            "Unable to complete the migration.";
 
 
         if(
@@ -13558,18 +15813,296 @@ async function executeDataMigration(){
         ){
 
             message =
-                "The destination data could not be verified. The original data was not deleted.";
+                "The destination could not be verified. The original data was NOT deleted.";
 
         }
 
 
-        if(
+        else if(
             error.message ===
-            "MIGRATION_PATH_NOT_AVAILABLE"
+            "DESTINATION_DATA_MISMATCH"
         ){
 
             message =
-                "The Firebase structure for this report is not configured yet.";
+                "The copied data does not match the original data. The original period was NOT deleted.";
+
+        }
+
+
+        showError(
+
+            "Migration Failed",
+
+            message
+
+        );
+
+    }
+
+}
+
+// ======================================================
+// REPLACE MIGRATION DESTINATION
+// ======================================================
+
+async function replaceMigrationDestination(
+
+    sourceData,
+    reportLabel,
+    from,
+    to,
+    paths
+
+){
+
+    try{
+
+        showLoading();
+
+
+        // ==========================================
+        // REPLACE DESTINATION
+        // ==========================================
+
+        updateLoading(
+
+            "Replacing Report Data...",
+
+            50,
+
+            `Replacing ${formatMigrationPeriod(to)}...`
+
+        );
+
+
+        await firebaseSet(
+
+            firebaseRef(
+
+                database,
+
+                paths.destination
+
+            ),
+
+            sourceData
+
+        );
+
+
+        // ==========================================
+        // VERIFY
+        // ==========================================
+
+        updateLoading(
+
+            "Verifying Replacement...",
+
+            70,
+
+            "Checking replaced data..."
+
+        );
+
+
+        const verificationSnapshot =
+            await firebaseGet(
+
+                firebaseRef(
+
+                    database,
+
+                    paths.destination
+
+                )
+
+            );
+
+
+        if(
+            !verificationSnapshot.exists()
+        ){
+
+            throw new Error(
+                "DESTINATION_VERIFICATION_FAILED"
+            );
+
+        }
+
+
+        const verificationData =
+            verificationSnapshot.val();
+
+
+        // ==========================================
+        // COMPARE DATA
+        // ==========================================
+
+        if(
+            JSON.stringify(sourceData) !==
+            JSON.stringify(verificationData)
+        ){
+
+            throw new Error(
+                "DESTINATION_DATA_MISMATCH"
+            );
+
+        }
+
+
+        // ==========================================
+        // DELETE SOURCE
+        // ==========================================
+
+        updateLoading(
+
+            "Finalising Migration...",
+
+            90,
+
+            `Removing ${formatMigrationPeriod(from)}...`
+
+        );
+
+
+        await firebaseRemove(
+
+            firebaseRef(
+
+                database,
+
+                paths.source
+
+            )
+
+        );
+
+
+        // ==========================================
+        // AUDIT
+        // ==========================================
+
+        await writeAuditLog(
+
+            "MIGRATE_REPORT_DATA",
+
+            `Replaced ${reportLabel} data in ${formatMigrationPeriod(to)} using data from ${formatMigrationPeriod(from)}.`
+
+        );
+
+
+        // ==========================================
+        // REFRESH DASHBOARD
+        // ==========================================
+
+        updateLoading(
+
+            "Refreshing Dashboard...",
+
+            95,
+
+            `Loading ${formatMigrationPeriod(to)}...`
+
+        );
+
+
+        await refreshDashboardAfterMigration(
+
+            reportLabel === "No Info"
+                ? "noinfo"
+
+            : reportLabel === "FWD"
+                ? "fwd"
+
+            : "acheck",
+
+            to
+
+        );
+
+
+        // ==========================================
+        // COMPLETE
+        // ==========================================
+
+        updateLoading(
+
+            "Migration Complete",
+
+            100,
+
+            `${reportLabel} data successfully migrated.`
+
+        );
+
+
+        await new Promise(
+
+            resolve =>
+
+                setTimeout(
+
+                    resolve,
+
+                    500
+
+                )
+
+        );
+
+
+        hideLoading();
+
+
+        closeDataMigrationModal();
+
+
+        showSuccess(
+
+            "Data Migrated",
+
+            `${reportLabel} data was successfully moved from ${formatMigrationPeriod(from)} to ${formatMigrationPeriod(to)}.`
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "REPLACE MIGRATION ERROR:",
+
+            error
+
+        );
+
+
+        hideLoading();
+
+
+        let message =
+            "Unable to replace the destination data.";
+
+
+        if(
+            error.message ===
+            "DESTINATION_VERIFICATION_FAILED"
+        ){
+
+            message =
+                "The destination could not be verified. The original data was NOT deleted.";
+
+        }
+
+
+        else if(
+            error.message ===
+            "DESTINATION_DATA_MISMATCH"
+        ){
+
+            message =
+                "The replaced data does not match the original data. The original period was NOT deleted.";
 
         }
 
@@ -13609,10 +16142,10 @@ function getMigrationFirebasePaths(
         return {
 
             source:
-                `${NOINFO_COLLECTION}/${from}`,
+                `dashboardData/noInfo/${from}`,
 
             destination:
-                `${NOINFO_COLLECTION}/${to}`
+                `dashboardData/noInfo/${to}`
 
         };
 
@@ -13644,10 +16177,10 @@ function getMigrationFirebasePaths(
         return {
 
             source:
-                `${FWD_DATA_COLLECTION}/${fromYear}/${fromMonth}`,
+                `dashboardData/FWD/${fromYear}/${fromMonth}`,
 
             destination:
-                `${FWD_DATA_COLLECTION}/${toYear}/${toMonth}`
+                `dashboardData/FWD/${toYear}/${toMonth}`
 
         };
 
@@ -13662,42 +16195,21 @@ function getMigrationFirebasePaths(
         report === "acheck"
     ){
 
-        if(
-            typeof A_CHECK_DATA_COLLECTION !==
-            "undefined"
-        ){
+        return {
 
-            const [
-                fromYear,
-                fromMonth
-            ] =
-                from.split("-");
+            source:
+                `dashboardData/acheck/${from}`,
 
+            destination:
+                `dashboardData/acheck/${to}`
 
-            const [
-                toYear,
-                toMonth
-            ] =
-                to.split("-");
-
-
-            return {
-
-                source:
-                    `${A_CHECK_DATA_COLLECTION}/${fromYear}/${fromMonth}`,
-
-                destination:
-                    `${A_CHECK_DATA_COLLECTION}/${toYear}/${toMonth}`
-
-            };
-
-        }
+        };
 
     }
 
 
     // ==========================================
-    // NOT CONFIGURED
+    // INVALID REPORT
     // ==========================================
 
     return null;
