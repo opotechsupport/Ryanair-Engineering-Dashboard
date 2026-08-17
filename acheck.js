@@ -2567,18 +2567,18 @@ function openAnalysisPeriodModal(callback){
     // OTHERWISE USE CURRENT MONTH
     // ==================================================
 
-    const selectedYear =
-        Number(
-            CURRENT_ACHECK_YEAR
-        ) || currentYear;
+    // ==================================================
+// ALWAYS USE CURRENT MONTH
+// ==================================================
+
+const selectedYear =
+    currentYear;
 
 
-    const selectedMonth =
-        Number(
-            CURRENT_ACHECK_MONTH
-        ) || Number(
-            currentMonth
-        );
+const selectedMonth =
+    Number(
+        currentMonth
+    );
 
 
     input.value =

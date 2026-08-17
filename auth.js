@@ -136,212 +136,166 @@ function hideLoading(){
 
 }
 
-// ======================================================
-// STARTUP WELCOME
-// ======================================================
 
 function showStartupWelcome(){
 
-    const modal =
-        document.getElementById("welcomeModal");
+    const welcomeModal =
+        document.getElementById(
+            "welcomeModal"
+        );
 
-    if(!modal)
+    if(!welcomeModal){
+
         return;
-
-
-    const avatar =
-        document.getElementById("welcomeAvatar");
-
-    const title =
-        document.getElementById("welcomeTitle");
-
-    const userName =
-        document.getElementById("welcomeUserName");
-
-    const userRole =
-        document.getElementById("welcomeUserRole");
-
-    const message =
-        document.getElementById("welcomeMessage");
-
-    const loginButton =
-        document.getElementById("welcomeLoginButton");
-
-    const createAccountButton =
-    document.getElementById(
-        "welcomeCreateAccountButton"
-    );
-
-    const continueButton =
-        document.getElementById("welcomeContinueButton");
-
-
-    // =====================================
-    // LOGGED USER
-    // =====================================
-
-    if(CURRENT_USER){
-
-        const fullName =
-            CURRENT_USER.profile.fullName;
-
-        const role =
-            CURRENT_USER.profile.role;
-
-        let roleText = "Viewer";
-
-        switch(role){
-
-            case "admin":
-                roleText = "Administrator";
-                break;
-
-            case "supervisor":
-                roleText = "Supervisor";
-                break;
-
-            default:
-                roleText = "Viewer";
-
-        }
-
-
-        // Avatar
-
-        // =====================================
-// AVATAR
-// =====================================
-
-if(CURRENT_USER.profile.photo){
-
-    avatar.innerHTML = `
-
-        <img
-            src="${CURRENT_USER.profile.photo}"
-            alt="${fullName}"
-            style="
-                width:100%;
-                height:100%;
-                object-fit:cover;
-                border-radius:50%;
-                display:block;
-            "
-        >
-
-    `;
-
-}else{
-
-    const initials =
-        fullName
-            .split(" ")
-            .filter(word => word.length > 0)
-            .map(word => word[0].toUpperCase());
-
-    const avatarText =
-        initials.length >= 2
-            ? initials[0] + initials[initials.length - 1]
-            : initials[0];
-
-    avatar.textContent =
-        avatarText;
-
-}
-
-
-        title.textContent =
-            "Welcome back";
-
-
-        userName.textContent =
-            fullName;
-
-
-        userRole.textContent =
-            roleText;
-
-
-        message.textContent =
-            "Welcome back to the Ryanair Engineering Dashboard.";
-
-
-        loginButton.style.display =
-    "none";
-
-createAccountButton.style.display =
-    "none";
-
-continueButton.style.display =
-    "inline-flex";
 
     }
 
 
-    // =====================================
-    // GUEST
-    // =====================================
+    // ==========================================
+    // ALWAYS GUEST WELCOME
+    //
+    // No automatic user/session recovery.
+    // User must explicitly Login or Create Account.
+    // ==========================================
 
-    else{
+    const avatar =
+        document.getElementById(
+            "welcomeAvatar"
+        );
 
-        avatar.textContent =
+    const title =
+        document.getElementById(
+            "welcomeTitle"
+        );
+
+    const userName =
+        document.getElementById(
+            "welcomeUserName"
+        );
+
+    const userRole =
+        document.getElementById(
+            "welcomeUserRole"
+        );
+
+    const message =
+        document.getElementById(
+            "welcomeMessage"
+        );
+
+    const loginButton =
+        document.getElementById(
+            "welcomeLoginButton"
+        );
+
+    const createAccountButton =
+        document.getElementById(
+            "welcomeCreateAccountButton"
+        );
+
+    const continueButton =
+        document.getElementById(
+            "welcomeContinueButton"
+        );
+
+
+    // ==========================================
+    // RESET USER INFORMATION
+    // ==========================================
+
+    if(avatar){
+
+        avatar.innerHTML =
             "👋";
 
+    }
+
+
+    if(title){
 
         title.textContent =
             "Welcome";
 
+    }
+
+
+    if(userName){
 
         userName.textContent =
             "Ryanair Engineering Dashboard";
 
+    }
+
+
+    if(userRole){
 
         userRole.textContent =
             "";
 
-
-        message.textContent =
-            "Please sign in to access your profile, or create a new account.";
-
-
-        loginButton.style.display =
-    "inline-flex";
-
-createAccountButton.style.display =
-    "inline-flex";
-
-continueButton.style.display =
-    "none";
+        userRole.style.display =
+            "none";
 
     }
 
 
-   // =====================================
-// HIDE HOME WHILE WELCOME IS OPEN
-// =====================================
+    if(message){
 
-const homeScreen =
-    document.getElementById("homeScreen");
+        message.textContent =
+            "Please sign in to access your profile, or create a new account.";
 
-if(homeScreen){
+    }
 
-    homeScreen.style.visibility =
+
+    // ==========================================
+    // ONLY AUTHENTICATION OPTIONS
+    // ==========================================
+
+    if(loginButton){
+
+        loginButton.style.display =
+            "inline-flex";
+
+    }
+
+
+    if(createAccountButton){
+
+        createAccountButton.style.display =
+            "inline-flex";
+
+    }
+
+
+    // ==========================================
+    // NO CONTINUE / NO AUTO LOGIN
+    // ==========================================
+
+    if(continueButton){
+
+        continueButton.style.display =
+            "none";
+
+    }
+
+
+    // ==========================================
+    // SHOW WELCOME
+    // ==========================================
+
+    welcomeModal.style.display =
+        "flex";
+
+
+    document.body.style.overflow =
         "hidden";
 
-}
 
-
-// =====================================
-// SHOW WELCOME
-// =====================================
-
-modal.style.display =
-    "flex";
-
-modal.style.zIndex =
-    "2000000";
+    window.scrollTo(
+        0,
+        0
+    );
 
 }
-
 
 // ======================================================
 // STARTUP LOGIN
@@ -390,6 +344,8 @@ function closeWelcomeModal(){
     }
 
 restoreAppBackground();
+
+document.body.style.overflow = "";
 
 }
 
@@ -1796,6 +1752,19 @@ document.getElementById(
 
         : "none";
 
+
+document.getElementById(
+    "menuReportVisibilityButton"
+).style.display =
+
+    hasPermission(
+        PERMISSIONS.MANAGE_USERS
+    )
+
+        ? "block"
+
+        : "none";
+
     document.getElementById("menuSettingsButton").style.display =
         logged
             ? "block"
@@ -2144,9 +2113,62 @@ async function copyTemporaryPassword(){
 
 function closeNotification(){
 
-    document
-        .getElementById("notificationModal")
-        .style.display="none";
+    const modal =
+        document.getElementById(
+            "notificationModal"
+        );
+
+    if(!modal){
+
+        return;
+
+    }
+
+    const titleEl =
+        document.getElementById(
+            "notificationTitle"
+        );
+
+    const title =
+        titleEl
+            ? titleEl.textContent.trim()
+            : "";
+
+    modal.style.display =
+        "none";
+
+
+    // ==========================================
+    // LOGOUT → WELCOME MODAL
+    // ==========================================
+
+    if(
+        title === "Logged Out"
+    ){
+
+        const welcomeModal =
+            document.getElementById(
+                "welcomeModal"
+            );
+
+        if(
+            welcomeModal
+        ){
+
+            welcomeModal.style.display =
+                "flex";
+
+        }
+
+        document.body.style.overflow =
+            "hidden";
+
+        window.scrollTo(
+            0,
+            0
+        );
+
+    }
 
 }
 
@@ -2286,6 +2308,11 @@ function showWarning(title,message){
 
 }
 
+// ======================================
+// LOGIN RETURN STATE
+// ======================================
+
+let loginReturnToWelcome = false;
 
 // ======================================================
 // LOGIN MODAL
@@ -2318,6 +2345,30 @@ function closeLoginModal(){
     document
         .getElementById("loginModal")
         .style.display = "none";
+
+
+    // ======================================
+    // RETURN TO STARTUP WELCOME
+    // ======================================
+
+    if(
+        loginReturnToWelcome
+    ){
+
+        loginReturnToWelcome =
+            false;
+
+
+        if(
+            typeof showStartupWelcome ===
+            "function"
+        ){
+
+            showStartupWelcome();
+
+        }
+
+    }
 
 }
 
@@ -2355,6 +2406,8 @@ function loginFromRestrictedArea(){
 
     closeRestrictedAccessModal();
 
+    loginReturnToWelcome = true;
+
     openLoginModal();
 
 }
@@ -2384,11 +2437,11 @@ document.addEventListener("keydown",(event)=>{
 
 });
 
-// ======================================================
-// LOGOUT
-// ======================================================
-
 async function logoutUser(){
+
+    // ==========================================
+    // AUDIT LOG
+    // ==========================================
 
     if(isLogged()){
 
@@ -2402,29 +2455,93 @@ async function logoutUser(){
 
     }
 
-    CURRENT_USER = null;
+
+    // ==========================================
+    // CLEAR SESSION
+    // ==========================================
+
+    CURRENT_USER =
+        null;
+
 
     localStorage.removeItem(
-
         SESSION_STORAGE_KEY
-
     );
+
+
+    // ==========================================
+    // CLOSE USER MENU / LOGIN
+    // ==========================================
 
     closeUserMenu();
 
     closeLoginModal();
 
+
+    // ==========================================
+    // UPDATE AUTH INTERFACE
+    // ==========================================
+
     updateUserInterface();
 
-    showSuccess(
 
-        "Logged Out",
+    // ==========================================
+    // HIDE DASHBOARD
+    // ==========================================
 
-        "You have been successfully logged out."
+    const dashboardContainer =
+        document.getElementById(
+            "dashboardContainer"
+        );
 
-    );
+
+    if(
+        dashboardContainer
+    ){
+
+        dashboardContainer.style.display =
+            "none";
+
+    }
+
+// ==========================================
+// SUCCESS NOTIFICATION
+// ==========================================
+
+showSuccess(
+
+    "Logged Out",
+
+    "You have been successfully logged out.",
+
+    function(){
+
+        // ======================================
+        // SHOW STARTUP WELCOME AFTER OK
+        // ======================================
+
+        showStartupWelcome();
+
+
+        // ======================================
+        // RESET PAGE SCROLL
+        // ======================================
+
+        document.body.style.overflow =
+            "hidden";
+
+
+        window.scrollTo(
+            0,
+            0
+        );
+
+    }
+
+);
 
 }
+
 
 // ======================================================
 // AUDIT LOGS
@@ -5589,13 +5706,70 @@ function openCreateUserModal(mode = "management"){
 
 }
 
+// ======================================================
+// CLOSE CREATE USER MODAL
+// ======================================================
+
+// ======================================================
+// CLOSE CREATE USER MODAL
+// ======================================================
+
 function closeCreateUserModal(){
 
-    document.getElementById(
-        "createUserModal"
-    ).style.display = "none";
+    const modal =
+        document.getElementById(
+            "createUserModal"
+        );
 
-openUserManagement()
+
+    if(modal){
+
+        modal.style.display =
+            "none";
+
+    }
+
+
+    // ==========================================
+    // RESET ACCOUNT MODE
+    // ==========================================
+
+    const wasAccountMode =
+        CREATE_ACCOUNT_MODE;
+
+
+    CREATE_ACCOUNT_MODE =
+        false;
+
+
+    // ==========================================
+    // RETURN TO WELCOME
+    // ONLY WHEN OPENED FROM WELCOME
+    // ==========================================
+
+    if(
+        wasAccountMode
+    ){
+
+        if(
+            typeof showStartupWelcome ===
+            "function"
+        ){
+
+            showStartupWelcome();
+
+        }
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // NORMAL ADMIN USER MANAGEMENT
+    // ==========================================
+
+    openUserManagement();
 
 }
 
@@ -10190,14 +10364,15 @@ ${createFwdPdfKpi(
         <!-- DELAY ANALYSIS -->
 
         <div
-            style="
-                display:grid;
-                grid-template-columns:
-                    1.25fr 1fr;
-                gap:20px;
-                margin-bottom:25px;
-            "
-        >
+    style="
+        display:grid;
+        grid-template-columns:
+            1.25fr 1fr;
+        gap:20px;
+        margin-bottom:25px;
+        align-items:start;
+    "
+>
 
             <div
                 style="
@@ -10220,11 +10395,13 @@ ${createFwdPdfKpi(
                 </div>
 
                 <div
-                    id="fwdPdfDelayCodes"
-                    style="
-                        height:360px;
-                    "
-                ></div>
+    id="fwdPdfDelayCodes"
+    style="
+        height:auto;
+        min-height:0;
+        width: 100%;
+    "
+></div>
 
             </div>
 
@@ -10250,11 +10427,16 @@ ${createFwdPdfKpi(
                 </div>
 
                 <div
-                    id="fwdPdfDelayGroups"
-                    style="
-                        height:360px;
-                    "
-                ></div>
+    id="fwdPdfDelayGroups"
+    style="
+        height:320px;
+        width:100%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+    "
+></div>
 
             </div>
 
@@ -10952,7 +11134,7 @@ function createFwdPdfKpi(
 }
 
 // ======================================================
-// INSERT EXISTING CHART INTO PDF
+// INSERT EXISTING CHART INTO FWD PDF
 // ======================================================
 
 async function insertFwdPdfChart(
@@ -10978,12 +11160,22 @@ async function insertFwdPdfChart(
         !source
     ){
 
+        console.warn(
+            "PDF chart target/source not found:",
+            targetId,
+            canvasId
+        );
+
         return;
 
     }
 
 
     try{
+
+        // ==============================================
+        // GET IMAGE FROM THE EXISTING WORKING CHART
+        // ==============================================
 
         const image =
             document.createElement(
@@ -10997,20 +11189,42 @@ async function insertFwdPdfChart(
             );
 
 
-        image.style.cssText = `
+        // ==============================================
+        // PRESERVE ORIGINAL PROPORTIONS
+        // ==============================================
 
-            display:block;
+        image.style.display =
+            "block";
 
-            width:auto;
+        image.style.width =
+            "auto";
 
-            height:100%;
+        image.style.height =
+            "auto";
 
-            max-width:100%;
+        image.style.maxWidth =
+            "100%";
 
-            object-fit:contain;
+        image.style.maxHeight =
+            "100%";
 
-        `;
+        image.style.objectFit =
+            "contain";
 
+        image.style.objectPosition =
+            "center";
+
+        image.style.margin =
+            "0 auto";
+
+            
+
+        // ==============================================
+        // REPLACE EXISTING CONTENT
+        // ==============================================
+
+        target.innerHTML =
+            "";
 
         target.appendChild(
             image
@@ -12142,8 +12356,13 @@ function openCreateAccountModal(){
 
 }
 
+
+// =========================================================
+// CREATE ACCOUNT — SELF REGISTRATION
+// =========================================================
+
 // ======================================================
-// CREATE ACCOUNT FROM WELCOME
+// CREATE ACCOUNT — SELF REGISTRATION
 // ======================================================
 
 async function createAccountFromWelcome(){
@@ -12156,23 +12375,32 @@ async function createAccountFromWelcome(){
 
         const fullName =
             document
-                .getElementById("newUserFullName")
-                .value
-                .trim();
+                .getElementById(
+                    "newUserFullName"
+                )
+                ?.value
+                .trim() ||
+            "";
 
 
         const username =
             document
-                .getElementById("newUserUsername")
-                .value
+                .getElementById(
+                    "newUserUsername"
+                )
+                ?.value
                 .trim()
-                .toLowerCase();
+                .toLowerCase() ||
+            "";
 
 
         const password =
             document
-                .getElementById("newUserPassword")
-                .value;
+                .getElementById(
+                    "newUserPassword"
+                )
+                ?.value ||
+            "";
 
 
         // ==========================================
@@ -12184,10 +12412,12 @@ async function createAccountFromWelcome(){
                 .getElementById(
                     "createUserPhotoInput"
                 )
-                .files[0];
+                ?.files?.[0] ||
+            null;
 
 
-        let photo = null;
+        let photo =
+            null;
 
 
         if(photoFile){
@@ -12201,10 +12431,10 @@ async function createAccountFromWelcome(){
 
 
                         reader.onload =
-                            function(e){
+                            function(event){
 
                                 resolve(
-                                    e.target.result
+                                    event.target.result
                                 );
 
                             };
@@ -12237,14 +12467,70 @@ async function createAccountFromWelcome(){
         // ==========================================
 
         if(
-            fullName === "" ||
-            username === "" ||
-            password === ""
+            !fullName ||
+            !username ||
+            !password
         ){
 
             showError(
+
                 "Missing Information",
+
                 "Please complete all required fields."
+
+            );
+
+            return;
+
+        }
+
+
+        if(
+            username.length < 3
+        ){
+
+            showError(
+
+                "Invalid Username",
+
+                "Username must contain at least 3 characters."
+
+            );
+
+            return;
+
+        }
+
+
+        if(
+            !/^[a-zA-Z0-9_-]+$/.test(
+                username
+            )
+        ){
+
+            showError(
+
+                "Invalid Username",
+
+                "Username can only contain letters, numbers, _ or -."
+
+            );
+
+            return;
+
+        }
+
+
+        if(
+            password.length < 8
+        ){
+
+            showError(
+
+                "Invalid Password",
+
+                "Password must contain at least 8 characters."
+
             );
 
             return;
@@ -12254,34 +12540,29 @@ async function createAccountFromWelcome(){
 
         // ==========================================
         // CREATE USER
-        // ROLE IS ALWAYS VIEWER
+        //
+        // SELF REGISTRATION = VIEWER
         // ==========================================
 
         const user =
             await createUser({
 
                 fullName:
-
                     fullName,
 
                 username:
-
                     username,
 
                 password:
-
                     password,
 
                 role:
-
                     USER_ROLES.VIEWER,
 
                 createdBy:
-
                     "SELF_REGISTRATION",
 
                 photo:
-
                     photo
 
             });
@@ -12289,6 +12570,9 @@ async function createAccountFromWelcome(){
 
         // ==========================================
         // START SESSION
+        //
+        // New user is automatically authenticated
+        // and goes directly to Home.
         // ==========================================
 
         CURRENT_USER =
@@ -12302,7 +12586,6 @@ async function createAccountFromWelcome(){
             JSON.stringify({
 
                 username:
-
                     username
 
             })
@@ -12322,10 +12605,25 @@ async function createAccountFromWelcome(){
         // CLOSE CREATE ACCOUNT MODAL
         // ==========================================
 
-        document.getElementById(
-            "createUserModal"
-        ).style.display =
-            "none";
+        const createUserModal =
+            document.getElementById(
+                "createUserModal"
+            );
+
+
+        if(createUserModal){
+
+            createUserModal.style.display =
+                "none";
+
+        }
+
+
+        // ==========================================
+        // CLOSE WELCOME MODAL
+        // ==========================================
+
+        closeWelcomeModal();
 
 
         // ==========================================
@@ -12336,7 +12634,52 @@ async function createAccountFromWelcome(){
 
 
         // ==========================================
-        // SHOW SUCCESS
+        // SHOW HOME
+        //
+        // IMPORTANT:
+        // Do NOT call openUserManagement().
+        // ==========================================
+
+        const homeScreen =
+            document.getElementById(
+                "homeScreen"
+            );
+
+
+        const dashboardContainer =
+            document.getElementById(
+                "dashboardContainer"
+            );
+
+
+        if(homeScreen){
+
+            homeScreen.style.display =
+                "block";
+
+        }
+
+
+        if(dashboardContainer){
+
+            dashboardContainer.style.display =
+                "none";
+
+        }
+
+
+        document.body.style.overflow =
+            "";
+
+
+        window.scrollTo(
+            0,
+            0
+        );
+
+
+        // ==========================================
+        // SUCCESS
         // ==========================================
 
         showSuccess(
@@ -12348,13 +12691,14 @@ async function createAccountFromWelcome(){
         );
 
     }
-
-
     catch(error){
 
         console.error(
+
             "CREATE ACCOUNT ERROR:",
+
             error
+
         );
 
 
@@ -12363,7 +12707,7 @@ async function createAccountFromWelcome(){
         // ==========================================
 
         if(
-            error.message ===
+            error?.message ===
             "PHOTO_READ_FAILED"
         ){
 
@@ -12381,19 +12725,19 @@ async function createAccountFromWelcome(){
 
 
         // ==========================================
-        // USERNAME ALREADY EXISTS
+        // USERNAME ERROR
         // ==========================================
 
         if(
-            error.message ===
+            error?.message ===
             "USERNAME_ALREADY_EXISTS"
         ){
 
             showError(
 
-                "Username Already Exists",
+                "Account Creation",
 
-                "That username is already in use. Please choose another one."
+                "That username is already in use."
 
             );
 
@@ -12408,9 +12752,9 @@ async function createAccountFromWelcome(){
 
         showError(
 
-            "Account Creation Failed",
+            "Account Creation",
 
-            "Unable to create your account. Please try again."
+            "Unable to create the account."
 
         );
 

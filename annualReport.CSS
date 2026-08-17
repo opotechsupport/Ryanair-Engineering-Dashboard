@@ -1,0 +1,2392 @@
+/* =========================================================
+   ANNUAL REPORT — EXECUTIVE FWD
+   Ryanair Engineering & Maintenance
+   ========================================================= */
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+#annualReportContainer #annualFWDContent {
+    display: block;
+    width: 100%;
+}
+
+#annualReportContainer .annual-fwd-wrapper {
+    width: 100%;
+}
+
+
+/* =========================================================
+   KPI GRID
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-kpis {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 20px;
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   KPI CARD
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-kpi {
+
+    position: relative;
+
+    min-width: 0;
+    min-height: 225px;
+
+    padding: 31px 30px 28px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #dce4ee;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 8px 24px rgba(7, 42, 91, 0.09);
+
+    overflow: hidden;
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+
+}
+
+
+/* =========================================================
+   STRONG YELLOW TOP BAR
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-kpi::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 7px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #f5c400 0%,
+            #ffd600 55%,
+            #f5c400 100%
+        );
+
+}
+
+
+/* =========================================================
+   SUBTLE YELLOW DECORATION
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-kpi::after {
+
+    content: "";
+
+    position: absolute;
+
+    right: -65px;
+    bottom: -65px;
+
+    width: 155px;
+    height: 155px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(245,196,0,.16) 0%,
+            rgba(245,196,0,.06) 38%,
+            rgba(245,196,0,0) 72%
+        );
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-kpi:hover {
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 14px 32px rgba(7, 42, 91, 0.13);
+
+}
+
+
+/* =========================================================
+   KPI TITLE
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-kpi-title {
+
+    position: relative;
+
+    z-index: 2;
+
+    margin-bottom: 25px;
+
+    color: #647995;
+
+    font-size: 13px;
+
+    line-height: 1.25;
+
+    font-weight: 850;
+
+    letter-spacing: .11em;
+
+    text-transform: uppercase;
+
+}
+
+
+/* =========================================================
+   THREE METRICS
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-kpi-row {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 11px;
+
+    width: 100%;
+
+    margin-top: 8px;
+
+}
+
+
+#annualReportContainer .annual-fwd-kpi-row > div {
+
+    min-width: 0;
+
+    padding: 18px 9px 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8fafc 0%,
+            #f2f5f9 100%
+        );
+
+    border:
+        1px solid #e5eaf1;
+
+    border-radius: 12px;
+
+    text-align: center;
+
+}
+
+
+#annualReportContainer .annual-fwd-kpi-row span {
+
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #7b8ca2;
+
+    font-size: 10px;
+
+    line-height: 1;
+
+    font-weight: 850;
+
+    letter-spacing: .08em;
+
+    text-transform: uppercase;
+
+}
+
+
+#annualReportContainer .annual-fwd-kpi-row strong {
+
+    display: block;
+
+    color: #062d70;
+
+    font-size: 27px;
+
+    line-height: 1;
+
+    font-weight: 900;
+
+    letter-spacing: -.5px;
+
+}
+
+
+/* =========================================================
+   COMPARISON CARD
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-comparison {
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff 0%,
+            #fffdf2 100%
+        );
+
+}
+
+
+/* =========================================================
+   COMPARISON HEADING
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-comparison-heading {
+
+    position: relative;
+
+    z-index: 2;
+
+    margin-bottom: 18px;
+
+    color: #092e70;
+
+    font-size: 14px;
+
+    font-weight: 850;
+
+    letter-spacing: .04em;
+
+}
+
+
+/* =========================================================
+   COMPARISON ITEMS
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-comparison-item {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 50px;
+
+    margin-bottom: 11px;
+
+    padding: 9px 13px;
+
+    background:
+        rgba(255,255,255,.88);
+
+    border:
+        1px solid #e4e8ee;
+
+    border-radius: 11px;
+
+}
+
+
+/* =========================================================
+   INDICATOR
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-comparison-item
+.comparison-indicator {
+
+    width: 12px;
+    height: 12px;
+
+    flex:
+        0 0 12px;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 4px rgba(120,130,145,.08);
+
+}
+
+
+/* =========================================================
+   COMPARISON TEXT
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-comparison-item small {
+
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #72839a;
+
+    font-size: 10px;
+
+    line-height: 1;
+
+    font-weight: 700;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-comparison-item strong {
+
+    display: block;
+
+    font-size: 17px;
+
+    line-height: 1;
+
+    font-weight: 950;
+
+    letter-spacing: .04em;
+
+}
+
+
+/* =========================================================
+   BETTER
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-comparison-item.positive {
+
+    background:
+        linear-gradient(
+            90deg,
+            #f0fff6 0%,
+            #ffffff 100%
+        );
+
+    border-color:
+        #bcebd0;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-comparison-item.positive
+.comparison-indicator {
+
+    background: #19b65b;
+
+    box-shadow:
+        0 0 0 4px rgba(25,182,91,.12);
+
+}
+
+
+#annualReportContainer
+.annual-fwd-comparison-item.positive strong {
+
+    color: #079447;
+
+}
+
+
+/* =========================================================
+   WORSE
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-comparison-item.negative {
+
+    background:
+        linear-gradient(
+            90deg,
+            #fff4f3 0%,
+            #ffffff 100%
+        );
+
+    border-color:
+        #f1c2bf;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-comparison-item.negative
+.comparison-indicator {
+
+    background: #df443b;
+
+    box-shadow:
+        0 0 0 4px rgba(223,68,59,.12);
+
+}
+
+
+#annualReportContainer
+.annual-fwd-comparison-item.negative strong {
+
+    color: #c9322b;
+
+}
+
+
+/* =========================================================
+   IN LINE
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-comparison-item.neutral {
+
+    background:
+        linear-gradient(
+            90deg,
+            #fffbea 0%,
+            #ffffff 100%
+        );
+
+    border-color:
+        #f0df8a;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-comparison-item.neutral
+.comparison-indicator {
+
+    background: #f5c400;
+
+    box-shadow:
+        0 0 0 4px rgba(245,196,0,.14);
+
+}
+
+
+#annualReportContainer
+.annual-fwd-comparison-item.neutral strong {
+
+    color: #9b7d00;
+
+}
+
+
+/* =========================================================
+   CHART CARD
+   ========================================================= */
+
+#annualReportContainer .annual-fwd-chart-card {
+
+    position: relative;
+
+    width: 100%;
+
+    margin-top: 22px;
+
+    padding: 30px 32px 32px;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #fbfcfe 100%
+        );
+
+    border:
+        1px solid #dce4ee;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 8px 24px rgba(7,42,91,.09);
+
+    overflow: hidden;
+
+}
+
+
+/* =========================================================
+   CHART YELLOW BAR
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-chart-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 7px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #f5c400,
+            #ffd600,
+            #f5c400
+        );
+
+}
+
+
+/* =========================================================
+   CHART HEADER
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-chart-header {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 25px;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-chart-header h3 {
+
+    margin: 0;
+
+    color: #082d70;
+
+    font-size: 22px;
+
+    line-height: 1.2;
+
+    font-weight: 900;
+
+    letter-spacing: -.3px;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-chart-header span {
+
+    display: block;
+
+    margin-top: 6px;
+
+    color: #7b8ca2;
+
+    font-size: 12px;
+
+    font-weight: 500;
+
+}
+
+
+/* =========================================================
+   PEAK BADGE — STRONGER
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-peak {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 11px 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff8cf,
+            #fff3aa
+        );
+
+    border:
+        1px solid #f3cd38;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 12px rgba(245,196,0,.15);
+
+    color: #766313;
+
+    font-size: 11px;
+
+    font-weight: 750;
+
+    white-space: nowrap;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-peak strong {
+
+    color: #082d70;
+
+    font-size: 16px;
+
+    font-weight: 950;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-peak span {
+
+    display: inline;
+
+    margin: 0;
+
+    color: #8c7b29;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   CHART CONTAINER
+   ========================================================= */
+
+#annualReportContainer
+.annual-fwd-chart-wrap {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 420px;
+
+    padding: 5px;
+
+    box-sizing: border-box;
+
+}
+
+
+#annualReportContainer
+.annual-fwd-chart-wrap canvas {
+
+    display: block;
+
+    width: 100% !important;
+
+    height: 100% !important;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 1200px
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    #annualReportContainer
+    .annual-fwd-kpis {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 760px
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+    #annualReportContainer
+    .annual-fwd-kpis {
+
+        grid-template-columns:
+            1fr;
+
+        gap: 16px;
+
+    }
+
+
+    #annualReportContainer
+    .annual-fwd-kpi {
+
+        min-height: 190px;
+
+        padding:
+            27px 24px 24px;
+
+    }
+
+
+    #annualReportContainer
+    .annual-fwd-chart-header {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+    }
+
+
+    #annualReportContainer
+    .annual-fwd-chart-wrap {
+
+        height: 330px;
+
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 480px
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    #annualReportContainer
+    .annual-fwd-kpi-row {
+
+        gap: 7px;
+
+    }
+
+
+    #annualReportContainer
+    .annual-fwd-kpi-row > div {
+
+        padding:
+            14px 5px;
+
+    }
+
+
+    #annualReportContainer
+    .annual-fwd-kpi-row strong {
+
+        font-size: 21px;
+
+    }
+
+
+    #annualReportContainer
+    .annual-fwd-chart-card {
+
+        padding:
+            27px 18px 24px;
+
+    }
+
+
+    #annualReportContainer
+    .annual-fwd-chart-wrap {
+
+        height: 280px;
+
+    }
+
+}
+
+#annualReportContainer #annualNoInfoContent {
+    grid-template-columns: 1fr !important;
+}
+
+/* =========================================================
+   ANNUAL HILs — FIVE METRICS
+   ========================================================= */
+
+#annualReportContainer
+.annual-hils-five-metrics {
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 7px;
+
+}
+
+
+#annualReportContainer
+.annual-hils-five-metrics > div {
+
+    padding:
+        15px 5px 13px;
+
+}
+
+
+#annualReportContainer
+.annual-hils-five-metrics span {
+
+    font-size: 8px;
+
+}
+
+
+#annualReportContainer
+.annual-hils-five-metrics strong {
+
+    font-size: 20px;
+
+}
+
+
+/* =========================================================
+   HILs — REGION
+   ========================================================= */
+
+#annualReportContainer
+.annual-hils-region-metrics {
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+
+}
+
+
+/* =========================================================
+   HILs — RATIO
+   ========================================================= */
+
+#annualReportContainer
+.annual-hils-ratio {
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff9d8 0%,
+            #fff5c2 100%
+        ) !important;
+
+    border-color:
+        #f0d45b !important;
+
+}
+
+
+/* =========================================================
+   HILs — COMPARISON VALUES
+   ========================================================= */
+
+#annualReportContainer
+.annual-hils-comparison-values {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 12px;
+
+}
+
+
+#annualReportContainer
+.annual-hils-comparison-values > div {
+
+    padding:
+        10px;
+
+    text-align: center;
+
+    background:
+        rgba(255,255,255,.8);
+
+    border:
+        1px solid #e4e8ee;
+
+    border-radius:
+        10px;
+
+}
+
+
+#annualReportContainer
+.annual-hils-comparison-values small {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color:
+        #7b8ca2;
+
+    font-size:
+        9px;
+
+    font-weight:
+        750;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+#annualReportContainer
+.annual-hils-comparison-values strong {
+
+    color:
+        #082d70;
+
+    font-size:
+        20px;
+
+    font-weight:
+        900;
+
+}
+
+
+/* =========================================================
+   HILs — RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    #annualReportContainer
+    .annual-hils-five-metrics {
+
+        grid-template-columns:
+            repeat(5, minmax(0, 1fr));
+
+    }
+
+}
+
+
+@media (max-width: 760px) {
+
+    #annualReportContainer
+    .annual-hils-five-metrics {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+}
+
+/* =========================================================
+   NO INFO — 3 KPIs ON TOP + FULL WIDTH GRAPH BELOW
+   ========================================================= */
+
+#annualReportContainer #annualNoInfoContent,
+#annualReportContainer #annualNoInfoContent .annual-noinfo-wrapper {
+
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+
+}
+
+
+/* =========================================================
+   KPI ROW
+   ========================================================= */
+
+#annualReportContainer
+#annualNoInfoContent
+.annual-fwd-kpis {
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr)) !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    gap: 20px !important;
+
+    margin-bottom: 22px !important;
+
+}
+
+
+/* =========================================================
+   GRAPH — FULL WIDTH
+   ========================================================= */
+
+#annualReportContainer
+#annualNoInfoContent
+.annual-fwd-chart-card {
+
+    display: block !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+
+}
+
+
+/* Remove any inherited column/grid limitation */
+
+#annualReportContainer
+#annualNoInfoContent
+.annual-fwd-wrapper
+.annual-fwd-chart-card {
+
+    grid-column: 1 / -1 !important;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    #annualReportContainer
+    #annualNoInfoContent
+    .annual-fwd-kpis {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr)) !important;
+
+        gap: 12px !important;
+
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    #annualReportContainer
+    #annualNoInfoContent
+    .annual-fwd-kpis {
+
+        grid-template-columns: 1fr !important;
+
+    }
+
+}
+
+/* =========================================================
+   ANNUAL WORK ORDERS — FIVE METRICS
+   ========================================================= */
+
+#annualReportContainer
+.annual-wo-five-metrics {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 7px;
+
+}
+
+
+#annualReportContainer
+.annual-wo-five-metrics > div {
+
+    min-width: 0;
+
+    padding:
+        15px 5px 13px;
+
+}
+
+
+#annualReportContainer
+.annual-wo-five-metrics span {
+
+    font-size: 8px;
+
+}
+
+
+#annualReportContainer
+.annual-wo-five-metrics strong {
+
+    font-size: 20px;
+
+}
+
+
+/* =========================================================
+   REGION
+   ========================================================= */
+
+#annualReportContainer
+.annual-wo-region-metrics {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+
+}
+
+
+/* =========================================================
+   RATIO
+   ========================================================= */
+
+#annualReportContainer
+.annual-wo-ratio {
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff9d8 0%,
+            #fff5c2 100%
+        ) !important;
+
+    border-color:
+        #f0d45b !important;
+
+}
+
+
+/* =========================================================
+   COMPARISON
+   ========================================================= */
+
+#annualReportContainer
+.annual-wo-comparison-values {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 12px;
+
+}
+
+
+#annualReportContainer
+.annual-wo-comparison-values > div {
+
+    padding: 10px;
+
+    text-align: center;
+
+    background:
+        rgba(255,255,255,.8);
+
+    border:
+        1px solid #e4e8ee;
+
+    border-radius: 10px;
+
+}
+
+
+#annualReportContainer
+.annual-wo-comparison-values small {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #7b8ca2;
+
+    font-size: 9px;
+
+    font-weight: 750;
+
+    text-transform: uppercase;
+
+}
+
+
+#annualReportContainer
+.annual-wo-comparison-values strong {
+
+    color: #082d70;
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+}
+
+/* =========================================================
+   ANNUAL REPORT — EDIT VISUALS
+   ========================================================= */
+
+.annual-edit-modal {
+
+    width: min(1100px, calc(100% - 40px)) !important;
+    max-width: 1100px !important;
+    max-height: 90vh !important;
+
+    padding: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+
+}
+
+
+.annual-edit-header {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 24px 30px;
+
+    background: #ffffff;
+
+    border-bottom:
+        1px solid #e5eaf2;
+
+}
+
+
+.annual-edit-eyebrow {
+
+    color: #7f8c8d;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    margin-bottom: 5px;
+
+}
+
+
+.annual-edit-header h2 {
+
+    margin: 0;
+
+    color: #07225b;
+
+    font-size: 27px;
+
+    font-weight: 900;
+
+}
+
+
+.annual-edit-subtitle {
+
+    margin-top: 5px;
+
+    color: #7b8794;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+.annual-edit-close {
+
+    width: 42px;
+    height: 42px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f3f6fa;
+
+    color: #07225b;
+
+    font-size: 26px;
+
+    cursor: pointer;
+
+}
+
+
+.annual-edit-content {
+
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding: 28px 30px;
+
+    background: #f8fafd;
+
+}
+
+
+.annual-edit-section {
+
+    margin-bottom: 24px;
+
+}
+
+
+.annual-edit-section-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+
+}
+
+
+.annual-edit-section-header span {
+
+    display: block;
+
+    color: #8997a8;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+
+}
+
+
+.annual-edit-section-header h3 {
+
+    margin: 2px 0 0;
+
+    color: #082d70;
+
+    font-size: 21px;
+
+    font-weight: 900;
+
+}
+
+
+.annual-edit-section-badge {
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    background: #fff4bf;
+
+    border: 1px solid #f4cf00;
+
+    color: #7a5c00;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+}
+
+
+.annual-edit-card {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 2fr 1fr;
+
+    gap: 14px;
+
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 5px 18px rgba(8,45,112,.05);
+
+}
+
+
+.annual-edit-group {
+
+    padding: 15px;
+
+    border-radius: 13px;
+
+    background: #f7f9fc;
+
+    border: 1px solid #e7ebf1;
+
+}
+
+
+.annual-edit-group.region {
+
+    background:
+        linear-gradient(
+            145deg,
+            #fffdf0,
+            #fff8cf
+        );
+
+    border-color: #f2d45a;
+
+}
+
+
+.annual-edit-group-title {
+
+    margin-bottom: 12px;
+
+    color: #082d70;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing: .8px;
+
+}
+
+
+.annual-edit-fields {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0,1fr));
+
+    gap: 10px;
+
+}
+
+
+.annual-edit-fields.single {
+
+    grid-template-columns: 1fr;
+
+}
+
+
+.annual-edit-fields label {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    color: #718096;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+}
+
+
+.annual-edit-fields input {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 10px 11px;
+
+    border: 1px solid #dce3ec;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #082d70;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    outline: none;
+
+}
+
+
+.annual-edit-fields input:focus {
+
+    border-color: #f4c900;
+
+    box-shadow:
+        0 0 0 3px rgba(244,201,0,.15);
+
+}
+
+
+.annual-edit-info {
+
+    display: flex;
+
+    gap: 12px;
+
+    align-items: flex-start;
+
+    margin-top: 5px;
+
+    padding: 15px 17px;
+
+    border-radius: 13px;
+
+    background: #fffdf0;
+
+    border: 1px solid #f1d65c;
+
+}
+
+
+.annual-edit-info > span {
+
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #ffd400;
+
+    color: #082d70;
+
+    font-weight: 900;
+
+}
+
+
+.annual-edit-info strong {
+
+    color: #082d70;
+
+    font-size: 12px;
+
+}
+
+
+.annual-edit-info p {
+
+    margin: 3px 0 0;
+
+    color: #6f7f91;
+
+    font-size: 11px;
+
+}
+
+
+.annual-edit-footer {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    padding: 18px 30px;
+
+    border-top: 1px solid #e5eaf2;
+
+    background: #ffffff;
+
+}
+
+
+@media (max-width: 850px) {
+
+    .annual-edit-card {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .annual-edit-content {
+
+        padding: 20px 15px;
+
+    }
+
+    .annual-edit-fields {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+#annualReportContainer #annualESRContent,
+#annualReportContainer #annualHilsContent,
+#annualReportContainer #annualWorkOrdersContent {
+    grid-template-columns: 1fr !important;
+}
+
+/* =========================================================
+   ANNUAL REPORT — BASE BREAKDOWN
+   LIS / FAO / FNC
+   ========================================================= */
+
+#annualReportContainer .annual-esr-breakdown {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 12px;
+
+    padding-top: 10px;
+
+    border-top:
+        1px solid #e9edf3;
+
+}
+
+
+#annualReportContainer .annual-base-chip {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    min-width: 58px;
+
+    padding: 6px 9px;
+
+    border-radius: 8px;
+
+    background:
+        #f5f7fa;
+
+    border:
+        1px solid #e1e6ed;
+
+    box-sizing: border-box;
+
+}
+
+
+#annualReportContainer .annual-base-chip span {
+
+    color:
+        #7c8a9d;
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .5px;
+
+}
+
+
+#annualReportContainer .annual-base-chip strong {
+
+    color:
+        #082d70;
+
+    font-size:
+        12px;
+
+    font-weight:
+        900;
+
+}
+
+
+/* Hover subtil para manter o aspecto premium */
+
+#annualReportContainer .annual-base-chip:hover {
+
+    background:
+        #fffbea;
+
+    border-color:
+        #f2ce00;
+
+    transform:
+        translateY(-1px);
+
+    transition:
+        .15s ease;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    #annualReportContainer .annual-esr-breakdown {
+
+        flex-wrap: wrap;
+
+    }
+
+}
+
+/* =========================================================
+   ANNUAL REPORT — CENTER KPI METRICS
+   ESR / HILs / WORK ORDERS
+   ========================================================= */
+
+#annualReportContainer #annualESRContent .annual-fwd-kpi-row,
+#annualReportContainer #annualHilsContent .annual-fwd-kpi-row,
+#annualReportContainer #annualWorkOrdersContent .annual-fwd-kpi-row {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+/* Cada grupo de métricas fica centrado */
+
+#annualReportContainer #annualESRContent .annual-fwd-kpi-row > div,
+#annualReportContainer #annualHilsContent .annual-fwd-kpi-row > div,
+#annualReportContainer #annualWorkOrdersContent .annual-fwd-kpi-row > div {
+
+    text-align: center;
+
+}
+
+
+/* Cartões com apenas 1 métrica */
+
+#annualReportContainer #annualESRContent .annual-fwd-kpi-row:has(> div:only-child),
+#annualReportContainer #annualHilsContent .annual-fwd-kpi-row:has(> div:only-child),
+#annualReportContainer #annualWorkOrdersContent .annual-fwd-kpi-row:has(> div:only-child) {
+
+    justify-content: center;
+
+}
+
+
+/* Breakdown LIS / FAO / FNC */
+
+#annualReportContainer #annualESRContent .annual-esr-breakdown,
+#annualReportContainer #annualHilsContent .annual-esr-breakdown,
+#annualReportContainer #annualWorkOrdersContent .annual-esr-breakdown {
+
+    justify-content: center;
+
+    width: 100%;
+
+}
+
+#annualReportContainer #annualESRContent .annual-fwd-kpi-row {
+    min-height: 76px;
+}
+
+/* =========================================================
+   HILs / WORK ORDERS — 3 + 2 CENTERED
+   ========================================================= */
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics,
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics {
+
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    max-width: 390px;
+    margin: 0 auto;
+}
+
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div,
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div {
+
+    flex: 0 0 105px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div:nth-child(4),
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div:nth-child(4) {
+
+    margin-left: 57px;
+}
+
+
+@media (max-width: 700px) {
+
+    #annualReportContainer #annualHilsContent
+    .annual-wo-five-metrics,
+
+    #annualReportContainer #annualWorkOrdersContent
+    .annual-wo-five-metrics {
+
+        max-width: 250px;
+    }
+
+    #annualReportContainer #annualHilsContent
+    .annual-wo-five-metrics > div,
+
+    #annualReportContainer #annualWorkOrdersContent
+    .annual-wo-five-metrics > div {
+
+        flex-basis: 105px;
+    }
+
+    #annualReportContainer #annualHilsContent
+    .annual-wo-five-metrics > div:nth-child(4),
+
+    #annualReportContainer #annualWorkOrdersContent
+    .annual-wo-five-metrics > div:nth-child(4) {
+
+        margin-left: 0;
+    }
+
+}
+
+/* =========================================================
+   ANNUAL REPORT — FINAL KPI ALIGNMENT
+   HILs / WO / NO INFO
+   ========================================================= */
+
+
+/* =========================================================
+   HILs + WORK ORDERS
+   3 METRICS
+   +
+   2 METRICS CENTRED
+   ========================================================= */
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics,
+
+#annualReportContainer #annualHilsContent
+.annual-hils-five-metrics,
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics {
+
+    width: 100% !important;
+
+    max-width: 360px !important;
+
+    margin: 0 auto !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(6, 1fr) !important;
+
+    gap: 10px !important;
+
+    justify-items: center !important;
+
+    align-items: center !important;
+
+}
+
+
+/* ---------------------------------------------------------
+   TODOS OS MINI CARDS
+   --------------------------------------------------------- */
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div,
+
+#annualReportContainer #annualHilsContent
+.annual-hils-five-metrics > div,
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div {
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    box-sizing: border-box !important;
+
+    text-align: center !important;
+
+}
+
+
+/* ---------------------------------------------------------
+   PRIMEIROS 3
+   --------------------------------------------------------- */
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div:nth-child(1),
+
+#annualReportContainer #annualHilsContent
+.annual-hils-five-metrics > div:nth-child(1),
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div:nth-child(1) {
+
+    grid-column: 1 / 3;
+
+}
+
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div:nth-child(2),
+
+#annualReportContainer #annualHilsContent
+.annual-hils-five-metrics > div:nth-child(2),
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div:nth-child(2) {
+
+    grid-column: 3 / 5;
+
+}
+
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div:nth-child(3),
+
+#annualReportContainer #annualHilsContent
+.annual-hils-five-metrics > div:nth-child(3),
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div:nth-child(3) {
+
+    grid-column: 5 / 7;
+
+}
+
+
+/* ---------------------------------------------------------
+   ÚLTIMOS 2
+   FICAM VERDADEIRAMENTE CENTRADOS
+   --------------------------------------------------------- */
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div:nth-child(4),
+
+#annualReportContainer #annualHilsContent
+.annual-hils-five-metrics > div:nth-child(4),
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div:nth-child(4) {
+
+    grid-column: 2 / 4;
+
+    grid-row: 2;
+
+}
+
+
+#annualReportContainer #annualHilsContent
+.annual-wo-five-metrics > div:nth-child(5),
+
+#annualReportContainer #annualHilsContent
+.annual-hils-five-metrics > div:nth-child(5),
+
+#annualReportContainer #annualWorkOrdersContent
+.annual-wo-five-metrics > div:nth-child(5) {
+
+    grid-column: 4 / 6;
+
+    grid-row: 2;
+
+}
+
+
+/* =========================================================
+   NO INFO
+   CENTRAR AS MÉTRICAS DENTRO DO CARTÃO
+   ========================================================= */
+
+#annualReportContainer #annualNoInfoContent
+.annual-fwd-kpi-row {
+
+    width: 100% !important;
+
+    display: flex !important;
+
+    justify-content: center !important;
+
+    align-items: center !important;
+
+    gap: 12px !important;
+
+    margin-left: auto !important;
+
+    margin-right: auto !important;
+
+}
+
+
+#annualReportContainer #annualNoInfoContent
+.annual-fwd-kpi-row > div {
+
+    text-align: center !important;
+
+}
+
+
+/* =========================================================
+   ESR
+   GARANTIR A MESMA REGRA DE CENTRAGEM
+   ========================================================= */
+
+#annualReportContainer #annualESRContent
+.annual-fwd-kpi-row {
+
+    width: 100% !important;
+
+    display: flex !important;
+
+    justify-content: center !important;
+
+    align-items: center !important;
+
+    gap: 10px !important;
+
+}
+
+
+#annualReportContainer #annualESRContent
+.annual-fwd-kpi-row > div {
+
+    text-align: center !important;
+
+}
+
+
+/* =========================================================
+   BASE BREAKDOWN
+   ========================================================= */
+
+#annualReportContainer
+.annual-esr-breakdown {
+
+    display: flex !important;
+
+    justify-content: center !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    width: 100% !important;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 750px) {
+
+    #annualReportContainer #annualHilsContent
+    .annual-wo-five-metrics,
+
+    #annualReportContainer #annualHilsContent
+    .annual-hils-five-metrics,
+
+    #annualReportContainer #annualWorkOrdersContent
+    .annual-wo-five-metrics {
+
+        max-width: 300px !important;
+
+        gap: 8px !important;
+
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    #annualReportContainer #annualHilsContent
+    .annual-wo-five-metrics,
+
+    #annualReportContainer #annualHilsContent
+    .annual-hils-five-metrics,
+
+    #annualReportContainer #annualWorkOrdersContent
+    .annual-wo-five-metrics {
+
+        grid-template-columns:
+            repeat(2, 1fr) !important;
+
+        max-width: 240px !important;
+
+    }
+
+
+    #annualReportContainer #annualHilsContent
+    .annual-wo-five-metrics > div,
+
+    #annualReportContainer #annualHilsContent
+    .annual-hils-five-metrics > div,
+
+    #annualReportContainer #annualWorkOrdersContent
+    .annual-wo-five-metrics > div {
+
+        grid-column: auto !important;
+
+        grid-row: auto !important;
+
+    }
+
+}
+
+/* =========================================================
+   ESR — FULL WIDTH
+   SECTION → CONTENT → WRAPPER → CARDS
+   ========================================================= */
+
+
+/* Section inteira */
+
+#annualReportContainer #annualESRSection {
+
+    width: 100% !important;
+
+    max-width: none !important;
+
+}
+
+
+/* Content */
+
+#annualReportContainer #annualESRContent {
+
+    display: block !important;
+
+    width: 100% !important;
+
+    max-width: none !important;
+
+    margin: 0 !important;
+
+}
+
+
+/* Wrapper interno */
+
+#annualReportContainer #annualESRContent
+.annual-fwd-wrapper {
+
+    display: block !important;
+
+    width: 100% !important;
+
+    max-width: none !important;
+
+    margin: 0 !important;
+
+}
+
+
+/* Linha dos 3 cartões */
+
+#annualReportContainer #annualESRContent
+.annual-fwd-kpis {
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr)) !important;
+
+    width: 100% !important;
+
+    max-width: none !important;
+
+    gap: 18px !important;
+
+    margin: 0 !important;
+
+}
+
+
+/* Cada cartão */
+
+#annualReportContainer #annualESRContent
+.annual-fwd-kpi {
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    box-sizing: border-box !important;
+
+}
+
+
+/* Conteúdo das métricas centrado */
+
+#annualReportContainer #annualESRContent
+.annual-fwd-kpi-row {
+
+    width: 100% !important;
+
+    display: flex !important;
+
+    justify-content: center !important;
+
+    align-items: center !important;
+
+}
+
+
+/* LIS / FAO / FNC */
+
+#annualReportContainer #annualESRContent
+.annual-esr-breakdown {
+
+    width: 100% !important;
+
+    display: flex !important;
+
+    justify-content: center !important;
+
+    align-items: center !important;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    #annualReportContainer #annualESRContent
+    .annual-fwd-kpis {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    #annualReportContainer #annualESRContent
+    .annual-fwd-kpis {
+
+        grid-template-columns:
+            1fr !important;
+
+    }
+
+}

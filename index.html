@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" href="ryanair-logo-page.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="annualReport.css">
     <title>Ryanair Engineering Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
@@ -1286,7 +1287,9 @@
 
     </div>
 
-    <div class="home-user-content">
+    <div
+    class="home-user-content"
+>
 
             <div
     id="homeUserGreeting"
@@ -1368,11 +1371,11 @@ Engineering & Maintenance Platform
 
     </button>
 
-    <button onclick="openFileStore()">
+    <button onclick="openAnnualReport()">
 
-        FILE STORE
+    ANNUAL REPORT
 
-    </button>
+</button>
 
 </div>
 
@@ -1455,9 +1458,11 @@ Version 1.0
         A-CHECK
     </button>
 
-    <button onclick="openFileStore()">
-        FILE STORE
-    </button>
+    <button onclick="openAnnualReport()">
+
+    ANNUAL REPORT
+
+</button>
 
 </div>
 
@@ -21261,6 +21266,164 @@ span:last-child {
     }
 
 }
+
+/* =========================================================
+   GLOBAL FOOTER
+========================================================= */
+
+#globalFooter {
+
+    width: 100%;
+
+    min-height: 76px;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding: 16px 28px;
+
+    box-sizing: border-box;
+
+    background: #071d49;
+
+    border-top: 3px solid #f2c900;
+
+    box-shadow:
+        0 -4px 16px rgba(8, 45, 112, 0.12);
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.global-footer-brand {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    min-width: 150px;
+
+}
+
+
+.global-footer-logo {
+
+    display: block;
+
+    width: auto;
+
+    height: 32px;
+
+    max-width: 150px;
+
+    object-fit: contain;
+
+}
+
+
+/* =========================================================
+   CENTER
+========================================================= */
+
+.global-footer-center {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    flex: 1;
+
+    text-align: center;
+
+    font-weight: 600;
+
+}
+
+
+.global-footer-separator {
+
+    color: #f2c900;
+
+    font-weight: 900;
+
+}
+
+
+/* =========================================================
+   RIGHT
+========================================================= */
+
+.global-footer-right {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    min-width: 150px;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    #globalFooter {
+
+        flex-direction: column;
+
+        justify-content: center;
+
+        padding: 16px;
+
+        gap: 8px;
+
+    }
+
+
+    .global-footer-brand,
+    .global-footer-right {
+
+        min-width: 0;
+
+        justify-content: center;
+
+    }
+
+
+    .global-footer-center {
+
+        flex-wrap: wrap;
+
+    }
+
+   
+
+}
     </style>
 
 <!-- ===================================================== -->
@@ -21312,7 +21475,7 @@ span:last-child {
                 type="button"
                 class="rh-btn rh-btn-green"
                 onclick="openImportExcelPeriod()">
-                Import Excel Data
+                Import PDF Data
             </button>
 
             <button
@@ -23519,19 +23682,156 @@ Loading...
 
 <section class="trend-section">
 
-    <div class="trend-filters">
+    <div
+    class="trend-filters"
+    style="
+        display:flex;
+        align-items:flex-end;
+        gap:18px;
+        flex-wrap:wrap;
+    "
+>
+
+    <!-- ========================================= -->
+    <!-- VIEW -->
+    <!-- ========================================= -->
+
+    <div class="base-filter">
 
         <label>View</label>
 
-        <select id="trendView">
+        <select
+    id="trendView"
+    onchange="updateOperationalTrends()"
+>
 
-            <option value="6">Last 6 Months</option>
-            <option value="12" selected>Last 12 Months</option>
-            <option value="all">All Available Data</option>
+            <option value="6">
+                Last 6 Months
+            </option>
+
+            <option value="12" selected>
+                Last 12 Months
+            </option>
+
+            <option value="all">
+                All Available Data
+            </option>
 
         </select>
 
     </div>
+
+
+    <!-- ========================================= -->
+    <!-- DATA TYPE -->
+    <!-- ========================================= -->
+
+    <div class="base-filter">
+
+        <label>Data Type</label>
+
+        <select
+            id="trendMetric"
+            onchange="updateOperationalTrends()"
+        >
+
+            <option value="fwd">
+                First Wave Delays
+            </option>
+
+            <option value="fwdPerDay">
+                FWD per Day
+            </option>
+
+            <option value="rate">
+                FWD Rate
+            </option>
+
+            <option value="nightStops">
+                Night Stops
+            </option>
+
+            <option value="nightStopsPerDay">
+                Night Stops per Day
+            </option>
+
+            <option value="averageDelayTime">
+                Average Delay Time
+            </option>
+
+            <option value="maxDelayTime">
+                Maximum Delay Time
+            </option>
+
+            <option value="delayCode">
+                Delay Code
+            </option>
+
+            <option value="delayGroup">
+                Delay Group
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- COMPARE -->
+    <!-- ========================================= -->
+
+    <div class="base-filter">
+
+        <label>Compare</label>
+
+        <select
+            id="trendCompare"
+            onchange="updateOperationalTrendSelectors()"
+        >
+
+            <option value="region">
+                Region
+            </option>
+
+            <option value="1">
+                1 Data
+            </option>
+
+            <option value="2">
+                2 Data
+            </option>
+
+            <option value="3">
+                3 Data
+            </option>
+
+            <option value="4">
+                4 Data
+            </option>
+
+            <option value="5">
+                5 Data
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- DYNAMIC DATA SELECTORS -->
+    <!-- ========================================= -->
+
+    <div
+        id="trendDataSelectors"
+        style="
+            display:flex;
+            gap:18px;
+            flex-wrap:wrap;
+        "
+    ></div>
+
+</div>
 
     <div class="trend-layout">
 
@@ -23790,6 +24090,1297 @@ box-shadow:0 4px 15px rgba(0,0,0,.08);
 
     <script>
 
+function showGlobalFooter() {
+
+    const footer =
+        document.getElementById("globalFooter");
+
+    if (!footer) return;
+
+    footer.style.display = "flex";
+}
+
+function hideGlobalFooter() {
+
+    const footer =
+        document.getElementById("globalFooter");
+
+    if (!footer) return;
+
+    footer.style.display = "none";
+}
+
+// =====================================================
+// REPORT VISIBILITY
+// =====================================================
+
+let REPORT_VISIBILITY = {
+
+    FWD:
+        true,
+
+    ACHECK:
+        true,
+
+    NOINFO:
+        true,
+
+    ANNUAL:
+        true,
+
+};
+
+REPORT_VISIBILITY_LOADED =
+    true;
+
+// =====================================================
+// REPORT VISIBILITY — FIREBASE
+// =====================================================
+
+const REPORT_VISIBILITY_PATH =
+    "dashboardData/settings/reportVisibility";
+
+
+async function loadReportVisibility(){
+
+    try{
+
+        const snapshot =
+            await window.firebaseGet(
+
+                window.firebaseRef(
+
+                    window.database,
+
+                    REPORT_VISIBILITY_PATH
+
+                )
+
+            );
+
+
+        if(
+            snapshot &&
+            snapshot.exists()
+        ){
+
+            const data =
+                snapshot.val() ||
+                {};
+
+
+            REPORT_VISIBILITY = {
+
+                FWD:
+                    data.FWD !== false,
+
+                ACHECK:
+                    data.ACHECK !== false,
+
+                NOINFO:
+                    data.NOINFO !== false,
+
+                ANNUAL:
+                    data.ANNUAL !== false
+
+            };
+
+        }
+        else{
+
+            REPORT_VISIBILITY = {
+
+                FWD: true,
+
+                ACHECK: true,
+
+                NOINFO: true,
+
+                ANNUAL: true
+
+            };
+
+        }
+
+
+        console.log(
+            "REPORT VISIBILITY — LOADED:",
+            REPORT_VISIBILITY
+        );
+
+
+        refreshReportVisibilityManager();
+
+
+    }
+    catch(error){
+
+        console.error(
+            "REPORT VISIBILITY — LOAD ERROR:",
+            error
+        );
+
+    }
+
+}
+    
+
+async function saveReportVisibility(){
+
+    try{
+
+        await window.firebaseSet(
+
+            window.firebaseRef(
+
+                window.database,
+
+                REPORT_VISIBILITY_PATH
+
+            ),
+
+            {
+
+                FWD:
+                    REPORT_VISIBILITY.FWD !== false,
+
+                ACHECK:
+                    REPORT_VISIBILITY.ACHECK !== false,
+
+                NOINFO:
+                    REPORT_VISIBILITY.NOINFO !== false,
+
+                ANNUAL:
+                    REPORT_VISIBILITY.ANNUAL !== false,
+
+                updatedAt:
+                    Date.now(),
+
+                updatedBy:
+                    CURRENT_USER?.profile?.username ||
+                    CURRENT_USER?.profile?.fullName ||
+                    "admin"
+
+            }
+
+        );
+
+
+        console.log(
+            "REPORT VISIBILITY — SAVED:",
+            REPORT_VISIBILITY
+        );
+
+
+        return true;
+
+    }
+    catch(error){
+
+        console.error(
+            "REPORT VISIBILITY — SAVE ERROR:",
+            error
+        );
+
+
+        showError(
+
+            "Report Visibility",
+
+            "Unable to save the report visibility settings."
+
+        );
+
+
+        return false;
+
+    }
+
+}
+
+// =====================================================
+// REALTIME REPORT VISIBILITY LISTENER
+// =====================================================
+
+let REPORT_VISIBILITY_LISTENER_STARTED =
+    false;
+
+
+
+function startReportVisibilityListener(){
+
+    if(
+        REPORT_VISIBILITY_LISTENER_STARTED
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        !window.database ||
+        !window.firebaseRef ||
+        !window.firebaseOnValue
+    ){
+
+        console.warn(
+            "REPORT VISIBILITY — Firebase not ready."
+        );
+
+        return;
+
+    }
+
+
+    REPORT_VISIBILITY_LISTENER_STARTED =
+        true;
+
+
+    window.firebaseOnValue(
+
+        window.firebaseRef(
+
+            window.database,
+
+            REPORT_VISIBILITY_PATH
+
+        ),
+
+        snapshot => {
+
+            if(
+                snapshot &&
+                snapshot.exists()
+            ){
+
+                const data =
+                    snapshot.val() ||
+                    {};
+
+
+                REPORT_VISIBILITY = {
+
+                    FWD:
+                        data.FWD !== false,
+
+                    ACHECK:
+                        data.ACHECK !== false,
+
+                    NOINFO:
+                        data.NOINFO !== false,
+
+                    ANNUAL:
+                        data.ANNUAL !== false
+
+                };
+
+            }
+
+
+            console.log(
+                "REPORT VISIBILITY — REALTIME:",
+                REPORT_VISIBILITY
+            );
+
+
+            refreshReportVisibilityManager();
+
+        }
+
+    );
+
+}
+
+// =====================================================
+// REFRESH ADMIN VISIBILITY MANAGER
+// =====================================================
+
+function refreshReportVisibilityManager(){
+
+    const modal =
+        document.getElementById(
+            "reportVisibilityModal"
+        );
+
+
+    if(
+        !modal
+    ){
+
+        return;
+
+    }
+
+
+    const reports = [
+
+        {
+            key:
+                "FWD"
+        },
+
+        {
+            key:
+                "ACHECK"
+        },
+
+        {
+            key:
+                "NOINFO"
+        },
+
+        {
+            key:
+                "ANNUAL"
+        }
+
+    ];
+
+
+    reports.forEach(
+        report => {
+
+            const isVisible =
+                REPORT_VISIBILITY[
+                    report.key
+                ] !== false;
+
+
+            const button =
+                document.getElementById(
+                    "reportVisibilityToggle_" +
+                    report.key
+                );
+
+
+            const status =
+                document.getElementById(
+                    "reportVisibilityStatus_" +
+                    report.key
+                );
+
+
+            if(button){
+
+                button.textContent =
+                    isVisible
+                        ? "SHOW"
+                        : "HIDE";
+
+
+                button.style.background =
+                    isVisible
+                        ? "#15803D"
+                        : "#64748B";
+
+            }
+
+
+            if(status){
+
+                status.textContent =
+                    isVisible
+                        ? "Visible"
+                        : "Hidden";
+
+
+                status.style.color =
+                    isVisible
+                        ? "#15803D"
+                        : "#DC2626";
+
+            }
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// CHECK REPORT AVAILABILITY
+// =====================================================
+
+function canOpenReport(
+    reportKey,
+    reportName
+){
+
+    // ==========================================
+    // ADMIN ALWAYS HAS ACCESS
+    // ==========================================
+
+    if(
+        CURRENT_USER?.profile?.role ===
+        "admin"
+    ){
+
+        return true;
+
+    }
+
+
+    // ==========================================
+    // WAIT FOR FIREBASE SETTINGS
+    // ==========================================
+
+    if(
+        !REPORT_VISIBILITY_LOADED
+    ){
+
+        showError(
+
+            "Report Availability",
+
+            "Please wait while report settings are loaded."
+
+        );
+
+        return false;
+
+    }
+
+
+    // ==========================================
+    // REPORT AVAILABLE
+    // ==========================================
+
+    if(
+        REPORT_VISIBILITY[
+            reportKey
+        ] !== false
+    ){
+
+        return true;
+
+    }
+
+
+    // ==========================================
+    // REPORT HIDDEN
+    // ==========================================
+
+    openReportUnavailableModal(
+        reportName
+    );
+
+
+    return false;
+
+}
+
+// =====================================================
+// REPORT UNAVAILABLE MODAL
+// =====================================================
+
+function openReportUnavailableModal(
+    reportName
+){
+
+    // ==========================================
+    // REMOVE EXISTING MODAL
+    // ==========================================
+
+    const existing =
+        document.getElementById(
+            "reportUnavailableModal"
+        );
+
+
+    if(existing){
+
+        existing.remove();
+
+    }
+
+
+    // ==========================================
+    // CREATE MODAL
+    // ==========================================
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "reportUnavailableModal";
+
+
+    modal.style.cssText = `
+
+        position:fixed;
+
+        inset:0;
+
+        background:
+            rgba(0,0,0,.42);
+
+        display:flex;
+
+        align-items:center;
+
+        justify-content:center;
+
+        z-index:99999;
+
+        padding:20px;
+
+        box-sizing:border-box;
+
+    `;
+
+
+    // ==========================================
+    // MODAL CONTENT
+    // ==========================================
+
+    modal.innerHTML = `
+
+    <div
+        style="
+            width:100%;
+            max-width:480px;
+            background:#FFFFFF;
+            border-radius:18px;
+            padding:34px 34px 30px;
+            box-sizing:border-box;
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,.22);
+            text-align:center;
+        "
+    >
+
+        <!-- ICON -->
+
+        <div
+            style="
+                width:52px;
+                height:52px;
+                margin:0 auto 22px;
+
+                border-radius:50%;
+
+                background:#FFF3CC;
+
+                display:flex;
+                align-items:center;
+                justify-content:center;
+
+                color:#07225B;
+
+                font-size:25px;
+                font-weight:800;
+
+                line-height:1;
+            "
+        >
+
+            !
+
+        </div>
+
+
+        <!-- TITLE -->
+
+        <h2
+            style="
+                margin:0 0 12px;
+
+                color:#07225B;
+
+                font-size:24px;
+
+                font-weight:800;
+
+                line-height:1.2;
+            "
+        >
+
+            Content Unavailable
+
+        </h2>
+
+
+        <!-- MESSAGE -->
+
+        <p
+            style="
+                margin:0;
+
+                color:#718096;
+
+                font-size:15px;
+
+                line-height:1.6;
+            "
+        >
+
+            The
+
+            <strong
+                style="
+                    color:#07225B;
+                    font-weight:700;
+                "
+            >
+                ${reportName}
+            </strong>
+
+            report is currently unavailable.
+
+        </p>
+
+
+        <!-- OK -->
+
+        <div
+            style="
+                display:flex;
+                justify-content:center;
+                margin-top:28px;
+            "
+        >
+
+            <button
+                type="button"
+                onclick="
+                    closeReportUnavailableModal()
+                "
+                style="
+                    min-width:68px;
+
+                    border:none;
+
+                    border-radius:8px;
+
+                    padding:10px 20px;
+
+                    background:#07225B;
+
+                    color:#FFFFFF;
+
+                    font-size:14px;
+
+                    font-weight:700;
+
+                    cursor:pointer;
+                "
+            >
+
+                OK
+
+            </button>
+
+        </div>
+
+    </div>
+
+`;
+
+
+    // ==========================================
+    // CLOSE WHEN CLICKING BACKDROP
+    // ==========================================
+
+    modal.addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target === modal
+            ){
+
+                closeReportUnavailableModal();
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // ADD TO DOCUMENT
+    // ==========================================
+
+    document.body.appendChild(
+        modal
+    );
+
+}
+
+// =====================================================
+// CLOSE REPORT UNAVAILABLE MODAL
+// =====================================================
+
+function closeReportUnavailableModal(){
+
+    const modal =
+        document.getElementById(
+            "reportUnavailableModal"
+        );
+
+
+    if(modal){
+
+        modal.remove();
+
+    }
+
+}
+
+// =====================================================
+// REPORT VISIBILITY MANAGER
+// =====================================================
+
+function openReportVisibilityManager(){
+
+    // ==========================================
+    // ADMIN ONLY
+    // ==========================================
+
+    if(
+        !CURRENT_USER ||
+        CURRENT_USER.profile?.role !== "admin"
+    ){
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // REMOVE EXISTING MODAL
+    // ==========================================
+
+    const existing =
+        document.getElementById(
+            "reportVisibilityModal"
+        );
+
+
+    if(existing){
+
+        existing.remove();
+
+    }
+
+
+    // ==========================================
+    // REPORT DEFINITIONS
+    // ==========================================
+
+    const reports = [
+
+        {
+            key:
+                "FWD",
+
+            name:
+                "First Wave Delays"
+
+        },
+
+        {
+            key:
+                "ACHECK",
+
+            name:
+                "A-Check"
+
+        },
+
+        {
+            key:
+                "NOINFO",
+
+            name:
+                "No Info Delays"
+
+        },
+
+        {
+            key:
+                "ANNUAL",
+
+            name:
+                "Annual Report"
+
+        }
+
+    ];
+
+
+    // ==========================================
+    // BUILD REPORT ROWS
+    // ==========================================
+
+    const rows =
+        reports
+            .map(
+                report => {
+
+                    const isVisible =
+                        REPORT_VISIBILITY[
+                            report.key
+                        ] !== false;
+
+
+                    return `
+
+                        <div
+                            style="
+                                display:flex;
+                                align-items:center;
+                                justify-content:space-between;
+                                padding:16px 0;
+                                border-bottom:1px solid #E5EAF2;
+                            "
+                        >
+
+                            <div>
+
+                                <div
+                                    style="
+                                        font-size:15px;
+                                        font-weight:700;
+                                        color:#07225B;
+                                    "
+                                >
+
+                                    ${report.name}
+
+                                </div>
+
+
+                                <div
+                                    id="reportVisibilityStatus_${report.key}"
+                                    style="
+                                        margin-top:4px;
+                                        font-size:12px;
+                                        font-weight:600;
+                                        color:${
+                                            isVisible
+                                                ? "#15803D"
+                                                : "#DC2626"
+                                        };
+                                    "
+                                >
+
+                                    ${
+                                        isVisible
+                                            ? "Visible"
+                                            : "Hidden"
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            <button
+                                type="button"
+                                id="reportVisibilityToggle_${report.key}"
+                                onclick="toggleReportVisibility('${report.key}')"
+                                style="
+                                    border:none;
+                                    border-radius:20px;
+                                    padding:8px 18px;
+                                    min-width:82px;
+                                    background:${
+                                        isVisible
+                                            ? "#15803D"
+                                            : "#64748B"
+                                    };
+                                    color:#FFFFFF;
+                                    font-weight:700;
+                                    cursor:pointer;
+                                "
+                            >
+
+                                ${
+                                    isVisible
+                                        ? "SHOW"
+                                        : "HIDE"
+                                }
+
+                            </button>
+
+                        </div>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+
+    // ==========================================
+    // CREATE MODAL
+    // ==========================================
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "reportVisibilityModal";
+
+
+    modal.style.cssText = `
+
+        position:fixed;
+
+        inset:0;
+
+        background:
+            rgba(7,34,91,.35);
+
+        display:flex;
+
+        align-items:center;
+
+        justify-content:center;
+
+        z-index:99999;
+
+        padding:20px;
+
+        box-sizing:border-box;
+
+    `;
+
+
+    // ==========================================
+    // MODAL CONTENT
+    // ==========================================
+
+    modal.innerHTML = `
+
+        <div
+            style="
+                width:100%;
+                max-width:520px;
+                background:#FFFFFF;
+                border-radius:18px;
+                padding:30px;
+                box-sizing:border-box;
+                box-shadow:
+                    0 20px 60px
+                    rgba(0,0,0,.20);
+            "
+        >
+
+            <div
+                style="
+                    display:flex;
+                    align-items:flex-start;
+                    justify-content:space-between;
+                    margin-bottom:22px;
+                "
+            >
+
+                <div>
+
+                    <div
+                        style="
+                            font-size:12px;
+                            font-weight:800;
+                            letter-spacing:1px;
+                            color:#64748B;
+                            margin-bottom:6px;
+                        "
+                    >
+
+                        ADMINISTRATION
+
+                    </div>
+
+
+                    <h2
+                        style="
+                            margin:0;
+                            color:#07225B;
+                            font-size:22px;
+                        "
+                    >
+
+                        Show / Hide Reports
+
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    onclick="closeReportVisibilityManager()"
+                    style="
+                        border:none;
+                        background:none;
+                        font-size:22px;
+                        color:#64748B;
+                        cursor:pointer;
+                        padding:2px 6px;
+                    "
+                >
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <!-- ======================================
+                 REPORT LIST
+            ======================================= -->
+
+            <div>
+
+                ${rows}
+
+            </div>
+
+
+            <!-- ======================================
+                 FOOTER
+            ======================================= -->
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:flex-end;
+                    margin-top:24px;
+                "
+            >
+
+                <button
+                    type="button"
+                    onclick="closeReportVisibilityManager()"
+                    style="
+                        border:1px solid #D8DEE9;
+                        border-radius:8px;
+                        padding:10px 20px;
+                        background:#FFFFFF;
+                        color:#07225B;
+                        font-weight:700;
+                        cursor:pointer;
+                    "
+                >
+
+                    Close
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    // ==========================================
+    // CLOSE ON BACKDROP CLICK
+    // ==========================================
+
+    modal.addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target === modal
+            ){
+
+                closeReportVisibilityManager();
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // ADD TO PAGE
+    // ==========================================
+
+    document.body.appendChild(
+        modal
+    );
+
+}
+
+// =====================================================
+// CLOSE REPORT VISIBILITY MANAGER
+// =====================================================
+
+function closeReportVisibilityManager(){
+
+    const modal =
+        document.getElementById(
+            "reportVisibilityModal"
+        );
+
+
+    if(modal){
+
+        modal.remove();
+
+    }
+
+}
+
+// =====================================================
+// TOGGLE REPORT VISIBILITY
+// =====================================================
+
+async function toggleReportVisibility(
+    reportKey
+){
+
+    // ==========================================
+    // ADMIN ONLY
+    // ==========================================
+
+    if(
+        !CURRENT_USER ||
+        CURRENT_USER.profile?.role !==
+        "admin"
+    ){
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // VALID REPORT
+    // ==========================================
+
+    const validReports = [
+
+        "FWD",
+        "ACHECK",
+        "NOINFO",
+        "ANNUAL"
+
+    ];
+
+
+    if(
+        !validReports.includes(
+            reportKey
+        )
+    ){
+
+        console.warn(
+            "REPORT VISIBILITY — Invalid report:",
+            reportKey
+        );
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // TOGGLE
+    // ==========================================
+
+    const currentState =
+        REPORT_VISIBILITY[
+            reportKey
+        ] !== false;
+
+
+    REPORT_VISIBILITY[
+        reportKey
+    ] =
+        !currentState;
+
+
+    // ==========================================
+    // REFRESH MENU IMMEDIATELY
+    // ==========================================
+
+    refreshReportVisibilityManager();
+
+
+    // ==========================================
+    // SAVE GLOBAL STATE
+    // ==========================================
+
+    await saveReportVisibility();
+
+}
+
+// =====================================================
+// START REPORT VISIBILITY SYNC
+// =====================================================
+
+if(
+    document.readyState ===
+    "loading"
+){
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function(){
+
+            startReportVisibilityListener();
+
+        },
+        {
+            once:true
+        }
+    );
+
+}
+else{
+
+    startReportVisibilityListener();
+
+}
+
+// =========================================================
+// GLOBAL FOOTER VISIBILITY
+// =========================================================
+
+function updateGlobalFooterVisibility(){
+
+    const footer =
+        document.getElementById("globalFooter");
+
+    if(!footer){
+
+        return;
+
+    }
+
+
+    // HOME
+    if(
+        document.getElementById("homePage") &&
+        document.getElementById("homePage").style.display !== "none"
+    ){
+
+        footer.style.display = "none";
+
+        return;
+
+    }
+
+
+    // QUALQUER OUTRA PÁGINA
+    footer.style.display = "flex";
+
+}
+
 function hideNoInfo(){
 
     document.getElementById("noInfoHeader").style.display="none";
@@ -23873,7 +25464,37 @@ function hideACheck(){
 
 }
 
+function showAnnualReport(){
+
+    document.getElementById(
+        "annualReportContainer"
+    ).style.display =
+        "block";
+
+}
+
+
+function hideAnnualReport(){
+
+    document.getElementById(
+        "annualReportContainer"
+    ).style.display =
+        "none";
+
+}
+
    async function openNoInfo(){
+
+    if(
+        !canOpenReport(
+            "NOINFO",
+            "No Info Delays"
+        )
+    ){
+
+        return;
+
+    }
 
     document.getElementById("homeScreen").style.display="none";
 
@@ -23885,11 +25506,108 @@ function hideACheck(){
 
     hideFileStore();
 
+    hideAnnualReport();
+
     showNoInfo();
+
+    showGlobalFooter();
+}
+
+async function openAnnualReport(){
+
+if(
+        !canOpenReport(
+            "ANNUAL",
+            "Annual Report"
+        )
+    ){
+
+        return;
+
+    }
+
+    // ==========================================
+    // SAME NAVIGATION SYSTEM AS OTHER DASHBOARDS
+    // ==========================================
+
+    document.getElementById(
+        "homeScreen"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "dashboardContainer"
+    ).style.display =
+        "block";
+
+
+    // ==========================================
+    // HIDE OTHER DASHBOARDS
+    // ==========================================
+
+    hideNoInfo();
+
+    hideFWD();
+
+    hideACheck();
+
+    hideFileStore();
+
+
+    // ==========================================
+    // SHOW ANNUAL REPORT
+    // ==========================================
+
+    showAnnualReport();
+
+    showGlobalFooter();
+
+    await initializeAnnualReport();
+}
+
+function closeAnnualReport(){
+
+    // ==========================================
+    // HIDE ANNUAL REPORT
+    // ==========================================
+
+    hideAnnualReport();
+
+
+    // ==========================================
+    // CLOSE DASHBOARD CONTAINER
+    // ==========================================
+
+    document.getElementById(
+        "dashboardContainer"
+    ).style.display =
+        "none";
+
+
+    // ==========================================
+    // RETURN HOME
+    // ==========================================
+
+    document.getElementById(
+        "homeScreen"
+    ).style.display =
+        "block";
 
 }
 
 async function openFWD(){
+
+if(
+    !canOpenReport(
+        "FWD",
+        "First Wave Delays"
+    )
+){
+
+    return;
+
+}
 
     await loadBases();
 
@@ -23903,7 +25621,11 @@ async function openFWD(){
 
     hideFileStore();
 
+    hideAnnualReport();
+
     showFWD();
+
+    showGlobalFooter();
 
     await loadAvailableDashboardPeriods();
 
@@ -23923,6 +25645,17 @@ async function openFWD(){
 
 async function openACheck(){
 
+      if(
+        !canOpenReport(
+            "ACHECK",
+            "A-Check"
+        )
+    ){
+
+        return;
+
+    }
+
     document.getElementById("homeScreen").style.display="none";
     document.getElementById("dashboardContainer").style.display="block";
 
@@ -23932,7 +25665,11 @@ async function openACheck(){
 
     hideFileStore();
 
+    hideAnnualReport();
+
     showACheck();
+
+    showGlobalFooter();
 
     initializeACheck();
 
@@ -23978,6 +25715,8 @@ async function openFileStore(){
     hideFWD();
 
     hideACheck();
+
+    hideAnnualReport();
 
 
     // ==========================================
@@ -25114,10 +26853,6 @@ function openManualInput(){
     // ==========================================
     // GARANTIR QUE A BARRA DE CONTROLOS
     // ESTÁ SEMPRE VISÍVEL
-    //
-    // Isto garante que o botão:
-    // 📊 Excel Import
-    // nunca desaparece ao reabrir.
     // ==========================================
 
     const manualControls =
@@ -25146,6 +26881,88 @@ function openManualInput(){
 
         importSelection.style.display =
             "none";
+
+    }
+
+
+    // ==========================================
+    // CURRENT MONTH / YEAR
+    // ==========================================
+
+    const now =
+        new Date();
+
+
+    const currentYear =
+        now.getFullYear();
+
+
+    const currentMonth =
+        now.getMonth();
+
+
+    // ==========================================
+    // CALENDAR DEFAULTS
+    // ==========================================
+
+    const calendarMonth =
+        document.getElementById(
+            "calendarMonth"
+        );
+
+
+    const calendarYear =
+        document.getElementById(
+            "calendarYear"
+        );
+
+
+    if(calendarMonth){
+
+        calendarMonth.value =
+            String(currentMonth);
+
+    }
+
+
+    if(calendarYear){
+
+        calendarYear.value =
+            String(currentYear);
+
+    }
+
+
+    // ==========================================
+    // EXCEL IMPORT DEFAULTS
+    // ==========================================
+
+    const excelImportMonth =
+        document.getElementById(
+            "excelImportMonth"
+        );
+
+
+    const excelImportYear =
+        document.getElementById(
+            "excelImportYear"
+        );
+
+
+    if(excelImportMonth){
+
+        excelImportMonth.value =
+            String(
+                currentMonth + 1
+            );
+
+    }
+
+
+    if(excelImportYear){
+
+        excelImportYear.value =
+            String(currentYear);
 
     }
 
@@ -25728,265 +27545,642 @@ function confirmExcelImport(){
 
 async function importExcelFile(event){
 
-    const file = event.target.files[0];
+    const file =
+        event?.target?.files?.[0];
 
-    if(!file) return;
+    if(!file){
 
-    const reader = new FileReader();
-
-    reader.onload = async function(e){
-
-        const data = new Uint8Array(e.target.result);
-
-        const workbook = XLSX.read(data,{type:"array"});
-
-        const sheetName = workbook.SheetNames[0];
-
-        const worksheet = workbook.Sheets[sheetName];
-
-// ======================================
-// CONVERTER EXCEL PARA ESTRUTURA INTERNA
-// FWD IMPORT - NOVA ESTRUTURA
-// ======================================
-
-const importedDays = {};
-
-
-// ======================================
-// NORMALIZE VALUE
-// ======================================
-
-function normalize(v){
-
-    if(v === undefined || v === null){
-
-        return null;
+        return;
 
     }
 
-    if(typeof v === "string"){
 
-        v = v.trim();
+    // ======================================================
+    // RESET INPUT
+    // ======================================================
+
+    event.target.value = "";
+
+
+    try{
+
+        // ==================================================
+        // READ EXCEL FILE
+        // ==================================================
+
+        const data =
+            await file.arrayBuffer();
+
+
+        const workbook =
+            XLSX.read(
+
+                new Uint8Array(data),
+
+                {
+                    type:"array"
+                }
+
+            );
+
+
+        // ==================================================
+        // SAFETY
+        // ==================================================
 
         if(
-            v === "" ||
-            v === "-" ||
-            v === "/" ||
-            v === "//"
+            !workbook ||
+            !Array.isArray(workbook.SheetNames) ||
+            workbook.SheetNames.length === 0
         ){
 
-            return null;
+            throw new Error(
+                "NO_EXCEL_SHEET_FOUND"
+            );
 
         }
 
-    }
 
-    const n = Number(v);
-
-    return Number.isNaN(n)
-        ? null
-        : n;
-
-}
+        const sheetName =
+            workbook.SheetNames[0];
 
 
-// ======================================
-// FIND LAST USED ROW
-// ======================================
-
-const lastRow =
-    XLSX.utils.decode_range(
-        worksheet["!ref"]
-    ).e.r + 1;
+        const worksheet =
+            workbook.Sheets[sheetName];
 
 
-// ======================================
-// READ DAY BLOCKS
-//
-// Excel structure:
-//
-// Row 1  -> Headers / Bases
-//
-// Row 2  -> Day 1 FWD / Delay Tuples
-// Row 3  -> Day 1 NS
-//
-// Row 4  -> Day 2 FWD / Delay Tuples
-// Row 5  -> Day 2 NS
-//
-// Row 6  -> Day 3 FWD / Delay Tuples
-// Row 7  -> Day 3 NS
-//
-// ...continues
-// ======================================
+        if(!worksheet){
 
-for(
+            throw new Error(
+                "NO_EXCEL_WORKSHEET_FOUND"
+            );
 
-    let row = 2;
-
-    row <= lastRow;
-
-    row += 2
-
-){
-
-    // ==================================
-    // DAY
-    // ==================================
-
-    const day =
-        Number(
-            worksheet["A" + row]?.v
-        );
+        }
 
 
-    if(
-        !Number.isFinite(day) ||
-        day < 1 ||
-        day > 31
-    ){
+        // ==================================================
+        // IMPORT PERIOD
+        // ==================================================
 
-        continue;
-
-    }
-
-
-    // ==================================
-    // DAY DATA
-    // ==================================
-
-    const dayData = {};
-
-    let hasData = false;
+        pendingImportMonth =
+            Number(
+                document.getElementById(
+                    "excelImportMonth"
+                ).value
+            );
 
 
-    // ==================================
-    // READ EVERY BASE
-    // ==================================
-
-    BASES.forEach(
-
-        (base,index)=>{
-
-            const column =
-                XLSX.utils.encode_col(
-                    index + 1
-                );
+        pendingImportYear =
+            Number(
+                document.getElementById(
+                    "excelImportYear"
+                ).value
+            );
 
 
-            // ==================================
-            // FWD / DELAY TUPLES
-            // ==================================
+        // ==================================================
+        // REAL NUMBER OF DAYS IN SELECTED MONTH
+        // ==================================================
+        //
+        // Excel always contains days 1-31.
+        //
+        // We NEVER move Day 31 into Day 30.
+        //
+        // Instead, days that do not exist in the selected
+        // calendar month are simply ignored.
+        //
+        // ==================================================
 
-            const delayCell =
-                worksheet[
-                    column + row
-                ]?.v;
-
-
-            const delayData =
-                parseFWDCell(
-                    delayCell
-                );
-
-
-            // ==================================
-            // NIGHT STOPS
-            // ==================================
-
-            const nightStop =
-                normalize(
-
-                    worksheet[
-                        column + (row + 1)
-                    ]?.v
-
-                );
+        const daysInMonth =
+            new Date(
+                pendingImportYear,
+                pendingImportMonth,
+                0
+            ).getDate();
 
 
-            // ==================================
-            // CHECK IF THIS BASE HAS DATA
-            // ==================================
+        // ==================================================
+        // RESULT
+        // ==================================================
+
+        const importedDays = {};
+
+
+        // ==================================================
+        // NORMALIZE SINGLE NUMERIC VALUE
+        // ==================================================
+        //
+        // RULE:
+        //
+        // Numeric value -> number
+        // Empty          -> 0
+        // "-"            -> 0
+        // "/"            -> 0
+        // "//"           -> 0
+        // Text           -> 0
+        // Any other char -> 0
+        //
+        // ==================================================
+
+        function normalizeNumber(value){
 
             if(
-
-                nightStop !== null ||
-
-                delayData.delayEvents.length > 0
-
+                value === undefined ||
+                value === null
             ){
 
-                hasData = true;
+                return 0;
 
             }
 
 
-            // ==================================
-            // SAVE BASE DATA
-            // ==================================
+            // Excel can sometimes return numbers directly
+            if(
+                typeof value === "number"
+            ){
 
-            dayData[base] = {
+                return Number.isFinite(value)
+                    ? value
+                    : 0;
 
-                nightStop:
+            }
 
-                    nightStop,
 
-                // FWD = NUMBER OF DELAY TUPLES
-                fwd:
+            const text =
+                String(value)
+                    .trim();
 
-                    delayData.fwd,
 
-                // Full delay information
-                delayEvents:
+            if(text === ""){
 
-                    delayData.delayEvents
+                return 0;
 
-            };
+            }
+
+
+            const number =
+                Number(text);
+
+
+            return Number.isFinite(number)
+                ? number
+                : 0;
 
         }
 
-    );
+
+        // ==================================================
+        // PARSE SEMICOLON-SEPARATED VALUES
+        // ==================================================
+        //
+        // Example:
+        //
+        // "41;42"
+        //
+        // becomes:
+        //
+        // [41,42]
+        //
+        // Example:
+        //
+        // "-;/;42"
+        //
+        // becomes:
+        //
+        // [0,0,42]
+        //
+        // ==================================================
+
+        function parseSeparatedNumbers(value){
+
+            if(
+                value === undefined ||
+                value === null
+            ){
+
+                return [];
+
+            }
 
 
-    // ==================================
-    // SAVE DAY
-    // ==================================
+            const text =
+                String(value)
+                    .trim();
 
-    if(hasData){
 
-        importedDays[day] =
-            dayData;
+            if(text === ""){
+
+                return [];
+
+            }
+
+
+            return text
+                .split(";")
+                .map(
+                    item =>
+                        normalizeNumber(item)
+                );
+
+        }
+
+
+        // ==================================================
+        // FIND LAST EXCEL ROW
+        // ==================================================
+
+        let lastRow = 0;
+
+
+        if(worksheet["!ref"]){
+
+            lastRow =
+                XLSX.utils.decode_range(
+                    worksheet["!ref"]
+                ).e.r + 1;
+
+        }
+
+
+        // ==================================================
+        // READ DAYS 1-31
+        // ======================================================
+        //
+        // Excel structure:
+        //
+        // Row 1  -> Headers
+        //
+        // Day 1:
+        // Row 2  -> NS
+        // Row 3  -> Code Delay
+        // Row 4  -> Time Delay
+        //
+        // Day 2:
+        // Row 5  -> NS
+        // Row 6  -> Code Delay
+        // Row 7  -> Time Delay
+        //
+        // ...
+        //
+        // Day 31:
+        // Row 92 -> NS
+        // Row 93 -> Code Delay
+        // Row 94 -> Time Delay
+        //
+        // ==================================================
+
+        for(
+            let day = 1;
+            day <= 31;
+            day++
+        ){
+
+            // ==============================================
+            // IGNORE DAYS THAT DO NOT EXIST IN THE MONTH
+            // ==============================================
+
+            if(
+                day > daysInMonth
+            ){
+
+                continue;
+
+            }
+
+
+            // ==============================================
+            // CALCULATE THE THREE EXCEL ROWS
+            // ==============================================
+
+            const nsRow =
+                2 + ((day - 1) * 3);
+
+
+            const codeRow =
+                nsRow + 1;
+
+
+            const timeRow =
+                nsRow + 2;
+
+
+            // ==============================================
+            // SAFETY
+            // ==============================================
+
+            if(
+                nsRow > lastRow
+            ){
+
+                continue;
+
+            }
+
+
+            // ==============================================
+            // VERIFY DAY LABEL
+            // ==============================================
+            //
+            // The day is still read from Column A.
+            //
+            // This is an additional protection against
+            // accidentally associating Day 31 with Day 30.
+            //
+            // ==============================================
+
+            const excelDay =
+                normalizeNumber(
+                    worksheet[
+                        "A" + nsRow
+                    ]?.v
+                );
+
+
+            if(
+                excelDay !== day
+            ){
+
+                console.warn(
+                    "FWD Excel import: unexpected day row.",
+                    {
+                        expectedDay: day,
+                        foundDay: excelDay,
+                        row: nsRow
+                    }
+                );
+
+                continue;
+
+            }
+
+
+            // ==============================================
+            // DAY DATA
+            // ==============================================
+
+            const dayData = {};
+
+            let hasData = false;
+
+
+            // ==============================================
+            // READ EVERY BASE
+            // ==============================================
+
+            BASES.forEach(
+
+                (base,index)=>{
+
+                    // --------------------------------------
+                    // Excel column
+                    // --------------------------------------
+
+                    const column =
+                        XLSX.utils.encode_col(
+                            index + 1
+                        );
+
+
+                    // --------------------------------------
+                    // NS
+                    // --------------------------------------
+
+                    const nightStop =
+                        normalizeNumber(
+
+                            worksheet[
+                                column + nsRow
+                            ]?.v
+
+                        );
+
+
+                    // --------------------------------------
+                    // DELAY CODES
+                    // --------------------------------------
+
+                    const codes =
+                        parseSeparatedNumbers(
+
+                            worksheet[
+                                column + codeRow
+                            ]?.v
+
+                        );
+
+
+                    // --------------------------------------
+                    // TIME DELAYS
+                    // --------------------------------------
+
+                    const times =
+                        parseSeparatedNumbers(
+
+                            worksheet[
+                                column + timeRow
+                            ]?.v
+
+                        );
+
+
+                    // --------------------------------------
+                    // BUILD DELAY EVENTS
+                    // --------------------------------------
+                    //
+                    // Pair by position:
+                    //
+                    // Code 41 ; 42
+                    // Time 12 ; 17
+                    //
+                    // becomes:
+                    //
+                    // 41 -> 12
+                    // 42 -> 17
+                    //
+                    // If one side is missing, the missing
+                    // value is treated as zero.
+                    //
+                    // --------------------------------------
+
+                    const delayEvents = [];
+
+
+                    const numberOfEntries =
+                        Math.max(
+                            codes.length,
+                            times.length
+                        );
+
+
+                    for(
+                        let i = 0;
+                        i < numberOfEntries;
+                        i++
+                    ){
+
+                        const code =
+                            codes[i] ?? 0;
+
+
+                        const duration =
+                            times[i] ?? 0;
+
+
+                        // ----------------------------------
+                        // Only a real numeric delay code
+                        // creates a FWD event.
+                        //
+                        // 0 / "-" / "/" / text = 0
+                        // and therefore is NOT a delay.
+                        //
+                        // ----------------------------------
+
+                        if(
+                            code > 0
+                        ){
+
+                            delayEvents.push({
+
+                                code:
+                                    code,
+
+                                duration:
+                                    duration
+
+                            });
+
+                        }
+
+                    }
+
+
+                    // ======================================
+                    // FWD
+                    // ======================================
+                    //
+                    // FWD = number of actual delay events
+                    //
+                    // ======================================
+
+                    const fwd =
+                        delayEvents.length;
+
+
+                    // ======================================
+                    // CHECK IF BASE HAS DATA
+                    // ======================================
+
+                    if(
+                        nightStop !== 0 ||
+                        fwd > 0
+                    ){
+
+                        hasData = true;
+
+                    }
+
+
+                    // ======================================
+                    // SAVE BASE DATA
+                    // ======================================
+
+                    dayData[base] = {
+
+                        nightStop:
+                            nightStop,
+
+                        fwd:
+                            fwd,
+
+                        delayEvents:
+                            delayEvents
+
+                    };
+
+                }
+
+            );
+
+
+            // ==================================================
+            // SAVE DAY
+            // ==================================================
+            //
+            // We store the day using the ACTUAL Excel day
+            // number.
+            //
+            // No shifting.
+            // No merging.
+            // No Day 31 -> Day 30.
+            //
+            // ==================================================
+
+            if(hasData){
+
+                importedDays[day] =
+                    dayData;
+
+            }
+
+        }
+
+
+        // ==================================================
+        // STORE IMPORT TEMPORARILY
+        // ==================================================
+
+        pendingImportDays =
+            importedDays;
+
+
+        // ==================================================
+        // DEBUG
+        // ==================================================
+
+        console.log(
+            "FWD EXCEL IMPORT — PERIOD:",
+            {
+                year:
+                    pendingImportYear,
+
+                month:
+                    pendingImportMonth,
+
+                daysInMonth:
+                    daysInMonth
+            }
+        );
+
+
+        console.log(
+            "FWD EXCEL IMPORT — DAYS:",
+            pendingImportDays
+        );
+
+
+        // ==================================================
+        // COMPARE WITH FIREBASE
+        // ==================================================
+
+        await compareImportWithFirebase();
 
     }
 
-}
+    catch(error){
+
+        console.error(
+            "FWD EXCEL IMPORT ERROR:",
+            error
+        );
 
 
-// ======================================
-// DEBUG
-// ======================================
+        showError(
+            "Excel Import",
+            "Unable to read the selected FWD Excel file."
+        );
 
-   
+    }
 
-// Guardar temporariamente os dados do Excel
-pendingImportDays = importedDays;
-
-// Mês e ano escolhidos no modal
-pendingImportMonth = Number(
-    document.getElementById("excelImportMonth").value
-);
-
-pendingImportYear = Number(
-    document.getElementById("excelImportYear").value
-);
-
-// Comparar com a Firebase
-await compareImportWithFirebase();
-
-    };
-
-    reader.readAsArrayBuffer(file);
-
-    event.target.value="";
 }
 
 // ======================================================
@@ -34290,6 +36484,36 @@ async function updateBaseHistoryChart(){
 
         });
 
+// ======================================================
+// FWD RATE — DYNAMIC AXIS LIMIT
+// ======================================================
+//
+// Dá sempre margem acima do maior FWD Rate.
+//
+// Até 94%:
+//     → escala dinâmica
+//
+// 95% ou mais:
+//     → máximo fixo de 105%
+//
+// Assim 100% nunca fica colado/cortado no topo.
+// ======================================================
+
+const maxRate =
+    rates.length
+        ? Math.max(...rates)
+        : 0;
+
+const rateAxisMax =
+    maxRate >= 95
+        ? 105
+        : Math.max(
+            10,
+            Math.ceil(
+                (maxRate * 1.15) / 5
+            ) * 5
+        );
+
     const ctx = document.getElementById("baseHistoryChart");
 
 if(!ctx) return;
@@ -34815,6 +37039,9 @@ baseHistoryChart = new Chart(ctx, {
                 beginAtZero:
                     true,
 
+                max:
+                    rateAxisMax,
+                    
                 grid: {
 
                     drawOnChartArea:
@@ -34868,625 +37095,2185 @@ baseHistoryChart = new Chart(ctx, {
 
 }
 
-// ======================================
+// =====================================================
 // OPERATIONAL TRENDS
-// ======================================
+// DYNAMIC COMPARISON SELECTORS
+// =====================================================
 
-async function updateOperationalTrends(){
+function updateOperationalTrendSelectors(){
 
-    const selector =
-        document.getElementById("dashboardPeriod");
+    const compare =
+        document.getElementById(
+            "trendCompare"
+        );
 
-    if(!selector) return;
+    const container =
+        document.getElementById(
+            "trendDataSelectors"
+        );
 
-    const [selectedYear, selectedMonth] =
-        selector.value.split("-").map(Number);
 
-    const period =
-        document.getElementById("trendView")?.value || "12";
+    if(
+        !compare ||
+        !container
+    ){
 
-    const snapshot = await window.firebaseGet(
-        window.firebaseRef(
-            window.database,
-            "dashboardData/FWD"
-        )
-    );
-
-    if(!snapshot.exists()) return;
-
-    const db = snapshot.val();
-
-    const months = [];
-
-    Object.keys(db).forEach(year=>{
-
-        Object.keys(db[year]).forEach(month=>{
-
-            months.push({
-
-                year:Number(year),
-
-                month:Number(month)
-
-            });
-
-        });
-
-    });
-
-    months.sort((a,b)=>{
-
-        if(a.year!==b.year)
-            return a.year-b.year;
-
-        return a.month-b.month;
-
-    });
-
-    let filtered = months;
-
-    if(period !== "all"){
-
-        filtered =
-            months.slice(-Number(period));
+        return;
 
     }
 
+
+    const mode =
+        compare.value;
+
+
+    // ==============================================
+    // REGION
+    // ==============================================
+
+    if(
+        mode === "region"
+    ){
+
+        container.innerHTML = "";
+
+        updateOperationalTrends();
+
+        return;
+
+    }
+
+
+    const count =
+        Number(mode);
+
+
+    if(
+        !Number.isFinite(count) ||
+        count < 1
+    ){
+
+        container.innerHTML = "";
+
+        return;
+
+    }
+
+
+    // ==============================================
+    // BUILD SELECTORS
+    // ==============================================
+
+    let html = "";
+
+
+    for(
+        let i = 1;
+        i <= count;
+        i++
+    ){
+
+        html += `
+
+            <div class="base-filter">
+
+                <label>
+                    Data ${i}
+                </label>
+
+                <select
+                    id="trendData${i}"
+                    onchange="
+                        updateOperationalTrends()
+                    "
+                    style="
+                        min-width:220px;
+                    "
+                >
+
+                    <option value="">
+                        Select data...
+                    </option>
+
+
+                    <optgroup label="Countries">
+
+                        ${
+                            Object.keys(
+                                BASE_COUNTRIES
+                            )
+                            .map(
+                                base =>
+                                    BASE_COUNTRIES[base]
+                            )
+                            .filter(
+                                (
+                                    country,
+                                    index,
+                                    array
+                                ) =>
+                                    array.indexOf(
+                                        country
+                                    ) === index
+                            )
+                            .sort()
+                            .map(
+                                country => `
+
+                                    <option
+                                        value="COUNTRY::${country}"
+                                        data-type="country"
+                                    >
+                                        ${country}
+                                    </option>
+
+                                `
+                            )
+                            .join("")
+                        }
+
+                    </optgroup>
+
+
+                    <optgroup label="Bases">
+
+                        ${
+                            BASES
+                            .slice()
+                            .sort(
+                                (a,b) =>
+                                    a.localeCompare(b)
+                            )
+                            .map(
+                                base => `
+
+                                    <option
+                                        value="BASE::${base}"
+                                        data-type="base"
+                                    >
+                                        ${base}
+                                    </option>
+
+                                `
+                            )
+                            .join("")
+                        }
+
+                    </optgroup>
+
+                </select>
+
+            </div>
+
+        `;
+
+    }
+
+
+    container.innerHTML =
+        html;
+
+
+    // ==============================================
+    // DEFAULT FIRST SELECTOR
+    // ==============================================
+
+    const first =
+        document.getElementById(
+            "trendData1"
+        );
+
+
+    if(first){
+
+        first.value =
+            "BASE::OPO";
+
+    }
+
+
+    updateOperationalTrends();
+
+}
+
+// =====================================================
+// OPERATIONAL TRENDS
+// REGION BENCHMARK + NORMALIZED COMPARISON
+// =====================================================
+
+async function updateOperationalTrends(){
+
+    // ==============================================
+    // VIEW
+    // ==============================================
+
+    const period =
+        document.getElementById(
+            "trendView"
+        )?.value ||
+        "12";
+
+
+    // ==============================================
+    // DATA TYPE
+    // ==============================================
+
+    const metric =
+        document.getElementById(
+            "trendMetric"
+        )?.value ||
+        "fwd";
+
+
+    // ==============================================
+    // COMPARE MODE
+    // ==============================================
+
+    const compare =
+        document.getElementById(
+            "trendCompare"
+        )?.value ||
+        "region";
+
+
+    // ==============================================
+    // GET AVAILABLE FWD MONTHS
+    // ==============================================
+
+    const snapshot =
+        await window.firebaseGet(
+
+            window.firebaseRef(
+                window.database,
+                "dashboardData/FWD"
+            )
+
+        );
+
+
+    if(
+        !snapshot.exists()
+    ){
+
+        return;
+
+    }
+
+
+    const db =
+        snapshot.val();
+
+
+    const months = [];
+
+
+    Object.keys(
+        db
+    )
+    .forEach(
+        year => {
+
+            Object.keys(
+                db[year] || {}
+            )
+            .forEach(
+                month => {
+
+                    months.push({
+
+                        year:
+                            Number(year),
+
+                        month:
+                            Number(month)
+
+                    });
+
+                }
+            );
+
+        }
+    );
+
+
+    // ==============================================
+    // CHRONOLOGICAL ORDER
+    // ==============================================
+
+    months.sort(
+        (a,b) => {
+
+            if(
+                a.year !==
+                b.year
+            ){
+
+                return (
+                    a.year -
+                    b.year
+                );
+
+            }
+
+
+            return (
+                a.month -
+                b.month
+            );
+
+        }
+    );
+
+
+    // ==============================================
+    // PERIOD FILTER
+    // ==============================================
+
+    let filtered =
+        months;
+
+
+    if(
+        period !== "all"
+    ){
+
+        filtered =
+            months.slice(
+                -Number(period)
+            );
+
+    }
+
+
+    if(
+        !filtered.length
+    ){
+
+        return;
+
+    }
+
+
+    // ==============================================
+    // SELECTED DATA
+    // ==============================================
+
+    const selectedSeries = [];
+
+
+    // ==============================================
+    // REGION MODE
+    // ==============================================
+
+    if(
+        compare === "region"
+    ){
+
+        selectedSeries.push({
+
+            type:
+                "region",
+
+            value:
+                "REGION",
+
+            label:
+                "SPMFB Region",
+
+            benchmark:
+                false
+
+        });
+
+    }
+
+
+    // ==============================================
+    // COMPARISON MODE
+    // ==============================================
+
+    else{
+
+        const count =
+            Number(
+                compare
+            );
+
+
+        for(
+            let i = 1;
+            i <= count;
+            i++
+        ){
+
+            const dataSelector =
+                document.getElementById(
+                    `trendData${i}`
+                );
+
+
+            if(
+                !dataSelector ||
+                !dataSelector.value
+            ){
+
+                continue;
+
+            }
+
+
+            const raw =
+                dataSelector.value;
+
+
+            const separator =
+                raw.indexOf(
+                    "::"
+                );
+
+
+            if(
+                separator === -1
+            ){
+
+                continue;
+
+            }
+
+
+            const type =
+                raw.substring(
+                    0,
+                    separator
+                );
+
+
+            const value =
+                raw.substring(
+                    separator + 2
+                );
+
+
+            const option =
+                dataSelector.selectedOptions?.[0];
+
+
+            selectedSeries.push({
+
+                type:
+                    type === "BASE"
+                        ? "base"
+                        : "country",
+
+                value:
+                    value,
+
+                label:
+                    option?.textContent
+                        ?.trim() ||
+                    value,
+
+                benchmark:
+                    false
+
+            });
+
+        }
+
+
+        // ==========================================
+        // ALWAYS ADD REGION AS BENCHMARK
+        // ==========================================
+
+        selectedSeries.push({
+
+            type:
+                "region",
+
+            value:
+                "REGION",
+
+            label:
+                "Region",
+
+            benchmark:
+                true
+
+        });
+
+    }
+
+
+    // ==============================================
+    // FALLBACK
+    // ==============================================
+
+    if(
+        !selectedSeries.length
+    ){
+
+        selectedSeries.push({
+
+            type:
+                "region",
+
+            value:
+                "REGION",
+
+            label:
+                "SPMFB Region",
+
+            benchmark:
+                false
+
+        });
+
+    }
+
+
+    // ==============================================
+    // METRIC DIRECTION
+    // ==============================================
+    //
+    // true  = higher is better
+    // false = lower is better
+    //
+    // Operational performance metrics such as
+    // FWD, NS and delay time are lower-is-better.
+    //
+    // ==============================================
+
+    function isHigherBetter(){
+
+        switch(metric){
+
+            case "rate":
+                return false;
+
+            case "fwd":
+                return false;
+
+            case "fwdPerDay":
+                return false;
+
+            case "nightStops":
+                return false;
+
+            case "nightStopsPerDay":
+                return false;
+
+            case "averageDelayTime":
+                return false;
+
+            case "maxDelayTime":
+                return false;
+
+            case "delayCode":
+                return false;
+
+            case "delayGroup":
+                return false;
+
+            default:
+                return false;
+
+        }
+
+    }
+
+
+    // ==============================================
+    // METRIC VALUE
+    // ==============================================
+
+    function getMetricValue(
+        stats,
+        series
+    ){
+
+        if(
+            !stats
+        ){
+
+            return 0;
+
+        }
+
+
+        // ==========================================
+        // REGION
+        // ==========================================
+
+        if(
+            series.type ===
+            "region"
+        ){
+
+            switch(metric){
+
+                case "fwd":
+
+                    return (
+                        Number(
+                            stats.totalFWD
+                        ) || 0
+                    );
+
+
+                case "fwdPerDay":
+
+                    return (
+                        Number(
+                            stats.activeDays
+                        ) > 0
+
+                            ? (
+                                stats.totalFWD /
+                                stats.activeDays
+                            )
+
+                            : 0
+                    );
+
+
+                case "rate":
+
+                    return (
+                        Number(
+                            stats.fwdPercentage
+                        ) || 0
+                    );
+
+
+                case "nightStops":
+
+                    return (
+                        Number(
+                            stats.totalNightStops
+                        ) || 0
+                    );
+
+
+                case "nightStopsPerDay":
+
+                    return (
+                        Number(
+                            stats.activeDays
+                        ) > 0
+
+                            ? (
+                                stats.totalNightStops /
+                                stats.activeDays
+                            )
+
+                            : 0
+                    );
+
+
+                case "averageDelayTime":
+
+                    return (
+                        Number(
+                            stats.averageFWDResolutionTime
+                        ) || 0
+                    );
+
+
+                case "maxDelayTime":{
+
+                    let max = 0;
+
+
+                    Object.values(
+                        stats.delayCodePerformance || {}
+                    )
+                    .forEach(
+                        performance => {
+
+                            max =
+                                Math.max(
+                                    max,
+                                    Number(
+                                        performance.maxMinutes
+                                    ) || 0
+                                );
+
+                        }
+                    );
+
+
+                    return max;
+
+                }
+
+
+                case "delayCode":{
+
+                    const code =
+                        document.getElementById(
+                            "trendDelayCode"
+                        )?.value;
+
+
+                    return (
+                        Number(
+                            stats.delayCodes?.[code]
+                        ) || 0
+                    );
+
+                }
+
+
+                case "delayGroup":{
+
+                    const group =
+                        document.getElementById(
+                            "trendDelayGroup"
+                        )?.value;
+
+
+                    return (
+                        Number(
+                            stats.delayGroups?.[group]
+                        ) || 0
+                    );
+
+                }
+
+
+                default:
+
+                    return (
+                        Number(
+                            stats.totalFWD
+                        ) || 0
+                    );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // BASE / COUNTRY
+        // ==========================================
+
+        let data;
+
+
+        if(
+            series.type ===
+            "base"
+        ){
+
+            data =
+                stats.baseStats?.[
+                    series.value
+                ];
+
+        }
+        else{
+
+            data =
+                stats.countryStats?.[
+                    series.value
+                ];
+
+        }
+
+
+        if(
+            !data
+        ){
+
+            return 0;
+
+        }
+
+
+        // ==========================================
+        // FWD
+        // ==========================================
+
+        if(
+            metric === "fwd"
+        ){
+
+            return (
+                Number(
+                    data.fwd
+                ) || 0
+            );
+
+        }
+
+
+        // ==========================================
+        // NIGHT STOPS
+        // ==========================================
+
+        if(
+            metric === "nightStops"
+        ){
+
+            return (
+                Number(
+                    data.nightStops
+                ) || 0
+            );
+
+        }
+
+
+        // ==========================================
+        // FWD RATE
+        // ==========================================
+        //
+        // BASE:
+        // data.rate
+        //
+        // COUNTRY:
+        // data.percentage
+        //
+        // ==========================================
+
+        if(
+            metric === "rate"
+        ){
+
+            if(
+                series.type === "country"
+            ){
+
+                return (
+                    Number(
+                        data.percentage
+                    ) || 0
+                );
+
+            }
+
+
+            return (
+                Number(
+                    data.rate
+                ) || 0
+            );
+
+        }
+
+
+        // ==========================================
+        // FWD PER DAY
+        // ==========================================
+
+        if(
+            metric === "fwdPerDay"
+        ){
+
+            if(
+                Number(
+                    data.activeDays
+                ) > 0
+            ){
+
+                return (
+                    Number(data.fwd) /
+                    Number(data.activeDays)
+                );
+
+            }
+
+
+            return 0;
+
+        }
+
+
+        // ==========================================
+        // NIGHT STOPS PER DAY
+        // ==========================================
+
+        if(
+            metric === "nightStopsPerDay"
+        ){
+
+            if(
+                Number(
+                    data.activeDays
+                ) > 0
+            ){
+
+                return (
+                    Number(data.nightStops) /
+                    Number(data.activeDays)
+                );
+
+            }
+
+
+            return 0;
+
+        }
+
+
+        // ==========================================
+        // AVERAGE DELAY TIME
+        // ==========================================
+        //
+        // BASE:
+        // averageDelayMinutes
+        //
+        // COUNTRY:
+        // averageResolutionMinutes
+        //
+        // ==========================================
+
+        if(
+            metric ===
+            "averageDelayTime"
+        ){
+
+            if(
+                series.type ===
+                "country"
+            ){
+
+                return (
+                    Number(
+                        data.averageResolutionMinutes
+                    ) || 0
+                );
+
+            }
+
+
+            return (
+                Number(
+                    data.averageDelayMinutes
+                ) || 0
+            );
+
+        }
+
+
+        // ==========================================
+        // MAXIMUM DELAY TIME
+        // ==========================================
+
+        if(
+            metric ===
+            "maxDelayTime"
+        ){
+
+            if(
+                series.type ===
+                "base"
+            ){
+
+                return (
+                    Number(
+                        data.maxDelayMinutes
+                    ) || 0
+                );
+
+            }
+
+
+            let max = 0;
+
+
+            Object.values(
+                data.delayCodePerformance || {}
+            )
+            .forEach(
+                performance => {
+
+                    max =
+                        Math.max(
+                            max,
+                            Number(
+                                performance.maxMinutes
+                            ) || 0
+                        );
+
+                }
+            );
+
+
+            return max;
+
+        }
+
+
+        // ==========================================
+        // DELAY CODE
+        // ==========================================
+
+        if(
+            metric ===
+            "delayCode"
+        ){
+
+            const code =
+                document.getElementById(
+                    "trendDelayCode"
+                )?.value;
+
+
+            return (
+                Number(
+                    data.delayCodes?.[code]
+                ) || 0
+            );
+
+        }
+
+
+        // ==========================================
+        // DELAY GROUP
+        // ==========================================
+
+        if(
+            metric ===
+            "delayGroup"
+        ){
+
+            const group =
+                document.getElementById(
+                    "trendDelayGroup"
+                )?.value;
+
+
+            return (
+                Number(
+                    data.delayGroups?.[group]
+                ) || 0
+            );
+
+        }
+
+
+        // ==========================================
+        // FALLBACK
+        // ==========================================
+
+        return (
+            Number(
+                data.fwd
+            ) || 0
+        );
+
+    }
+
+
+    // ==============================================
+    // MONTH LABELS
+    // ==============================================
+
     const labels = [];
 
-    const rates = [];
 
-    const fwdTotals = [];
+    // ==============================================
+    // SERIES VALUES
+    // ==============================================
 
-    const nsTotals = [];
+    const seriesValues =
+        selectedSeries.map(
+            () => []
+        );
 
-    for(const item of filtered){
 
-        const stats =
+    // ==============================================
+    // CALCULATE MONTH-BY-MONTH
+    // ==============================================
+
+    for(
+        const item of filtered
+    ){
+
+        const monthStats =
             await calculateMonthlyStatistics(
                 item.year,
                 item.month
             );
 
+
         labels.push(
 
             new Date(
                 item.year,
-                item.month-1
-            ).toLocaleString(
+                item.month - 1
+            )
+            .toLocaleString(
                 "en-GB",
                 {
-                    month:"short",
-                    year:"2-digit"
+                    month:
+                        "short",
+
+                    year:
+                        "2-digit"
                 }
             )
 
         );
 
-        rates.push(
-            Number(
-                stats.fwdPercentage.toFixed(1)
-            )
+
+        selectedSeries.forEach(
+            (series,index) => {
+
+                seriesValues[index].push(
+
+                    Number(
+                        getMetricValue(
+                            monthStats,
+                            series
+                        ).toFixed(2)
+                    )
+
+                );
+
+            }
         );
 
-        fwdTotals.push(stats.totalFWD);
+    }
 
-        nsTotals.push(stats.totalNightStops);
+
+    // ==============================================
+    // DATASET COLOURS
+    // ==============================================
+
+    const datasetColours = [
+
+        "#005EB8",
+        "#FFC300",
+        "#2D7D46",
+        "#8B5CF6",
+        "#E85D04",
+        "#64748B"
+
+    ];
+
+
+    // ==============================================
+    // DATASETS
+    // ==============================================
+
+    const datasets =
+        selectedSeries.map(
+            (series,index) => ({
+
+                label:
+                    series.label,
+
+                data:
+                    seriesValues[index],
+
+                borderColor:
+                    series.benchmark
+                        ? "#64748B"
+                        : datasetColours[
+                            index %
+                            datasetColours.length
+                        ],
+
+                backgroundColor:
+                    series.benchmark
+                        ? "#64748B"
+                        : datasetColours[
+                            index %
+                            datasetColours.length
+                        ],
+
+                borderWidth:
+                    series.benchmark
+                        ? 2
+                        : 3,
+
+                borderDash:
+                    series.benchmark
+                        ? [7,5]
+                        : [],
+
+                pointRadius:
+                    series.benchmark
+                        ? 3
+                        : 4,
+
+                pointHoverRadius:
+                    6,
+
+                fill:
+                    false,
+
+                tension:
+                    0.25
+
+            })
+        );
+
+
+    // ==============================================
+    // DESTROY PREVIOUS CHART
+    // ==============================================
+
+    if(
+        window.operationalTrendsChart
+    ){
+
+        window.operationalTrendsChart.destroy();
 
     }
 
-    const rollingAverage = [];
 
-for(let i = 0; i < rates.length; i++){
-
-    if(i < 2){
-
-        rollingAverage.push(null);
-
-        continue;
-
-    }
-
-    const avg =
-
-        (rates[i] +
-         rates[i-1] +
-         rates[i-2]) / 3;
-
-    rollingAverage.push(
-
-        Number(avg.toFixed(1))
-
-    );
-
-}
+    const canvas =
+        document.getElementById(
+            "trendChart"
+        );
 
 
-// ========================================
-// HISTORICAL AVERAGE (TARGET LINE)
-// ========================================
+    if(
+        !canvas
+    ){
 
-const averageRate =
-
-    rates.reduce((sum, value) => sum + value, 0) / rates.length;
-
-const targetLine =
-
-    labels.map(() => Number(averageRate.toFixed(1)));
-
-    console.table(
-
-        labels.map((label,index)=>({
-
-            Month:label,
-
-            FWD:fwdTotals[index],
-
-            NightStops:nsTotals[index],
-
-            Rate:rates[index]
-
-        }))
-
-    );
-
-const ctx = document
-    .getElementById("trendChart")
-    ?.getContext("2d");
-
-if(!ctx) return;
-
-if(operationalTrendChart){
-
-    operationalTrendChart.destroy();
-
-}
-
-operationalTrendChart = new Chart(ctx,{
-
-    type:"line",
-
-    data:{
-
-        labels,
-
-        datasets:[
-
-        
-{
-
-    label:"SPMFB Region FWD Rate",
-
-    data:rates,
-
-    borderColor:"#2563EB",
-
-    backgroundColor:"transparent",
-
-    borderWidth:4,
-
-    showLine:labels.length>1,
-
-    fill:false,
-
-    tension:.45,
-
-    pointRadius:7,
-
-    pointHoverRadius:10,
-
-    pointBorderWidth:3,
-
-    pointBackgroundColor:"#2563EB",
-
-    pointBorderColor:"#FFFFFF",
-
-    pointHoverBorderWidth:4,
-
-    pointHoverBackgroundColor:"#2563EB",
-
-    pointHoverBorderColor:"#FFFFFF",
-
-    datalabels:{
-
-        display:labels.length>1,
-
-        align:"top",
-
-        anchor:"end",
-
-        offset:8,
-
-        color:"#2563EB",
-
-        font:{
-
-            weight:"700",
-
-            size:12
-
-        },
-
-        formatter:(value)=>`${formatNumber(value)}%`
+        return;
 
     }
 
-},
 
-{
+    // ==============================================
+    // CHART
+    // ==============================================
 
-    label:"Historical Average",
+    window.operationalTrendsChart =
+        new Chart(
 
-    data:targetLine,
+            canvas,
 
-    borderColor:"#F4A100",
+            {
 
-    borderWidth:2,
+                type:
+                    "line",
 
-    borderDash:[10,6],
+                data:{
 
-    pointRadius:0,
+                    labels:
+                        labels,
 
-    pointHoverRadius:0,
+                    datasets:
+                        datasets
 
-    tension:0,
+                },
 
-    fill:false
+                options:{
 
-},
+                    responsive:
+                        true,
 
-{
+                    maintainAspectRatio:
+                        false,
 
-    label:"3-Month Average",
+                    interaction:{
 
-    data:rollingAverage,
+                        mode:
+                            "index",
 
-    hidden: rollingAverage.every(v => v === null),
+                        intersect:
+                            false
 
-    borderColor:"#94a3b8",
+                    },
 
-    borderDash:[8,6],
+                    plugins:{
 
-    borderWidth:2,
+                        legend:{
 
-    fill:false,
+                            display:
+                                selectedSeries.length > 1,
 
-    tension:.35,
+                            position:
+                                "top",
 
-    pointRadius:0,
+                            labels:{
 
-    pointHoverRadius:0
+                                usePointStyle:
+                                    true,
 
-}]
-    },
+                                pointStyle:
+                                    "circle",
 
-    options:{
+                                padding:
+                                    20
 
-        responsive:true,
+                            }
 
-        maintainAspectRatio:false,
+                        }
 
-        layout:{
+                    },
 
-    padding:{
+                    scales:{
 
-        top:30,
-        right:35,
-        left:25,
-        bottom:20
+                        y:{
+
+                            beginAtZero:
+                                true,
+
+                            title:{
+
+                                display:
+                                    true,
+
+                                text:
+                                    document
+                                        .getElementById(
+                                            "trendMetric"
+                                        )
+                                        ?.selectedOptions?.[0]
+                                        ?.textContent
+                                        ?.trim() ||
+                                    "Value"
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+
+    // ==============================================
+    // KPI SERIES
+    // ==============================================
+
+    const kpiSeries =
+        selectedSeries.map(
+            (series,index) => {
+
+                const values =
+                    seriesValues[index];
+
+
+                const average =
+                    values.length > 0
+
+                        ? (
+                            values.reduce(
+                                (
+                                    sum,
+                                    value
+                                ) =>
+                                    sum +
+                                    value,
+                                0
+                            ) /
+                            values.length
+                        )
+
+                        : 0;
+
+
+                const latest =
+                    values.length > 0
+                        ? values[
+                            values.length - 1
+                        ]
+                        : 0;
+
+
+                const previous =
+                    values.length > 1
+                        ? values[
+                            values.length - 2
+                        ]
+                        : latest;
+
+
+                const best =
+                    values.length > 0
+                        ? Math.min(
+                            ...values
+                        )
+                        : 0;
+
+
+                const worst =
+                    values.length > 0
+                        ? Math.max(
+                            ...values
+                        )
+                        : 0;
+
+
+                return {
+
+                    ...series,
+
+                    values,
+
+                    average,
+
+                    latest,
+
+                    previous,
+
+                    best,
+
+                    worst
+
+                };
+
+            }
+        );
+
+
+    // ==============================================
+    // REGION BENCHMARK
+    // ==============================================
+
+    const benchmark =
+        kpiSeries.find(
+            series =>
+                series.benchmark === true
+        ) ||
+        (
+            compare === "region"
+                ? kpiSeries[0]
+                : null
+        );
+
+
+    // ==============================================
+    // FORMAT VALUE
+    // ==============================================
+
+    function formatTrendValue(
+        value
+    ){
+
+        if(
+            metric ===
+            "rate"
+        ){
+
+            return (
+                Number(value)
+                    .toFixed(1)
+                + "%"
+            );
+
+        }
+
+
+        if(
+            metric ===
+            "averageDelayTime" ||
+            metric ===
+            "maxDelayTime"
+        ){
+
+            return (
+                Number(value)
+                    .toFixed(1)
+                + " min"
+            );
+
+        }
+
+
+        return Number(value)
+            .toFixed(1);
 
     }
 
-},
 
-        interaction:{
+    // ==============================================
+    // NORMALIZED COMPARISON
+    // ==============================================
+    //
+    // Example:
+    //
+    // Data   = 2.0%
+    // Region = 1.2%
+    //
+    // Result:
+    // +66.7% vs Region
+    //
+    // ==============================================
 
-            mode:"index",
+    function normalizedVsRegion(
+        value,
+        regionValue
+    ){
 
-            intersect:false
+        if(
+            !Number.isFinite(
+                Number(value)
+            ) ||
+            !Number.isFinite(
+                Number(regionValue)
+            ) ||
+            Number(regionValue) === 0
+        ){
 
-        },
-
-        plugins:{
-
-    tooltip:{
-
-backgroundColor:"#07225B",
-
-    titleColor:"#FFFFFF",
-
-    bodyColor:"#FFFFFF",
-
-    cornerRadius:14,
-
-    padding:16,
-
-    caretSize:8,
-
-    displayColors:false,
-
-    bodySpacing:6,
-
-    titleMarginBottom:10,
-
-    boxPadding:6,
-
-    titleFont:{
-        size:16,
-        weight:"700"
-    },
-
-    bodyFont:{
-        size:13,
-        weight:"500"
-    },
-
-    displayColors:false,
-
-    titleFont:{
-        size:15,
-        weight:"700"
-    },
-
-    bodyFont:{
-        size:13
-    },
-
-
-        callbacks:{
-
-    title:(context)=>context[0].label,
-
-    label:(context)=>{
-
-        const i = context.dataIndex;
-
-        if(context.dataset.label==="Historical Average"){
             return null;
-        }
-
-        if(context.dataset.label==="3-Month Average"){
-            return null;
-        }
-
-        return [
-
-            `SPMFB Region FWD Rate   ${formatNumber(rates[i])}%`,
-            `FWD Events       ${fwdTotals[i]}`,
-            `Night Stops      ${nsTotals[i]}`,
-            `Historical Avg   ${formatNumber(averageRate)}%`,
-            rates[i] <= averageRate
-                ? "Status          Better than Average"
-                : "Status          Above Average"
-
-        ];
-
-    }
-
-}
-
-    },
-
-    legend:{
-
-    display:labels.length>1,
-
-    position:"top",
-
-    align:"center",
-
-    labels:{
-
-        usePointStyle:true,
-
-        pointStyle:"circle",
-
-        boxWidth:12,
-
-        boxHeight:12,
-
-        padding:30,
-
-        color:"#334155",
-
-        font:{
-
-            size:13,
-
-            weight:"600"
 
         }
 
-    }
 
-}
-
-},
-
-        scales:{
-
-           y:{
-
-    beginAtZero:true,
-
-    suggestedMax:
-    (rates.length ? Math.max(...rates) : 0) + 0.3,
-
-    grid:{
-
-    color:"rgba(148,163,184,.08)",
-
-    lineWidth:1
-
-},
-
-    ticks:{
-
-        color:"#64748b"
-
-    },
-
-    title:{
-
-        display:true,
-
-        text:"SPMFB Region FWD Rate (%)"
+        return (
+            (
+                Number(value) /
+                Number(regionValue)
+            ) - 1
+        ) * 100;
 
     }
 
-},
 
-            x:{
+    function comparisonLabel(
+        value,
+        regionValue
+    ){
 
-    offset:true,
+        const normalized =
+            normalizedVsRegion(
+                value,
+                regionValue
+            );
 
-    grid:{
 
-    display:false
+        if(
+            normalized === null
+        ){
 
-},
-
-    ticks:{
-
-        autoSkip:false,
-
-        maxRotation:0,
-
-        minRotation:0,
-
-        color:"#64748b",
-
-        font:{
-
-            size:12,
-
-            weight:"600"
+            return "vs Region —";
 
         }
 
-    },
 
-    title:{
+        const sign =
+            normalized > 0
+                ? "+"
+                : "";
 
-        display:false
+
+        return (
+            `${sign}${normalized.toFixed(1)}% vs Region`
+        );
 
     }
 
-}
+
+    // ==============================================
+    // TREND VS REGION
+    // ==============================================
+
+    function getTrendStatus(
+        series
+    ){
+
+        if(
+            series.values.length < 2
+        ){
+
+            return {
+
+                symbol:
+                    "▬",
+
+                text:
+                    "Stable",
+
+                comparison:
+                    null
+
+            };
 
         }
 
+
+        const latest =
+            series.latest;
+
+
+        const previous =
+            series.previous;
+
+
+        const delta =
+            latest -
+            previous;
+
+
+        if(
+            Math.abs(delta) <
+            0.0001
+        ){
+
+            return {
+
+                symbol:
+                    "▬",
+
+                text:
+                    "Stable",
+
+                comparison:
+                    null
+
+            };
+
+        }
+
+
+        const higherBetter =
+            isHigherBetter();
+
+
+        const improved =
+            higherBetter
+                ? delta > 0
+                : delta < 0;
+
+
+        return {
+
+            symbol:
+                improved
+                    ? "▲"
+                    : "▼",
+
+            text:
+                improved
+                    ? "Improving"
+                    : "Declining",
+
+            comparison:
+                benchmark &&
+                series !== benchmark
+
+                    ? normalizedVsRegion(
+                        latest,
+                        benchmark.latest
+                    )
+
+                    : null
+
+        };
+
     }
 
-});
 
-const insight = document.getElementById("operationalInsights");
+    // ==============================================
+    // AVERAGE PERIOD
+    // ==============================================
 
-if(insight){
+    const averageHTML =
+        kpiSeries
+            .map(
+                series => {
 
-    const latestRate = rates.at(-1);
+                    let html = `
 
-const bestRate = Math.min(...rates);
+                        <div style="
+                            margin-bottom:8px;
+                        ">
 
-const bestIndex = rates.indexOf(bestRate);
+                            <strong>
+                                ${series.label}
+                            </strong>
 
-const bestMonth = labels[bestIndex];
+                            <br>
 
-let trendText = "Collecting History";
-let trendColor = "#f5c400";
+                            ${formatTrendValue(
+                                series.average
+                            )}
 
-if (rates.length > 1) {
+                    `;
 
-    const previousRate = rates[rates.length - 2];
 
-    const improvement =
-        ((previousRate - latestRate) / previousRate) * 100;
+                    if(
+                        benchmark &&
+                        series !== benchmark
+                    ){
 
-    if (improvement > 0) {
+                        html += `
 
-        trendText = `▲ Improving<br>
-<span style="font-size:.85rem;">
-+${improvement.toFixed(0)}% vs previous month
-</span>`;
-        trendColor = "#22c55e";
+                            <div style="
+                                font-size:12px;
+                                margin-top:2px;
+                                opacity:.75;
+                            ">
+                                ${comparisonLabel(
+                                    series.average,
+                                    benchmark.average
+                                )}
+                            </div>
 
-    } else if (improvement < 0) {
+                        `;
 
-        trendText = `▼ Declining<br>
-<span style="font-size:.85rem;">
-${improvement.toFixed(0)}% vs previous month
-</span>`;
-        trendColor = "#ef4444";
+                    }
 
-    } else {
 
-        trendText = `▬ Stable<br>
-<span style="font-size:.85rem;">
-No change vs previous month
-</span>`;
-        trendColor = "#64748b";
+                    html += `
+                        </div>
+                    `;
+
+
+                    return html;
+
+                }
+            )
+            .join("");
+
+
+    // ==============================================
+    // DATA COVERAGE
+    // ==============================================
+
+    const coverageHTML =
+        kpiSeries
+            .map(
+                series => `
+
+                    <div style="
+                        margin-bottom:6px;
+                    ">
+
+                        <strong>
+                            ${series.label}
+                        </strong>
+
+                        <br>
+
+                        ${filtered.length}
+                        Month${
+                            filtered.length === 1
+                                ? ""
+                                : "s"
+                        }
+
+                    </div>
+
+                `
+            )
+            .join("");
+
+
+    // ==============================================
+    // TREND
+    // ==============================================
+
+    const trendHTML =
+        kpiSeries
+            .map(
+                series => {
+
+                    const status =
+                        getTrendStatus(
+                            series
+                        );
+
+
+                    let html = `
+
+                        <div style="
+                            margin-bottom:8px;
+                        ">
+
+                            <strong>
+                                ${series.label}
+                            </strong>
+
+                            <br>
+
+                            ${status.symbol}
+                            ${status.text}
+
+                    `;
+
+
+                    if(
+                        status.comparison !== null
+                    ){
+
+                        const sign =
+                            status.comparison > 0
+                                ? "+"
+                                : "";
+
+
+                        html += `
+
+                            <div style="
+                                font-size:12px;
+                                margin-top:2px;
+                                opacity:.75;
+                            ">
+                                ${sign}${status.comparison.toFixed(1)}%
+                                vs Region
+                            </div>
+
+                        `;
+
+                    }
+
+
+                    html += `
+                        </div>
+                    `;
+
+
+                    return html;
+
+                }
+            )
+            .join("");
+
+
+    // ==============================================
+    // BEST MONTH
+    // ==============================================
+
+    const bestHTML =
+        kpiSeries
+            .map(
+                series => {
+
+                    const index =
+                        series.values.indexOf(
+                            series.best
+                        );
+
+
+                    let html = `
+
+                        <div style="
+                            margin-bottom:8px;
+                        ">
+
+                            <strong>
+                                ${series.label}
+                            </strong>
+
+                            <br>
+
+                            ${
+                                labels[index] ||
+                                "—"
+                            }
+                            —
+                            ${formatTrendValue(
+                                series.best
+                            )}
+
+                    `;
+
+
+                    if(
+                        benchmark &&
+                        series !== benchmark
+                    ){
+
+                        const benchmarkValue =
+                            benchmark.values[index];
+
+
+                        const comparison =
+                            normalizedVsRegion(
+                                series.best,
+                                benchmarkValue
+                            );
+
+
+                        if(
+                            comparison !== null
+                        ){
+
+                            const sign =
+                                comparison > 0
+                                    ? "+"
+                                    : "";
+
+
+                            html += `
+
+                                <div style="
+                                    font-size:12px;
+                                    margin-top:2px;
+                                    opacity:.75;
+                                ">
+                                    ${sign}${comparison.toFixed(1)}%
+                                    vs Region
+                                </div>
+
+                            `;
+
+                        }
+
+                    }
+
+
+                    html += `
+                        </div>
+                    `;
+
+
+                    return html;
+
+                }
+            )
+            .join("");
+
+
+    // ==============================================
+    // WORST MONTH
+    // ==============================================
+
+    const worstHTML =
+        kpiSeries
+            .map(
+                series => {
+
+                    const index =
+                        series.values.indexOf(
+                            series.worst
+                        );
+
+
+                    let html = `
+
+                        <div style="
+                            margin-bottom:8px;
+                        ">
+
+                            <strong>
+                                ${series.label}
+                            </strong>
+
+                            <br>
+
+                            ${
+                                labels[index] ||
+                                "—"
+                            }
+                            —
+                            ${formatTrendValue(
+                                series.worst
+                            )}
+
+                    `;
+
+
+                    if(
+                        benchmark &&
+                        series !== benchmark
+                    ){
+
+                        const benchmarkValue =
+                            benchmark.values[index];
+
+
+                        const comparison =
+                            normalizedVsRegion(
+                                series.worst,
+                                benchmarkValue
+                            );
+
+
+                        if(
+                            comparison !== null
+                        ){
+
+                            const sign =
+                                comparison > 0
+                                    ? "+"
+                                    : "";
+
+
+                            html += `
+
+                                <div style="
+                                    font-size:12px;
+                                    margin-top:2px;
+                                    opacity:.75;
+                                ">
+                                    ${sign}${comparison.toFixed(1)}%
+                                    vs Region
+                                </div>
+
+                            `;
+
+                        }
+
+                    }
+
+
+                    html += `
+                        </div>
+                    `;
+
+
+                    return html;
+
+                }
+            )
+            .join("");
+
+
+    // ==============================================
+    // KPI CONTAINER
+    // ==============================================
+
+    const insight =
+        document.getElementById(
+            "operationalInsights"
+        );
+
+
+    if(
+        !insight
+    ){
+
+        return;
 
     }
 
-}
 
-const worstRate = Math.max(...rates);
-const worstIndex = rates.indexOf(worstRate);
-const worstMonth = labels[worstIndex];
+    // ==============================================
+    // KPI CARDS
+    // ==============================================
 
-insight.innerHTML = `
+    insight.innerHTML = `
 
-<div style="
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-gap:18px;
-">
+        <div
+            class="trend-kpi-grid"
+            style="
+                display:grid;
+                grid-template-columns:
+                    repeat(
+                        5,
+                        minmax(
+                            0,
+                            1fr
+                        )
+                    );
+                gap:18px;
+            "
+        >
 
-    <div class="trend-kpi-card">
-        <div class="trend-kpi-title">AVERAGE PERIOD FWD RATE</div>
-        <div class="trend-kpi-value">${formatNumber(averageRate)}%</div>
-    </div>
+            <div class="trend-kpi-card">
 
-    <div class="trend-kpi-card">
-        <div class="trend-kpi-title">Data Coverage</div>
-        <div class="trend-kpi-value">${labels.length}</div>
-        <div class="trend-kpi-subtitle">
-            Month${labels.length>1?"s":""}
+                <div class="trend-kpi-title">
+                    AVERAGE PERIOD
+                    ${
+                        document
+                            .getElementById(
+                                "trendMetric"
+                            )
+                            ?.selectedOptions?.[0]
+                            ?.textContent
+                            ?.trim()
+                            .toUpperCase() ||
+                        "FWD"
+                    }
+                </div>
+
+                <div
+                    class="trend-kpi-status"
+                    style="
+                        color:#07225B;
+                        line-height:1.6;
+                    "
+                >
+                    ${averageHTML}
+                </div>
+
+            </div>
+
+
+            <div class="trend-kpi-card">
+
+                <div class="trend-kpi-title">
+                    DATA COVERAGE
+                </div>
+
+                <div
+                    class="trend-kpi-status"
+                    style="
+                        color:#07225B;
+                        line-height:1.6;
+                    "
+                >
+                    ${coverageHTML}
+                </div>
+
+            </div>
+
+
+            <div class="trend-kpi-card">
+
+                <div class="trend-kpi-title">
+                    TREND
+                </div>
+
+                <div
+                    class="trend-kpi-status"
+                    style="
+                        color:#07225B;
+                        line-height:1.6;
+                    "
+                >
+                    ${trendHTML}
+                </div>
+
+            </div>
+
+
+            <div class="trend-kpi-card">
+
+                <div class="trend-kpi-title">
+                    BEST MONTH
+                </div>
+
+                <div
+                    class="trend-kpi-status"
+                    style="
+                        color:#002b6b;
+                        line-height:1.6;
+                    "
+                >
+                    ${bestHTML}
+                </div>
+
+            </div>
+
+
+            <div class="trend-kpi-card">
+
+                <div class="trend-kpi-title">
+                    WORST MONTH
+                </div>
+
+                <div
+                    class="trend-kpi-status"
+                    style="
+                        color:#dc2626;
+                        line-height:1.6;
+                    "
+                >
+                    ${worstHTML}
+                </div>
+
+            </div>
+
         </div>
-    </div>
 
-    <div class="trend-kpi-card">
-        <div class="trend-kpi-title">Trend</div>
-        <div class="trend-kpi-status" style="color:${trendColor};">
-            ${trendText}
-        </div>
-    </div>
-
-    <div class="trend-kpi-card">
-        <div class="trend-kpi-title">Best Month</div>
-        <div class="trend-kpi-status" style="color:#002b6b;">
-            ${bestMonth}
-        </div>
-        <div class="trend-kpi-subtitle">
-            ${bestRate.toFixed(1)}%
-        </div>
-    </div>
-
-    <div class="trend-kpi-card">
-        <div class="trend-kpi-title">Worst Month</div>
-        <div class="trend-kpi-status" style="color:#dc2626;">
-            ${worstMonth}
-        </div>
-        <div class="trend-kpi-subtitle">
-            ${worstRate.toFixed(1)}%
-        </div>
-    </div>
-
-</div>
-
-`;
-
-}
+    `;
 
 }
 
@@ -35539,6 +39326,38 @@ document.addEventListener(
 
     }
 
+);
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function(){
+
+        // Esperar pelo Firebase module
+        if(
+            !window.database ||
+            !window.firebaseRef ||
+            !window.firebaseGet ||
+            !window.firebaseSet
+        ){
+
+            console.warn(
+                "REPORT VISIBILITY — Firebase not ready at DOMContentLoaded."
+            );
+
+            return;
+
+        }
+
+
+        await loadReportVisibility();
+
+
+        startReportVisibilityListener();
+
+    },
+    {
+        once:true
+    }
 );
 
 </script>
@@ -35595,7 +39414,7 @@ border-radius:8px;
 <option value="4">April</option>
 <option value="5">May</option>
 <option value="6">June</option>
-<option value="7" selected>July</option>
+<option value="7">July</option>
 <option value="8">August</option>
 <option value="9">September</option>
 <option value="10">October</option>
@@ -36253,7 +40072,7 @@ font-size:28px;
 font-weight:800;
 ">
 
-Administrator Login
+User Login
 
 </h2>
 
@@ -36329,11 +40148,14 @@ margin-top:30px;
 
 class="btn btn-white"
 
-onclick="closeLoginModal()"
+onclick="
+    closeLoginModal();
+    showStartupWelcome();
+"
 
 >
 
-Cancel
+    Cancel
 
 </button>
 
@@ -36691,6 +40513,18 @@ Preparing..
         Migrate Report Data
 
     </button>
+
+<button
+    id="menuReportVisibilityButton"
+    class="userMenuButton"
+    style="display:none;"
+    onclick="closeUserMenu(); openReportVisibilityManager()"
+>
+
+    Show / Hide Reports
+
+</button>
+
 
     <button
         id="menuSettingsButton"
@@ -40469,9 +44303,497 @@ CREATE USER MODAL
 
 </div>
 
+<!-- =========================================================
+     ANNUAL REPORT
+========================================================= -->
+
+<div
+    id="annualReportContainer"
+    style="display:none;"
+>
+
+
+    <!-- =====================================================
+         ANNUAL REPORT — MAIN HEADER
+    ====================================================== -->
+
+    <header
+        id="annualReportHeader"
+        class="rh-header"
+    >
+
+        <div class="rh-left">
+
+            <img
+                src="ryanair-logo-2.png"
+                alt="Company Logo"
+                class="rh-logo"
+            >
+
+            <div class="rh-content">
+
+                <h1 class="rh-title">
+
+                    <span>
+                        ANNUAL
+                    </span>
+
+                    REPORT
+
+                </h1>
+
+                <div class="rh-subtitle">
+
+                    Engineering &amp; Maintenance
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+    id="annualReportActions"
+    class="rh-actions"
+>
+
+    <button
+        class="rh-btn rh-btn-white"
+        onclick="openAnnualReportExportModal()"
+    >
+
+        Export PDF
+
+    </button>
+
+
+    <button
+        class="rh-btn rh-btn-green"
+        onclick="openAnnualReportImport()"
+    >
+
+        Import Data
+
+    </button>
+
+
+    <button
+        class="rh-btn rh-btn-yellow"
+        onclick="openAnnualReportEditVisuals()"
+    >
+
+        Edit Visuals (Manual)
+
+    </button>
+
+
+    <button
+        class="rh-btn rh-btn-red"
+        onclick="resetAnnualReportProtected()"
+    >
+
+        Reset Data
+
+    </button>
+
+</div>
+
+    </header>
+
+
+
+ <!-- =====================================================
+     ANNUAL REPORT — CONTROLS BAR
+====================================================== -->
+
+<div
+    id="annualReportControlsBar"
+    class="controls-bar"
+>
+
+    <div class="month-display">
+
+        <label
+            style="
+                margin-right:12px;
+                font-weight:600;
+            "
+        >
+
+            Analysis Period
+
+        </label>
+
+
+        <select
+            id="annualReportPeriod"
+            style="
+                padding:8px 14px;
+                border-radius:8px;
+                border:1px solid #ccc;
+                min-width:220px;
+            "
+            onchange="changeAnnualReportPeriod(this.value)"
+        >
+
+        </select>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ANNUAL REPORT CONTENT
+====================================================== -->
+
+<main
+    id="annualReportContent"
+>
+
+
+    <!-- =================================================
+         AIRCRAFT ON GROUND
+    ================================================== -->
+
+    <section
+        id="annualAircraftOnGroundSection"
+        class="exec-section"
+    >
+
+        <div
+            class="exec-header"
+        >
+
+            <div>
+
+                <h2>
+                    Aircraft on Ground
+                </h2>
+
+                <span>
+                    Annual Overview
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="annualAircraftOnGroundContent"
+            class="exec-grid"
+        >
+
+            <!-- CONTENT WILL BE ADDED -->
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         A-CHECK
+    ================================================== -->
+
+    <section
+        id="annualACheckSection"
+        class="exec-section"
+    >
+
+        <div
+            class="exec-header"
+        >
+
+            <div>
+
+                <h2>
+                    A-Check
+                </h2>
+
+                <span>
+                    Annual Overview
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="annualACheckContent"
+            class="exec-grid"
+        >
+
+            <!-- CONTENT WILL BE ADDED -->
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         FIRST WAVE DELAYS
+    ================================================== -->
+
+    <section
+        id="annualFWDSection"
+        class="exec-section"
+    >
+
+        <div
+            class="exec-header"
+        >
+
+            <div>
+
+                <h2>
+                    First Wave Delays
+                </h2>
+
+                <span>
+                    Annual Overview
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="annualFWDContent"
+            class="exec-grid"
+        >
+
+            <!-- CONTENT WILL BE ADDED -->
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         NO INFO DELAYS
+    ================================================== -->
+
+    <section
+        id="annualNoInfoSection"
+        class="exec-section"
+    >
+
+        <div
+            class="exec-header"
+        >
+
+            <div>
+
+                <h2>
+                    No Info Delays
+                </h2>
+
+                <span>
+                    Annual Overview
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="annualNoInfoContent"
+            class="exec-grid"
+        >
+
+            <!-- CONTENT WILL BE ADDED -->
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         ESR
+    ================================================== -->
+
+    <section
+        id="annualESRSection"
+        class="exec-section"
+    >
+
+        <div
+            class="exec-header"
+        >
+
+            <div>
+
+                <h2>
+                    ESR
+                </h2>
+
+                <span>
+                    Annual Overview
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="annualESRContent"
+            class="exec-grid"
+        >
+
+            <!-- CONTENT WILL BE ADDED -->
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         HILS
+    ================================================== -->
+
+    <section
+        id="annualHilsSection"
+        class="exec-section"
+    >
+
+        <div
+            class="exec-header"
+        >
+
+            <div>
+
+                <h2>
+                    HILs
+                </h2>
+
+                <span>
+                    Annual Overview
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="annualHilsContent"
+            class="exec-grid"
+        >
+
+            <!-- CONTENT WILL BE ADDED -->
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         WORK ORDERS
+    ================================================== -->
+
+    <section
+        id="annualWorkOrdersSection"
+        class="exec-section"
+    >
+
+        <div
+            class="exec-header"
+        >
+
+            <div>
+
+                <h2>
+                    Work Orders
+                </h2>
+
+                <span>
+                    Annual Overview
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="annualWorkOrdersContent"
+            class="exec-grid"
+        >
+
+            <!-- CONTENT WILL BE ADDED -->
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+</div>
+<!-- =====================================================
+     GLOBAL FOOTER
+===================================================== -->
+
+<footer
+    id="globalFooter"
+>
+
+    <div class="global-footer-brand">
+
+        <!-- LOGO — substituir depois pelo PNG -->
+        <img
+            src="ryanair-logo-2.png"
+            alt="Ryanair Engineering & Maintenance"
+            class="global-footer-logo"
+        >
+
+    </div>
+
+
+    <div class="global-footer-center">
+
+        <span>
+            Engineering &amp; Maintenance Dashboard
+        </span>
+
+        <span class="global-footer-separator">
+            •
+        </span>
+
+        <span>
+            Internal Use Only
+        </span>
+
+    </div>
+
+
+    <div class="global-footer-right">
+
+        <span>
+            © 2026
+        </span>
+
+    </div>
+
+</footer>
+
 <script src="auth.js"></script>
 <script src="acheck.js"></script>
 <script src="filestore.js"></script>
+<script src="annualReport.js"></script>
 
 </body>
 </html> 
