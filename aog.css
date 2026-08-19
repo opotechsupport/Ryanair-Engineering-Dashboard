@@ -1,0 +1,4908 @@
+/* =========================================================
+   RYANAIR ENGINEERING DASHBOARD
+   AIRCRAFT ON GROUND — AOG
+   BASE VISUAL STRUCTURE
+========================================================= */
+
+
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+#aogDashboard {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    min-height: 0;
+
+}
+
+
+/* =========================================================
+   AOG CONTENT
+   ---------------------------------------------------------
+   Empty for now.
+   This is intentionally prepared for the future
+   Aircraft on Ground report content.
+========================================================= */
+
+#aogContent {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    min-height: 420px;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    #aogContent {
+
+        min-height: 350px;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    #aogContent {
+
+        min-height: 280px;
+
+    }
+
+}
+
+/* =========================================================
+   AOG MANAGEMENT SYSTEM
+   Complete modal / navigation styling
+========================================================= */
+
+.aog-management-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+    box-sizing: border-box;
+
+    background: rgba(7, 34, 91, 0.48);
+    backdrop-filter: blur(6px);
+
+    animation: aogOverlayIn 0.18s ease-out;
+}
+
+@keyframes aogOverlayIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   MAIN MODAL
+========================================================= */
+
+.aog-management-modal {
+    width: min(1180px, 96vw);
+    max-height: 92vh;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 28px 80px rgba(0, 0, 0, 0.28),
+        0 8px 24px rgba(7, 34, 91, 0.12);
+
+    animation: aogModalIn 0.20s ease-out;
+}
+
+@keyframes aogModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.992);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.aog-management-header {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    min-height: 76px;
+
+    padding: 16px 20px;
+
+    box-sizing: border-box;
+
+    background: #07225B;
+    color: #ffffff;
+
+    border-bottom: 4px solid #F1C400;
+}
+
+
+/* Left navigation area */
+
+.aog-management-header-left {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+
+/* Back button */
+
+.aog-management-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    min-width: 86px;
+    height: 36px;
+
+    padding: 0 12px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.aog-management-back:hover {
+    background: rgba(255, 255, 255, 0.16);
+
+    border-color: rgba(255, 255, 255, 0.30);
+
+    transform: translateX(-1px);
+}
+
+.aog-management-back:active {
+    transform: translateX(0);
+}
+
+
+/* Back arrow */
+
+.aog-management-back-arrow {
+    font-size: 17px;
+    line-height: 1;
+}
+
+
+/* Header titles */
+
+.aog-management-heading {
+    min-width: 0;
+}
+
+.aog-management-eyebrow {
+    margin-bottom: 3px;
+
+    font-size: 10px;
+    line-height: 1.2;
+
+    font-weight: 800;
+
+    letter-spacing: 1.35px;
+
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.aog-management-title {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 20px;
+    line-height: 1.2;
+
+    font-weight: 800;
+}
+
+.aog-management-subtitle {
+    margin-top: 4px;
+
+    color: rgba(255, 255, 255, 0.70);
+
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.aog-management-close {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    margin-left: auto;
+
+    padding: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: #ffffff;
+
+    font-family: Arial, sans-serif;
+    font-size: 23px;
+    font-weight: 400;
+
+    line-height: 36px;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.aog-management-close:hover {
+    background: #F1C400;
+
+    color: #07225B;
+
+    border-color: #F1C400;
+
+    transform: rotate(3deg);
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.aog-management-body {
+    flex: 1 1 auto;
+
+    min-height: 0;
+
+    padding: 24px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    background: #ffffff;
+
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+}
+
+.aog-management-body::-webkit-scrollbar {
+    width: 7px;
+}
+
+.aog-management-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.aog-management-body::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   MANAGEMENT CENTER OPTIONS
+========================================================= */
+
+.aog-management-options {
+    width: min(820px, 100%);
+
+    margin: 12px auto 4px;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+.aog-management-option {
+    min-height: 215px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 26px 24px;
+
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 7px 22px rgba(7, 34, 91, 0.055);
+
+    cursor: pointer;
+
+    text-align: center;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.aog-management-option:hover {
+    transform: translateY(-3px);
+
+    border-color: #F1C400;
+
+    box-shadow:
+        0 15px 32px rgba(7, 34, 91, 0.10);
+}
+
+.aog-management-option:active {
+    transform: translateY(-1px);
+}
+
+.aog-management-option-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 15px;
+
+    border-radius: 16px;
+
+    background: #F4F7FB;
+
+    color: #07225B;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.aog-management-option-title {
+    color: #07225B;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.aog-management-option-text {
+    max-width: 320px;
+
+    margin-top: 7px;
+
+    color: #718096;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   PERIOD PANEL
+========================================================= */
+
+.aog-period-panel {
+    margin-bottom: 18px;
+
+    padding: 14px;
+
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+
+    background: #F8FAFC;
+}
+
+.aog-period-grid {
+    display: grid;
+
+    grid-template-columns:
+        150px
+        repeat(3, minmax(140px, 1fr));
+
+    gap: 11px;
+
+    align-items: end;
+}
+
+
+/* =========================================================
+   FIELDS
+========================================================= */
+
+.aog-management-field {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.aog-management-field label {
+    color: #526174;
+
+    font-size: 10px;
+    line-height: 1.2;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.45px;
+}
+
+.aog-management-field input,
+.aog-management-field select,
+.aog-management-field textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid #D8E0EA;
+    border-radius: 8px;
+
+    padding: 9px 11px;
+
+    background: #ffffff;
+
+    color: #172033;
+
+    font-family: inherit;
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.aog-management-field input,
+.aog-management-field select {
+    height: 38px;
+}
+
+.aog-management-field textarea {
+    min-height: 82px;
+
+    resize: vertical;
+}
+
+.aog-management-field input:focus,
+.aog-management-field select:focus,
+.aog-management-field textarea:focus {
+    border-color: #07225B;
+
+    box-shadow:
+        0 0 0 3px rgba(7, 34, 91, 0.07);
+}
+
+.aog-management-field input:disabled {
+    background: #F1F5F9;
+
+    color: #64748B;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   SEARCH OPTIONS
+========================================================= */
+
+.aog-search-options {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 13px;
+}
+
+.aog-search-option {
+    padding: 17px;
+
+    border: 1px solid #E1E7EF;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.aog-search-option:hover {
+    transform: translateY(-2px);
+
+    border-color: #F1C400;
+
+    box-shadow:
+        0 8px 22px rgba(7, 34, 91, 0.07);
+}
+
+.aog-search-option-title {
+    color: #07225B;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.aog-search-option-text {
+    margin-top: 5px;
+
+    color: #718096;
+
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   RESULTS
+========================================================= */
+
+.aog-results-toolbar {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.aog-results-count {
+    color: #07225B;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.aog-results-table-wrapper {
+    max-height: 48vh;
+
+    overflow: auto;
+
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+}
+
+.aog-results-table {
+    width: 100%;
+
+    min-width: 720px;
+
+    border-collapse: collapse;
+}
+
+.aog-results-table th {
+    position: sticky;
+    top: 0;
+
+    z-index: 2;
+
+    padding: 10px 11px;
+
+    border-bottom: 1px solid #E2E8F0;
+
+    background: #F4F7FA;
+
+    color: #526174;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    text-align: left;
+    text-transform: uppercase;
+
+    letter-spacing: 0.45px;
+}
+
+.aog-results-table td {
+    padding: 11px;
+
+    border-bottom: 1px solid #EDF1F5;
+
+    color: #293548;
+
+    font-size: 11px;
+}
+
+.aog-results-table tbody tr {
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease;
+}
+
+.aog-results-table tbody tr:hover {
+    background: #F8FAFC;
+}
+
+.aog-results-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.aog-table-reg {
+    color: #07225B !important;
+
+    font-weight: 800 !important;
+}
+
+.aog-table-duration {
+    white-space: nowrap;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+.aog-detail-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+.aog-detail-item {
+    padding: 12px 13px;
+
+    border: 1px solid #E4E9F0;
+    border-radius: 9px;
+
+    background: #F9FAFC;
+}
+
+.aog-detail-label {
+    color: #718096;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.45px;
+}
+
+.aog-detail-value {
+    margin-top: 5px;
+
+    color: #172033;
+
+    font-size: 13px;
+    line-height: 1.4;
+
+    font-weight: 700;
+
+    word-break: break-word;
+}
+
+.aog-detail-full {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.aog-management-button {
+    min-height: 36px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 0 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    font-family: inherit;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.16s ease,
+        opacity 0.16s ease,
+        box-shadow 0.16s ease;
+}
+
+.aog-management-button:hover {
+    transform: translateY(-1px);
+}
+
+.aog-management-button:active {
+    transform: translateY(0);
+}
+
+.aog-management-button-blue {
+    background: #07225B;
+    color: #ffffff;
+}
+
+.aog-management-button-green {
+    background: #15803D;
+    color: #ffffff;
+}
+
+.aog-management-button-yellow {
+    background: #F1C400;
+    color: #07225B;
+}
+
+.aog-management-button-red {
+    background: #DC2626;
+    color: #ffffff;
+}
+
+.aog-management-button-white {
+    background: #ffffff;
+
+    color: #07225B;
+
+    border: 1px solid #D8E0EA;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.aog-management-footer {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    padding: 13px 20px;
+
+    border-top: 1px solid #E6EBF1;
+
+    background: #FAFBFC;
+}
+
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.aog-management-empty,
+.aog-management-loading {
+    padding: 42px 18px;
+
+    text-align: center;
+
+    color: #718096;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .aog-management-options {
+        grid-template-columns: 1fr;
+    }
+
+    .aog-period-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .aog-management-overlay {
+        padding: 9px;
+    }
+
+    .aog-management-modal {
+        width: 98vw;
+        max-height: 95vh;
+        border-radius: 14px;
+    }
+
+    .aog-management-header {
+        min-height: 68px;
+        padding: 13px 14px;
+    }
+
+    .aog-management-title {
+        font-size: 17px;
+    }
+
+    .aog-management-subtitle {
+        font-size: 10px;
+    }
+
+    .aog-management-back {
+        min-width: 36px;
+        width: 36px;
+        padding: 0;
+    }
+
+    .aog-management-back-text {
+        display: none;
+    }
+
+    .aog-management-body {
+        padding: 15px;
+    }
+
+    .aog-period-grid,
+    .aog-search-options,
+    .aog-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .aog-detail-full {
+        grid-column: auto;
+    }
+
+    .aog-results-table-wrapper {
+        max-height: 52vh;
+    }
+
+}
+
+/* =========================================================
+   AOG — CATEGORY MANAGEMENT
+========================================================= */
+
+.aog-management-small-button{
+
+    border:none;
+
+    border-radius:7px;
+
+    padding:6px 9px;
+
+    font-family:inherit;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+
+}
+
+
+.aog-management-small-button:hover{
+
+    transform:
+        translateY(-1px);
+
+    opacity:
+        0.88;
+
+}
+
+
+.aog-management-small-edit{
+
+    background:
+        #073590;
+
+    color:
+        #ffffff;
+
+}
+
+
+.aog-management-small-delete{
+
+    background:
+        #dc2626;
+
+    color:
+        #ffffff;
+
+}
+
+
+/* =========================================================
+   AOG KPI — CLICKABLE CARDS
+========================================================= */
+
+#aogCategoryKPICard,
+#aogLongestKPICard{
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+
+}
+
+
+#aogCategoryKPICard:hover,
+#aogLongestKPICard:hover{
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 22px
+        rgba(
+            7,
+            53,
+            144,
+            0.12
+        );
+
+}
+
+/* =========================================================
+   AOG SECTION 2
+   DISTRIBUTION & BASE ANALYSIS
+========================================================= */
+
+
+.aog-analysis-section{
+
+    width:
+        100%;
+
+    margin-top:
+        28px;
+
+}
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.aog-analysis-filters{
+
+    display:
+        flex;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        18px;
+
+    margin:
+        0 0 24px;
+
+    padding:
+        18px 22px;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid #E4EAF2;
+
+    border-left:
+        4px solid #073590;
+
+    border-radius:
+        12px;
+
+    box-shadow:
+        0 4px 14px
+        rgba(
+            7,
+            53,
+            144,
+            .06
+        );
+
+}
+
+
+.aog-analysis-filter{
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        7px;
+
+    min-width:
+        220px;
+
+}
+
+
+.aog-analysis-filter label{
+
+    color:
+        #6B7280;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .45px;
+
+}
+
+
+.aog-analysis-filter select{
+
+    min-width:
+        220px;
+
+    height:
+        42px;
+
+    padding:
+        0 13px;
+
+    border:
+        1px solid #D5DDE8;
+
+    border-radius:
+        9px;
+
+    background:
+        #FFFFFF;
+
+    color:
+        #172B4D;
+
+    font-family:
+        inherit;
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+    cursor:
+        pointer;
+
+}
+
+
+.aog-analysis-filter select:focus{
+
+    outline:
+        none;
+
+    border-color:
+        #073590;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            7,
+            53,
+            144,
+            .08
+        );
+
+}
+
+
+/* =========================================================
+   SUMMARY GRID
+========================================================= */
+
+.aog-analysis-grid{
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        20px;
+
+    margin-bottom:
+        24px;
+
+}
+
+
+.aog-analysis-card{
+
+    min-width:
+        0;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid #E1E7EF;
+
+    border-top:
+        5px solid #F1C400;
+
+    border-radius:
+        16px;
+
+    padding:
+        22px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(
+            7,
+            53,
+            144,
+            .055
+        );
+
+}
+
+
+.aog-analysis-card-title{
+
+    margin-bottom:
+        18px;
+
+    color:
+        #7A879A;
+
+    font-size:
+        12px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .55px;
+
+}
+
+
+.aog-analysis-table{
+
+    width:
+        100%;
+
+}
+
+
+.aog-analysis-row{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        14px;
+
+    padding:
+        10px 0;
+
+    border-bottom:
+        1px solid #EDF1F5;
+
+}
+
+
+.aog-analysis-row:last-child{
+
+    border-bottom:
+        none;
+
+}
+
+
+.aog-analysis-row-name{
+
+    min-width:
+        0;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+    white-space:
+        nowrap;
+
+    color:
+        #172B4D;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+
+}
+
+
+.aog-analysis-row-value{
+
+    flex-shrink:
+        0;
+
+    color:
+        #073590;
+
+    font-size:
+        14px;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-analysis-empty{
+
+    padding:
+        20px 4px;
+
+    text-align:
+        center;
+
+    color:
+        #8A96A8;
+
+    font-size:
+        13px;
+
+}
+
+
+/* =========================================================
+   DAILY CHART
+========================================================= */
+
+.aog-analysis-chart{
+
+    width:
+        100%;
+
+    overflow:
+        hidden;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid #E1E7EF;
+
+    border-top:
+        5px solid #F1C400;
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(
+            7,
+            53,
+            144,
+            .055
+        );
+
+}
+
+
+.aog-analysis-chart-header{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    padding:
+        20px 22px;
+
+    border-bottom:
+        1px solid #E7ECF2;
+
+}
+
+
+.aog-analysis-chart-title{
+
+    color:
+        #172B4D;
+
+    font-size:
+        17px;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-analysis-chart-subtitle{
+
+    margin-top:
+        4px;
+
+    color:
+        #7A879A;
+
+    font-size:
+        12px;
+
+    font-weight:
+        500;
+
+}
+
+
+.aog-analysis-chart-filter{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    flex-shrink:
+        0;
+
+}
+
+
+.aog-analysis-chart-filter label{
+
+    color:
+        #6B7280;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.aog-analysis-chart-filter select{
+
+    min-width:
+        190px;
+
+    height:
+        38px;
+
+    padding:
+        0 11px;
+
+    border:
+        1px solid #D5DDE8;
+
+    border-radius:
+        8px;
+
+    background:
+        #FFFFFF;
+
+    color:
+        #172B4D;
+
+    font-family:
+        inherit;
+
+    font-size:
+        12px;
+
+    font-weight:
+        600;
+
+}
+
+
+.aog-analysis-chart-container{
+
+    width:
+        100%;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    overflow:
+        hidden;
+
+}
+
+
+.aog-analysis-chart-wrapper{
+
+    width:
+        100%;
+
+    max-width:
+        1600px;
+
+    height:
+        470px;
+
+    margin:
+        0 auto;
+
+    position:
+        relative;
+
+    overflow:
+        hidden;
+
+}
+
+
+#aogDailyHistoryChart{
+
+    display:
+        block !important;
+
+    width:
+        100% !important;
+
+    height:
+        100% !important;
+
+}
+
+
+/* =========================================================
+   DYNAMIC DAILY SUBFILTER
+========================================================= */
+
+.aog-daily-subfilter{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    padding:
+        14px 22px;
+
+    background:
+        #FAFBFD;
+
+    border-bottom:
+        1px solid #E7ECF2;
+
+}
+
+
+.aog-daily-subfilter label{
+
+    color:
+        #6B7280;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.aog-daily-subfilter select{
+
+    min-width:
+        220px;
+
+    height:
+        36px;
+
+    padding:
+        0 11px;
+
+    border:
+        1px solid #D5DDE8;
+
+    border-radius:
+        8px;
+
+    background:
+        #FFFFFF;
+
+    color:
+        #172B4D;
+
+    font-family:
+        inherit;
+
+    font-size:
+        12px;
+
+    font-weight:
+        600;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(
+    max-width:1100px
+){
+
+    .aog-analysis-grid{
+
+        grid-template-columns:
+            1fr 1fr;
+
+    }
+
+}
+
+
+@media(
+    max-width:768px
+){
+
+    .aog-analysis-grid{
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .aog-analysis-chart-header{
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .aog-analysis-chart-filter{
+
+        width:
+            100%;
+
+    }
+
+
+    .aog-analysis-chart-filter select{
+
+        flex:
+            1;
+
+        min-width:
+            0;
+
+    }
+
+
+    .aog-analysis-chart-wrapper{
+
+        height:
+            400px;
+
+    }
+
+}
+
+
+@media(
+    max-width:520px
+){
+
+    .aog-analysis-filters{
+
+        flex-direction:
+            column;
+
+    }
+
+
+    .aog-analysis-filter,
+    .aog-analysis-filter select{
+
+        width:
+            100%;
+
+        min-width:
+            0;
+
+    }
+
+
+    .aog-analysis-chart-wrapper{
+
+        height:
+            350px;
+
+    }
+
+}
+
+/* =========================================================
+   AOG SECTION 3
+   RECURRING & IMPACT ANALYSIS
+========================================================= */
+
+.aog-recurring-section{
+
+    width:
+        100%;
+
+    margin-top:
+        28px;
+
+}
+
+
+/* =========================================================
+   IMPACT CARDS
+========================================================= */
+
+.aog-impact-card{
+
+    width:
+        100%;
+
+    margin-bottom:
+        22px;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid #E1E7EF;
+
+    border-top:
+        5px solid #F1C400;
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(
+            7,
+            53,
+            144,
+            .055
+        );
+
+    overflow:
+        hidden;
+
+}
+
+
+.aog-impact-card-header{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    padding:
+        20px 22px;
+
+    border-bottom:
+        1px solid #E7ECF2;
+
+}
+
+
+.aog-impact-card-title{
+
+    color:
+        #172B4D;
+
+    font-size:
+        15px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .45px;
+
+}
+
+
+.aog-impact-card-subtitle{
+
+    margin-top:
+        4px;
+
+    color:
+        #7A879A;
+
+    font-size:
+        12px;
+
+    font-weight:
+        500;
+
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.aog-impact-table-wrapper{
+
+    width:
+        100%;
+
+    overflow-x:
+        auto;
+
+}
+
+
+.aog-impact-table{
+
+    width:
+        100%;
+
+    border-collapse:
+        collapse;
+
+    min-width:
+        650px;
+
+}
+
+
+.aog-impact-table th{
+
+    padding:
+        13px 18px;
+
+    background:
+        #F7F9FC;
+
+    color:
+        #6B7280;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    text-align:
+        left;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .45px;
+
+    border-bottom:
+        1px solid #E5EAF0;
+
+}
+
+
+.aog-impact-table td{
+
+    padding:
+        13px 18px;
+
+    color:
+        #172B4D;
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+    border-bottom:
+        1px solid #EDF1F5;
+
+}
+
+
+.aog-impact-table tbody tr:last-child td{
+
+    border-bottom:
+        none;
+
+}
+
+
+.aog-impact-table tbody tr:hover{
+
+    background:
+        #F8FAFD;
+
+}
+
+
+.aog-impact-number{
+
+    color:
+        #073590;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-impact-highlight{
+
+    color:
+        #073590;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-impact-empty{
+
+    padding:
+        28px 20px;
+
+    text-align:
+        center;
+
+    color:
+        #8A96A8;
+
+    font-size:
+        13px;
+
+}
+
+
+/* =========================================================
+   MATRIX
+========================================================= */
+
+.aog-impact-matrix-filter{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    flex-shrink:
+        0;
+
+}
+
+
+.aog-impact-matrix-filter label{
+
+    color:
+        #6B7280;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.aog-impact-matrix-filter select{
+
+    height:
+        37px;
+
+    min-width:
+        170px;
+
+    padding:
+        0 10px;
+
+    border:
+        1px solid #D5DDE8;
+
+    border-radius:
+        8px;
+
+    background:
+        #FFFFFF;
+
+    color:
+        #172B4D;
+
+    font-family:
+        inherit;
+
+    font-size:
+        12px;
+
+    font-weight:
+        600;
+
+}
+
+
+.aog-impact-matrix-wrapper{
+
+    width:
+        100%;
+
+    overflow-x:
+        auto;
+
+}
+
+
+.aog-impact-matrix{
+
+    width:
+        100%;
+
+    min-width:
+        700px;
+
+    border-collapse:
+        collapse;
+
+}
+
+
+.aog-impact-matrix th{
+
+    padding:
+        13px 16px;
+
+    background:
+        #F7F9FC;
+
+    color:
+        #6B7280;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    text-align:
+        center;
+
+    text-transform:
+        uppercase;
+
+    border-bottom:
+        1px solid #E5EAF0;
+
+}
+
+
+.aog-impact-matrix th:first-child{
+
+    text-align:
+        left;
+
+}
+
+
+.aog-impact-matrix td{
+
+    padding:
+        13px 16px;
+
+    color:
+        #172B4D;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+
+    text-align:
+        center;
+
+    border-bottom:
+        1px solid #EDF1F5;
+
+}
+
+
+.aog-impact-matrix td:first-child{
+
+    text-align:
+        left;
+
+}
+
+
+.aog-impact-matrix td.aog-matrix-value{
+
+    color:
+        #073590;
+
+    font-weight:
+        800;
+
+}
+
+
+/* =========================================================
+   DISTRIBUTION COMPARISON
+========================================================= */
+
+.aog-distribution-comparison{
+
+    width:
+        100%;
+
+    background:
+        #FFFFFF;
+
+    border:
+        1px solid #E1E7EF;
+
+    border-top:
+        5px solid #F1C400;
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(
+            7,
+            53,
+            144,
+            .055
+        );
+
+    overflow:
+        hidden;
+
+}
+
+
+.aog-distribution-header{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    padding:
+        20px 22px;
+
+    border-bottom:
+        1px solid #E7ECF2;
+
+}
+
+
+.aog-distribution-title{
+
+    color:
+        #172B4D;
+
+    font-size:
+        17px;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-distribution-subtitle{
+
+    margin-top:
+        4px;
+
+    color:
+        #7A879A;
+
+    font-size:
+        12px;
+
+}
+
+
+.aog-distribution-base-selector{
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+}
+
+
+.aog-distribution-base-selector label{
+
+    color:
+        #6B7280;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.aog-distribution-base-selector select{
+
+    min-width:
+        150px;
+
+    height:
+        38px;
+
+    padding:
+        0 11px;
+
+    border:
+        1px solid #D5DDE8;
+
+    border-radius:
+        8px;
+
+    background:
+        #FFFFFF;
+
+    color:
+        #172B4D;
+
+    font-family:
+        inherit;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+}
+
+
+/* =========================================================
+   PIE GRID
+========================================================= */
+
+.aog-pie-comparison-grid{
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        20px;
+
+    padding:
+        22px;
+
+}
+
+
+.aog-pie-card{
+
+    min-width:
+        0;
+
+    background:
+        #FAFBFD;
+
+    border:
+        1px solid #E5EAF0;
+
+    border-radius:
+        14px;
+
+    padding:
+        18px;
+
+}
+
+
+.aog-pie-card-title{
+
+    color:
+        #172B4D;
+
+    font-size:
+        13px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .45px;
+
+}
+
+
+.aog-pie-card-subtitle{
+
+    margin-top:
+        4px;
+
+    color:
+        #7A879A;
+
+    font-size:
+        11px;
+
+}
+
+
+.aog-pie-wrapper{
+
+    width:
+        100%;
+
+    height:
+        320px;
+
+    margin-top:
+        10px;
+
+    position:
+        relative;
+
+}
+
+
+.aog-pie-wrapper canvas{
+
+    width:
+        100% !important;
+
+    height:
+        100% !important;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(
+    max-width:900px
+){
+
+    .aog-pie-comparison-grid{
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+
+@media(
+    max-width:700px
+){
+
+    .aog-impact-card-header,
+    .aog-distribution-header{
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .aog-impact-matrix-filter,
+    .aog-distribution-base-selector{
+
+        width:
+            100%;
+
+    }
+
+
+    .aog-impact-matrix-filter select,
+    .aog-distribution-base-selector select{
+
+        flex:
+            1;
+
+        min-width:
+            0;
+
+    }
+
+
+    .aog-pie-comparison-grid{
+
+        padding:
+            14px;
+
+        gap:
+            14px;
+
+    }
+
+
+    .aog-pie-wrapper{
+
+        height:
+            280px;
+
+    }
+
+}
+
+/* =========================================================
+   AOG — TREND ANALYSIS
+========================================================= */
+
+.aog-trend-controls{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(
+                180px,
+                1fr
+            )
+        );
+
+    gap:16px;
+
+    padding:18px;
+
+    margin-bottom:18px;
+
+    background:#ffffff;
+
+    border:
+        1px solid
+        #e5eaf1;
+
+    border-radius:10px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            7,
+            34,
+            91,
+            .05
+        );
+
+}
+
+
+.aog-trend-control{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+
+.aog-trend-control label{
+
+    font-size:11px;
+
+    font-weight:800;
+
+    color:#71829a;
+
+    text-transform:uppercase;
+
+    letter-spacing:.45px;
+
+}
+
+
+.aog-trend-control select{
+
+    width:100%;
+
+    min-height:42px;
+
+    padding:
+        9px
+        12px;
+
+    border:
+        1px solid
+        #d9e0ea;
+
+    border-radius:8px;
+
+    background:#ffffff;
+
+    color:#082d70;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    outline:none;
+
+    cursor:pointer;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease;
+
+}
+
+
+.aog-trend-control select:focus{
+
+    border-color:#003399;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            0,
+            51,
+            153,
+            .08
+        );
+
+}
+
+
+/* =========================================================
+   CHART CARD
+========================================================= */
+
+.aog-trend-card{
+
+    background:#ffffff;
+
+    border:
+        1px solid
+        #e5eaf1;
+
+    border-radius:10px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            7,
+            34,
+            91,
+            .05
+        );
+
+    padding:20px;
+
+}
+
+
+.aog-trend-card-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    gap:15px;
+
+    margin-bottom:12px;
+
+}
+
+
+.aog-trend-card-title{
+
+    font-size:15px;
+
+    font-weight:800;
+
+    color:#082d70;
+
+}
+
+
+.aog-trend-card-subtitle{
+
+    margin-top:4px;
+
+    font-size:12px;
+
+    color:#71829a;
+
+    font-weight:600;
+
+}
+
+
+.aog-trend-period-badge{
+
+    padding:
+        6px
+        10px;
+
+    border-radius:6px;
+
+    background:#f1f5fa;
+
+    color:#082d70;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:.45px;
+
+    white-space:nowrap;
+
+}
+
+
+.aog-trend-chart-wrapper{
+
+    position:relative;
+
+    width:100%;
+
+    height:360px;
+
+}
+
+
+#aogTrendChart{
+
+    width:100% !important;
+
+    height:100% !important;
+
+}
+
+
+/* =========================================================
+   KPI GRID
+========================================================= */
+
+.aog-trend-kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:16px;
+
+    margin-top:18px;
+
+}
+
+
+.aog-trend-kpi{
+
+    background:#ffffff;
+
+    border:
+        1px solid
+        #e5eaf1;
+
+    border-radius:10px;
+
+    padding:
+        16px
+        18px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            7,
+            34,
+            91,
+            .04
+        );
+
+}
+
+
+.aog-trend-kpi-label{
+
+    font-size:10px;
+
+    font-weight:800;
+
+    color:#71829a;
+
+    letter-spacing:.5px;
+
+    margin-bottom:7px;
+
+}
+
+
+.aog-trend-kpi-value{
+
+    font-size:22px;
+
+    line-height:1.15;
+
+    font-weight:800;
+
+    color:#082d70;
+
+}
+
+
+/* =========================================================
+   INSIGHT
+========================================================= */
+
+.aog-trend-insight{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+    margin-top:18px;
+
+    padding:
+        15px
+        18px;
+
+    border-left:
+        4px solid
+        #f5c400;
+
+    border-radius:8px;
+
+    background:#fffdf3;
+
+}
+
+
+.aog-trend-insight strong{
+
+    font-size:12px;
+
+    font-weight:800;
+
+    color:#082d70;
+
+    text-transform:uppercase;
+
+    letter-spacing:.35px;
+
+}
+
+
+.aog-trend-insight span{
+
+    font-size:13px;
+
+    line-height:1.5;
+
+    color:#5b667a;
+
+    font-weight:600;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(
+    max-width:900px
+){
+
+    .aog-trend-controls{
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+
+    }
+
+
+    .aog-trend-kpi-grid{
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+
+    }
+
+}
+
+
+@media(
+    max-width:600px
+){
+
+    .aog-trend-controls{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .aog-trend-kpi-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .aog-trend-chart-wrapper{
+
+        height:280px;
+
+    }
+
+
+    .aog-trend-card{
+
+        padding:14px;
+
+    }
+
+}
+
+/* =========================================================
+   AOG EXCEL IMPORT
+========================================================= */
+
+.aog-excel-import-zone{
+
+    text-align:
+        center;
+
+    padding:
+        32px 20px;
+
+    border:
+        2px dashed
+        #D8E0EA;
+
+    border-radius:
+        14px;
+
+    background:
+        #F9FBFD;
+
+}
+
+
+.aog-excel-import-icon{
+
+    width:
+        52px;
+
+    height:
+        52px;
+
+    margin:
+        0 auto 14px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        50%;
+
+    background:
+        #073590;
+
+    color:
+        #FFFFFF;
+
+    font-size:
+        25px;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-excel-import-title{
+
+    color:
+        #172B4D;
+
+    font-size:
+        17px;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-excel-import-description{
+
+    max-width:
+        440px;
+
+    margin:
+        7px auto 18px;
+
+    color:
+        #7A879A;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.55;
+
+}
+
+
+.aog-excel-import-upload{
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-height:
+        40px;
+
+    padding:
+        0 18px;
+
+    border-radius:
+        8px;
+
+    background:
+        #F1C400;
+
+    color:
+        #172B4D;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+
+}
+
+
+.aog-excel-import-upload:hover{
+
+    transform:
+        translateY(
+            -1px
+        );
+
+    box-shadow:
+        0 4px 12px
+        rgba(
+            0,
+            0,
+            0,
+            .10
+        );
+
+}
+
+
+.aog-excel-import-file{
+
+    margin-top:
+        13px;
+
+    color:
+        #6B7280;
+
+    font-size:
+        11px;
+
+    font-weight:
+        600;
+
+    word-break:
+        break-word;
+
+}
+
+
+/* =========================================================
+   IMPORT RESULT
+========================================================= */
+
+.aog-excel-import-result{
+
+    margin-top:
+        18px;
+
+    padding:
+        18px;
+
+    border:
+        1px solid
+        #E2E8F0;
+
+    border-radius:
+        12px;
+
+    background:
+        #FFFFFF;
+
+}
+
+
+.aog-excel-import-result-title{
+
+    margin-bottom:
+        15px;
+
+    color:
+        #172B4D;
+
+    font-size:
+        14px;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-excel-import-stat-grid{
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        10px;
+
+}
+
+
+.aog-excel-import-stat{
+
+    padding:
+        12px;
+
+    border:
+        1px solid
+        #E8EDF3;
+
+    border-radius:
+        9px;
+
+    background:
+        #F8FAFC;
+
+}
+
+
+.aog-excel-import-stat span{
+
+    display:
+        block;
+
+    color:
+        #7A879A;
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .35px;
+
+}
+
+
+.aog-excel-import-stat strong{
+
+    display:
+        block;
+
+    margin-top:
+        5px;
+
+    color:
+        #073590;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+}
+
+
+.aog-excel-import-stat strong.warning{
+
+    color:
+        #B77900;
+
+}
+
+
+.aog-excel-import-stat strong.danger{
+
+    color:
+        #C62828;
+
+}
+
+
+.aog-import-warning-list{
+
+    margin-top:
+        15px;
+
+    padding:
+        11px 13px;
+
+    border-radius:
+        8px;
+
+    background:
+        #FFF8E1;
+
+    color:
+        #805F00;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    line-height:
+        1.7;
+
+}
+
+
+.aog-import-success-line{
+
+    margin-top:
+        15px;
+
+    padding:
+        11px 13px;
+
+    border-radius:
+        8px;
+
+    background:
+        #EEF8F0;
+
+    color:
+        #27743A;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+}
+
+
+.aog-import-details{
+
+    margin-top:
+        10px;
+
+    border:
+        1px solid
+        #E5EAF0;
+
+    border-radius:
+        8px;
+
+    overflow:
+        hidden;
+
+}
+
+
+.aog-import-details summary{
+
+    padding:
+        10px 12px;
+
+    background:
+        #F7F9FC;
+
+    color:
+        #172B4D;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    cursor:
+        pointer;
+
+}
+
+
+.aog-import-details > div{
+
+    max-height:
+        180px;
+
+    overflow-y:
+        auto;
+
+    padding:
+        10px 12px;
+
+    color:
+        #667085;
+
+    font-size:
+        10px;
+
+    line-height:
+        1.7;
+
+}
+
+
+.aog-excel-import-error{
+
+    border-color:
+        #F0C7C7;
+
+    background:
+        #FFF6F6;
+
+}
+
+
+.aog-excel-import-error strong{
+
+    display:
+        block;
+
+    color:
+        #B42318;
+
+    font-size:
+        14px;
+
+}
+
+
+.aog-excel-import-error span{
+
+    display:
+        block;
+
+    margin-top:
+        7px;
+
+    color:
+        #7A3030;
+
+    font-size:
+        12px;
+
+}
+
+
+.aog-excel-import-error small{
+
+    display:
+        block;
+
+    margin-top:
+        10px;
+
+    color:
+        #8A6A6A;
+
+    font-size:
+        10px;
+
+}
+
+
+.aog-excel-import-loading{
+
+    padding:
+        16px;
+
+    text-align:
+        center;
+
+    color:
+        #073590;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+}
+
+
+@media(
+    max-width:650px
+){
+
+    .aog-excel-import-stat-grid{
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+
+    }
+
+}
+
+
+@media(
+    max-width:420px
+){
+
+    .aog-excel-import-stat-grid{
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+/* =========================================================
+   AOG SECTION 3 — MODERN SCOPE PANEL
+========================================================= */
+
+.aog-scope-panel{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:30px;
+
+    padding:22px 26px;
+
+    margin-bottom:24px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff 0%,
+            #eef4fc 100%
+        );
+
+    border:1px solid #d7e1ef;
+
+    border-left:5px solid #0b3b91;
+
+    border-radius:14px;
+
+    box-shadow:
+        0 5px 18px rgba(
+            8,
+            45,
+            112,
+            0.07
+        );
+
+}
+
+
+.aog-scope-intro{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    min-width:0;
+
+}
+
+
+.aog-scope-icon{
+
+    width:44px;
+
+    height:44px;
+
+    flex:0 0 44px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:#0b3b91;
+
+    color:#ffffff;
+
+    font-size:21px;
+
+    font-weight:800;
+
+    box-shadow:
+        0 5px 12px rgba(
+            8,
+            45,
+            112,
+            0.20
+        );
+
+}
+
+
+.aog-scope-intro > div:last-child{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+}
+
+
+.aog-scope-eyebrow{
+
+    color:#e5b900;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:1.2px;
+
+}
+
+
+.aog-scope-intro strong{
+
+    color:#082d70;
+
+    font-size:16px;
+
+    font-weight:800;
+
+}
+
+
+.aog-scope-intro small{
+
+    color:#71829a;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+}
+
+
+.aog-scope-selection{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    flex:0 0 auto;
+
+}
+
+
+.aog-scope-selection-label{
+
+    color:#71829a;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:.8px;
+
+}
+
+
+.aog-scope-selection select{
+
+    min-width:190px;
+
+    height:42px;
+
+    padding:0 38px 0 14px;
+
+    border:1px solid #cbd7e7;
+
+    border-radius:10px;
+
+    background:#ffffff;
+
+    color:#082d70;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    outline:none;
+
+    cursor:pointer;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.aog-scope-selection select:focus{
+
+    border-color:#0b3b91;
+
+    box-shadow:
+        0 0 0 3px rgba(
+            11,
+            59,
+            145,
+            .10
+        );
+
+}
+
+
+/* =========================================================
+   AOG SECTION 3 — TABLE CARDS
+========================================================= */
+
+.aog-impact-table{
+
+    width:100%;
+
+    border-collapse:separate;
+
+    border-spacing:0;
+
+    overflow:hidden;
+
+    border:1px solid #dce4ef;
+
+    border-radius:12px;
+
+    background:#ffffff;
+
+    box-shadow:
+        0 4px 14px rgba(
+            8,
+            45,
+            112,
+            .05
+        );
+
+}
+
+
+.aog-impact-table thead{
+
+    background:
+        linear-gradient(
+            90deg,
+            #082d70,
+            #0b3b91
+        );
+
+}
+
+
+.aog-impact-table thead th{
+
+    padding:13px 18px;
+
+    color:#ffffff;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:.8px;
+
+    text-transform:uppercase;
+
+    border:none;
+
+    white-space:nowrap;
+
+}
+
+
+.aog-impact-table tbody tr{
+
+    transition:
+        background .18s ease,
+        transform .18s ease;
+
+}
+
+
+.aog-impact-table tbody tr:nth-child(even){
+
+    background:#f7faff;
+
+}
+
+
+.aog-impact-table tbody tr:hover{
+
+    background:#fff9df;
+
+}
+
+
+.aog-impact-table tbody td{
+
+    padding:14px 18px;
+
+    color:#17365f;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    border-bottom:1px solid #e6edf5;
+
+}
+
+
+.aog-impact-table tbody tr:last-child td{
+
+    border-bottom:none;
+
+}
+
+
+.aog-impact-table tbody td:first-child{
+
+    color:#082d70;
+
+    font-weight:800;
+
+}
+
+
+.aog-impact-number{
+
+    color:#0b3b91 !important;
+
+    font-size:14px !important;
+
+    font-weight:900 !important;
+
+}
+
+
+/* =========================================================
+   MATRIX
+========================================================= */
+
+.aog-impact-matrix{
+
+    width:100%;
+
+    border-collapse:separate;
+
+    border-spacing:0;
+
+    border:1px solid #dce4ef;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+}
+
+
+.aog-impact-matrix thead{
+
+    background:#082d70;
+
+}
+
+
+.aog-impact-matrix th{
+
+    padding:12px 14px;
+
+    color:#ffffff;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+}
+
+
+.aog-impact-matrix td{
+
+    padding:12px 14px;
+
+    border-bottom:1px solid #e6edf5;
+
+    color:#17365f;
+
+    font-size:12px;
+
+    font-weight:650;
+
+}
+
+
+.aog-impact-matrix tbody tr:nth-child(even){
+
+    background:#f7faff;
+
+}
+
+
+.aog-impact-matrix tbody tr:hover{
+
+    background:#fff9df;
+
+}
+
+
+.aog-matrix-value{
+
+    text-align:center;
+
+    color:#0b3b91 !important;
+
+    font-weight:900 !important;
+
+}
+
+
+/* =========================================================
+   EMPTY STATES
+========================================================= */
+
+.aog-impact-empty{
+
+    min-height:100px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+    padding:24px;
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff,
+            #eef4fc
+        );
+
+    color:#71829a;
+
+    font-size:13px;
+
+    font-weight:650;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:800px){
+
+    .aog-scope-panel{
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+    }
+
+
+    .aog-scope-selection{
+
+        justify-content:space-between;
+
+    }
+
+
+    .aog-scope-selection select{
+
+        flex:1;
+
+    }
+
+}
+
+/* =========================================================
+   AOG TREND — KPI CARDS
+========================================================= */
+
+.aog-trend-kpi-card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    min-height:118px;
+
+    padding:20px 22px;
+
+    border-radius:14px;
+
+    border:1px solid #d9e2ef;
+
+    background:#ffffff;
+
+    box-shadow:
+        0 7px 20px rgba(
+            8,
+            45,
+            112,
+            .08
+        );
+
+}
+
+
+.aog-trend-kpi-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    top:0;
+
+    bottom:0;
+
+    width:5px;
+
+    background:#0b3b91;
+
+}
+
+
+.aog-trend-kpi-card:nth-child(2)::before{
+
+    background:#f2c500;
+
+}
+
+
+.aog-trend-kpi-card:nth-child(3)::before{
+
+    background:#ef7d00;
+
+}
+
+
+.aog-trend-kpi-card:nth-child(4)::before{
+
+    background:#2ca58d;
+
+}
+
+
+.aog-trend-kpi-card .kpi-title{
+
+    color:#71829a;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+}
+
+
+.aog-trend-kpi-card .kpi-value{
+
+    margin-top:12px;
+
+    color:#082d70;
+
+    font-size:27px;
+
+    font-weight:900;
+
+    line-height:1.1;
+
+}
+
+
+.aog-trend-kpi-card .kpi-value small{
+
+    font-size:12px;
+
+    color:#71829a;
+
+    font-weight:700;
+
+}
+
+
+.aog-trend-neutral{
+
+    color:#0b3b91 !important;
+
+    font-size:15px !important;
+
+    letter-spacing:.5px;
+
+}
+
+
+/* =========================================================
+   OPERATIONAL INSIGHT
+========================================================= */
+
+.aog-trend-insight{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    margin-top:18px;
+
+    padding:17px 20px;
+
+    border-radius:13px;
+
+    border:1px solid #f0df88;
+
+    border-left:5px solid #f2c500;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffdf1,
+            #fff9df
+        );
+
+}
+
+
+.aog-trend-insight-icon{
+
+    width:36px;
+
+    height:36px;
+
+    flex:0 0 36px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#f2c500;
+
+    color:#082d70;
+
+    font-size:16px;
+
+    font-weight:900;
+
+}
+
+
+.aog-trend-insight strong{
+
+    display:block;
+
+    margin-bottom:4px;
+
+    color:#082d70;
+
+    font-size:11px;
+
+    font-weight:900;
+
+    text-transform:uppercase;
+
+    letter-spacing:.8px;
+
+}
+
+
+.aog-trend-insight span{
+
+    display:block;
+
+    color:#52657d;
+
+    font-size:13px;
+
+    line-height:1.5;
+
+    font-weight:600;
+
+}
+
+
+/* =========================================================
+   TREND CHART CARD
+========================================================= */
+
+.aog-trend-chart-card{
+
+    border:1px solid #d9e2ef;
+
+    border-top:5px solid #0b3b91;
+
+    border-radius:14px;
+
+    background:#ffffff;
+
+    box-shadow:
+        0 7px 20px rgba(
+            8,
+            45,
+            112,
+            .06
+        );
+
+    overflow:hidden;
+
+}
+
+
+.aog-trend-chart-header{
+
+    padding:18px 22px;
+
+    border-bottom:1px solid #e4ebf3;
+
+}
+
+
+.aog-trend-chart-header h3{
+
+    margin:0;
+
+    color:#082d70;
+
+    font-size:16px;
+
+    font-weight:900;
+
+}
+
+
+.aog-trend-chart-header span{
+
+    display:block;
+
+    margin-top:4px;
+
+    color:#71829a;
+
+    font-size:11px;
+
+    font-weight:600;
+
+}
+
+
+.aog-trend-chart-wrapper{
+
+    padding:18px 22px 24px;
+
+    min-height:350px;
+
+}
+
+/* =========================================================
+   AOG TABLE HEADERS — RYANAIR STYLE
+========================================================= */
+
+.aog-impact-table thead th,
+.aog-impact-matrix-wrapper table thead th{
+
+    background:
+        #082d70 !important;
+
+    color:
+        #f5c400 !important;
+
+    font-weight:
+        800 !important;
+
+    font-size:
+        11px !important;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        0.5px;
+
+    border:
+        none !important;
+
+    padding:
+        13px 14px !important;
+
+}
+
+
+/* =========================================================
+   FIRST HEADER CORNERS
+========================================================= */
+
+.aog-impact-table thead th:first-child,
+.aog-impact-matrix-wrapper table thead th:first-child{
+
+    border-top-left-radius:
+        8px;
+
+}
+
+
+.aog-impact-table thead th:last-child,
+.aog-impact-matrix-wrapper table thead th:last-child{
+
+    border-top-right-radius:
+        8px;
+
+}
+
+
+/* =========================================================
+   TABLE BODY — IMPROVED CONTRAST
+========================================================= */
+
+.aog-impact-table tbody td,
+.aog-impact-matrix-wrapper table tbody td{
+
+    color:
+        #082d70;
+
+    font-weight:
+        600;
+
+}
+
+
+/* =========================================================
+   ALTERNATING ROWS
+========================================================= */
+
+.aog-impact-table tbody tr:nth-child(even),
+.aog-impact-matrix-wrapper table tbody tr:nth-child(even){
+
+    background:
+        #f4f7fb;
+
+}
+
+
+.aog-impact-table tbody tr:hover,
+.aog-impact-matrix-wrapper table tbody tr:hover{
+
+    background:
+        #fff7cc;
+
+    transition:
+        background 0.15s ease;
+
+}
+
+
+/* =========================================================
+   NUMERIC CELLS
+========================================================= */
+
+.aog-impact-table
+.aog-impact-number{
+
+    color:
+        #003399;
+
+    font-weight:
+        800;
+
+}
+
+/* =========================================================
+   AOG TABLES — CENTER CONTENT
+   ========================================================= */
+
+.aog-section-table th,
+.aog-section-table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* Keep first column slightly more prominent */
+.aog-section-table td:first-child,
+.aog-section-table th:first-child {
+    text-align: center !important;
+}
+
+
+/* =========================================================
+   AOG IMPACT / ANALYSIS TABLES
+   ========================================================= */
+
+.aog-table th,
+.aog-table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+
+/* =========================================================
+   BASE ANALYSIS TABLES
+   ========================================================= */
+
+.aog-base-analysis table th,
+.aog-base-analysis table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+
+/* =========================================================
+   RECURRING / IMPACT TABLES
+   ========================================================= */
+
+.aog-recurring-table th,
+.aog-recurring-table td,
+.aog-impact-table th,
+.aog-impact-table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* =========================================================
+   AOG SECTION 2 — ANALYSIS SCOPE
+========================================================= */
+
+.aog-analysis-scope {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    width: 100%;
+
+    min-height: 100px;
+
+    padding: 20px 24px;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff 0%,
+            #eef4fb 100%
+        );
+
+    border:
+        1px solid #d9e3ef;
+
+    border-left:
+        5px solid #003399;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(
+            8,
+            45,
+            112,
+            .06
+        );
+
+}
+
+
+.aog-analysis-scope-info {
+
+    flex: 1;
+
+}
+
+
+.aog-analysis-scope-label {
+
+    margin-bottom: 3px;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    color: #f0c400;
+
+}
+
+
+.aog-analysis-scope-title {
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    color: #082d70;
+
+}
+
+
+.aog-analysis-scope-description {
+
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    color: #71829a;
+
+}
+
+
+.aog-analysis-scope-selector {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    flex-shrink: 0;
+
+}
+
+
+.aog-analysis-scope-selector label {
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: .8px;
+
+    color: #71829a;
+
+    white-space: nowrap;
+
+}
+
+
+.aog-analysis-scope-selector select {
+
+    min-width: 190px;
+
+    height: 42px;
+
+    padding:
+        0 38px 0 14px;
+
+    border:
+        1px solid #cbd7e6;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #082d70;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    outline: none;
+
+}
+
+
+.aog-analysis-scope-selector select:focus {
+
+    border-color:
+        #003399;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            0,
+            51,
+            153,
+            .10
+        );
+
+}
+
+
+@media(
+    max-width: 700px
+){
+
+    .aog-analysis-scope {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .aog-analysis-scope-selector {
+
+        justify-content:
+            space-between;
+
+    }
+
+
+    .aog-analysis-scope-selector select {
+
+        flex: 1;
+
+    }
+
+}
+
+/* =========================================================
+   AOG TREND — KPI COMPARISON
+========================================================= */
+
+.aog-trend-kpi-breakdown {
+
+    margin-top:
+        14px;
+
+    padding-top:
+        10px;
+
+    border-top:
+        1px solid
+        #e3eaf3;
+
+}
+
+
+.aog-trend-kpi-reference {
+
+    margin-bottom:
+        8px;
+
+    font-size:
+        9px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        .7px;
+
+    color:
+        #003399;
+
+}
+
+
+.aog-trend-kpi-base-row {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        42px
+        1fr
+        1fr;
+
+    gap:
+        8px;
+
+    align-items:
+        center;
+
+    padding:
+        7px 8px;
+
+    margin-bottom:
+        5px;
+
+    border-radius:
+        7px;
+
+    background:
+        #f6f8fb;
+
+    border-left:
+        3px solid
+        #71829a;
+
+}
+
+
+.aog-trend-kpi-base-row.above {
+
+    border-left-color:
+        #f97316;
+
+    background:
+        #fff7ed;
+
+}
+
+
+.aog-trend-kpi-base-row.below {
+
+    border-left-color:
+        #16a34a;
+
+    background:
+        #f0fdf4;
+
+}
+
+
+.aog-trend-kpi-base-row.neutral {
+
+    border-left-color:
+        #94a3b8;
+
+}
+
+
+.aog-trend-kpi-base-name {
+
+    font-size:
+        10px;
+
+    font-weight:
+        900;
+
+    color:
+        #082d70;
+
+}
+
+
+.aog-trend-kpi-base-metric {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        1px;
+
+}
+
+
+.aog-trend-kpi-base-metric span {
+
+    font-size:
+        7px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        .5px;
+
+    color:
+        #8a99ad;
+
+}
+
+
+.aog-trend-kpi-base-metric strong {
+
+    font-size:
+        10px;
+
+    font-weight:
+        900;
+
+    color:
+        #082d70;
+
+}
+
+
+.aog-trend-kpi-base-metric small {
+
+    font-size:
+        7px;
+
+    font-weight:
+        800;
+
+    color:
+        #71829a;
+
+}
+
+
+.aog-trend-kpi-status {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-width:
+        55px;
+
+    padding:
+        4px 8px;
+
+    margin-right:
+        6px;
+
+    border-radius:
+        20px;
+
+    font-size:
+        9px;
+
+    font-weight:
+        900;
+
+}
+
+
+.aog-trend-kpi-status.up {
+
+    background:
+        #fff0e6;
+
+    color:
+        #d95f02;
+
+}
+
+
+.aog-trend-kpi-status.down {
+
+    background:
+        #ecfdf3;
+
+    color:
+        #15803d;
+
+}
+
+
+.aog-trend-kpi-status.stable {
+
+    background:
+        #eef2f7;
+
+    color:
+        #526783;
+
+}
+
+
+.aog-trend-kpi-status.baseline {
+
+    background:
+        #fff7cc;
+
+    color:
+        #8a6800;
+
+}
+
+
+@media(
+    max-width: 900px
+){
+
+    .aog-trend-kpi-base-row {
+
+        grid-template-columns:
+            42px
+            1fr
+            1fr;
+
+    }
+
+}

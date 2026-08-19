@@ -10,6 +10,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="annualReport.css">
+    <link rel="stylesheet" href="aog.css">
     <title>Ryanair Engineering Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
@@ -464,28 +465,29 @@
 
 .dashboardButtons{
 
-    display:flex;
+    display:grid;
 
-    flex-direction:column;
+    grid-template-columns:
+        repeat(2, 300px);
 
-    align-items:center;
+    justify-content:center;
 
-    gap:24px;
+    gap:18px 24px;
 
     margin-top:10px;
 
-    margin-bottom:28px;
+    margin-bottom:24px;
 
 }
 
 
 .dashboardButtons button{
 
-    width:380px;
+    width:300px;
 
     max-width:100%;
 
-    height:78px;
+    height:64px;
 
     box-sizing:border-box;
 
@@ -493,13 +495,13 @@
 
     border:none;
 
-    border-radius:18px;
+    border-radius:16px;
 
-    font-size:18px;
+    font-size:16px;
 
     font-weight:800;
 
-    letter-spacing:1px;
+    letter-spacing:.8px;
 
     color:#07225B;
 
@@ -508,7 +510,21 @@
     transition:.25s;
 
     box-shadow:
-        0 15px 35px rgba(0,0,0,.25);
+        0 12px 28px rgba(0,0,0,.22);
+
+}
+
+
+/* =========================================================
+   5º BOTÃO — CENTRADO
+========================================================= */
+
+.dashboardButtons button:last-child{
+
+    grid-column:
+        1 / -1;
+
+    justify-self:center;
 
 }
 
@@ -1371,6 +1387,12 @@ Engineering & Maintenance Platform
 
     </button>
 
+    <button onclick="openAOG()">
+
+    AIRCRAFT ON GROUND
+
+</button>
+
     <button onclick="openAnnualReport()">
 
     ANNUAL REPORT
@@ -1457,6 +1479,10 @@ Version 1.0
     <button onclick="openACheck()">
         A-CHECK
     </button>
+
+    <button onclick="openAOG()">
+    AIRCRAFT ON GROUND
+</button>
 
     <button onclick="openAnnualReport()">
 
@@ -2124,7 +2150,7 @@ onclick="event.stopPropagation();toggleUserMenu(event);">
 
     <div class="kpi-grid">
         <div class="kpi-card">
-            <div class="kpi-title">SPMFB - Total No Info Delays</div>
+            <div class="kpi-title">SPMFB - Total No Info Delays RECORDED </div>
             <div class="kpi-value" id="display-total">-</div>
         </div>
         <div class="kpi-card">
@@ -2161,7 +2187,7 @@ onclick="event.stopPropagation();toggleUserMenu(event);">
     </div>
 
     <div class="card" style="margin-top: 25px;">
-        <div class="card-header">NO INFO DELAYS PER COUNTRY</div>
+        <div class="card-header">NO INFO DELAYS PER COUNTRY RECORDED </div>
         <div class="chart-container">
             <div class="chart-wrapper" style="height: 380px;">
                 <canvas id="countryChart"></canvas>
@@ -22600,12 +22626,12 @@ span:last-child {
     <div class="exec-grid">
 
         <div class="exec-card">
-            <div class="exec-title">TOTAL FIRST WAVE DELAYS</div>
+            <div class="exec-title">TOTAL FIRST WAVE DELAYS RECORDED</div>
             <div class="exec-value" id="fwdTotal">-</div>
         </div>
 
         <div class="exec-card">
-            <div class="exec-title">TOTAL NIGHT STOPS</div>
+            <div class="exec-title">TOTAL NIGHT STOPS RECORDED </div>
             <div class="exec-value" id="totalNightStops">-</div>
         </div>
 
@@ -22620,7 +22646,7 @@ style="cursor:pointer;"
 onclick="openBasesModal()">
 
     <div class="exec-title">
-        ACTIVE BASES
+        BASES
     </div>
 
     <div class="exec-value" id="activeBases">
@@ -22635,7 +22661,7 @@ style="cursor:pointer;"
 onclick="openActiveDaysModal()">
 
     <div class="exec-title">
-        ACCOUNTED DAYS
+        RECORDED DAYS
     </div>
 
     <div
@@ -22901,7 +22927,7 @@ onclick="openActiveDaysModal()">
     <div class="region-card">
 
         <div class="region-title">
-            TOTAL FWD
+            TOTAL FWD RECORDED
         </div>
 
         <div
@@ -22921,7 +22947,7 @@ onclick="openActiveDaysModal()">
     <div class="region-card">
 
         <div class="region-title">
-            TOTAL NIGHT STOPS
+            TOTAL NIGHT STOPS RECORDED
         </div>
 
         <div
@@ -23464,7 +23490,7 @@ Loading...
 
             <div class="analysis-title">
 
-                FIRST WAVE DELAYS
+                FIRST WAVE DELAYS RECORDED
 
             </div>
 
@@ -23480,7 +23506,7 @@ Loading...
 
             <div class="analysis-title">
 
-                NIGHT STOPS
+                NIGHT STOPS RECORDED
 
             </div>
 
@@ -24128,6 +24154,9 @@ let REPORT_VISIBILITY = {
     ANNUAL:
         true,
 
+    AOG:
+        true,
+
 };
 
 REPORT_VISIBILITY_LOADED =
@@ -24181,7 +24210,10 @@ async function loadReportVisibility(){
                     data.NOINFO !== false,
 
                 ANNUAL:
-                    data.ANNUAL !== false
+                    data.ANNUAL !== false,
+                
+                AOG:
+                    data.AOG !== false
 
             };
 
@@ -24196,7 +24228,9 @@ async function loadReportVisibility(){
 
                 NOINFO: true,
 
-                ANNUAL: true
+                ANNUAL: true,
+            
+                AOG: true
 
             };
 
@@ -24252,6 +24286,9 @@ async function saveReportVisibility(){
 
                 ANNUAL:
                     REPORT_VISIBILITY.ANNUAL !== false,
+                
+                AOG:
+                    REPORT_VISIBILITY.AOG !== false,
 
                 updatedAt:
                     Date.now(),
@@ -24902,6 +24939,16 @@ function openReportVisibilityManager(){
 
         },
 
+        
+        {
+            key:
+                "AOG",
+
+            name:
+                "Aircraft on Ground"
+
+        },
+
         {
             key:
                 "ANNUAL",
@@ -25506,6 +25553,8 @@ function hideAnnualReport(){
 
     hideFileStore();
 
+    hideAOG();
+
     hideAnnualReport();
 
     showNoInfo();
@@ -25553,6 +25602,8 @@ if(
     hideACheck();
 
     hideFileStore();
+
+    hideAOG();
 
 
     // ==========================================
@@ -25619,6 +25670,8 @@ if(
 
     hideACheck();
 
+    hideAOG();
+
     hideFileStore();
 
     hideAnnualReport();
@@ -25664,6 +25717,8 @@ async function openACheck(){
     hideFWD();
 
     hideFileStore();
+
+    hideAOG();
 
     hideAnnualReport();
 
@@ -44302,6 +44357,1644 @@ CREATE USER MODAL
 
 </div>
 
+
+<!-- =====================================================
+     AIRCRAFT ON GROUND — AOG DASHBOARD
+===================================================== -->
+
+<div
+    id="aogDashboard"
+    style="display:none;"
+>
+
+
+    <!-- =================================================
+         AOG MAIN HEADER
+         Same Engineering Dashboard header system
+    ================================================== -->
+
+    <header
+        id="aogHeader"
+        class="rh-header"
+    >
+
+        <div
+            class="rh-left"
+        >
+
+            <img
+                src="ryanair-logo-2.png"
+                alt="Company Logo"
+                class="rh-logo"
+            >
+
+
+            <div
+                class="rh-content"
+            >
+
+                <h1
+                    class="rh-title"
+                >
+
+                    <span>
+                        AIRCRAFT ON GROUND
+                    </span>
+
+                    MONTHLY REPORT
+
+                </h1>
+
+
+                <div
+                    class="rh-subtitle"
+                >
+
+                    Engineering &amp; Maintenance
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             AOG ACTIONS
+        ================================================== -->
+
+        <div
+            class="rh-actions"
+            id="aogControlsPanel"
+        >
+
+            <button
+                type="button"
+                class="rh-btn rh-btn-white"
+                onclick="exportAOGPDF()"
+            >
+
+                Export PDF
+
+            </button>
+
+
+            <button
+                type="button"
+                class="rh-btn rh-btn-green"
+                onclick="openAOGImport()"
+            >
+
+                Import Data
+
+            </button>
+
+
+            <button
+                type="button"
+                class="rh-btn rh-btn-yellow"
+                onclick="openAOGEditVisuals()"
+            >
+
+                Edit Visuals (Manual)
+
+            </button>
+
+
+            <button
+                type="button"
+                class="rh-btn rh-btn-red"
+                onclick="resetAOGData()"
+            >
+
+                Reset Data
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         AOG CONTENT
+         EMPTY — TO BE DEVELOPED
+    ================================================== -->
+
+    <main
+        id="aogContent"
+    >
+
+<!-- ===================================================== -->
+<!-- AIRCRAFT ON GROUND — PORTUGAL OVERVIEW -->
+<!-- ===================================================== -->
+
+<section
+    id="aogPortugalOverview"
+    class="exec-section"
+>
+
+    <!-- ================================================= -->
+    <!-- ANALYSIS PERIOD -->
+    <!-- SAME VISUAL LANGUAGE AS FWD -->
+    <!-- ================================================= -->
+
+    <div class="controls-bar">
+
+        <div class="month-display">
+
+            <label
+                style="
+                    margin-right:12px;
+                    font-weight:600;
+                "
+            >
+                Analysis Period
+            </label>
+
+
+            <select
+                id="aogDashboardPeriod"
+                onchange="
+                    changeAOGDashboardPeriod(
+                        this.value
+                    )
+                "
+                style="
+                    padding:8px 14px;
+                    border-radius:8px;
+                    border:1px solid #ccc;
+                    min-width:220px;
+                "
+            >
+
+            </select>
+
+        </div>
+
+    </div>
+
+<!-- ===================================================== -->
+<!-- AIRCRAFT ON GROUND — PORTUGAL OVERVIEW -->
+<!-- ===================================================== -->
+
+<section
+    id="aogPortugalOverview"
+    class="exec-section"
+>
+
+    <!-- ================================================= -->
+    <!-- SECTION HEADER -->
+    <!-- ================================================= -->
+
+    <div class="exec-header">
+
+        <h2>
+            Portugal Overview
+        </h2>
+
+        <span>
+            Overall monthly Aircraft on Ground performance
+        </span>
+
+    </div>
+
+    <!-- ================================================= -->
+    <!-- KPI GRID -->
+    <!-- ================================================= -->
+
+    <div
+        class="exec-grid"
+        id="aogPortugalKPIGrid"
+    >
+
+
+        <!-- ============================================= -->
+        <!-- KPI 1 -->
+        <!-- ============================================= -->
+
+        <div
+            class="exec-card"
+        >
+
+            <div class="exec-title">
+
+                TOTAL AOG
+
+            </div>
+
+
+            <div
+                class="exec-value"
+                id="aogKPITotal"
+            >
+
+                -
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- KPI 2 -->
+        <!-- ============================================= -->
+
+        <div
+            class="exec-card"
+        >
+
+            <div class="exec-title">
+
+                BASE WITH MOST AOG
+
+            </div>
+
+
+            <div
+                class="exec-value"
+                id="aogKPIBaseMost"
+            >
+
+                -
+
+            </div>
+
+
+            <div
+                id="aogKPIBaseMostCount"
+                style="
+                    margin-top:10px;
+                    font-size:12px;
+                    color:#7A8599;
+                    font-weight:600;
+                "
+            >
+
+                -
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- KPI 3 -->
+        <!-- ============================================= -->
+
+        <div
+            class="exec-card"
+        >
+
+            <div class="exec-title">
+
+                AVERAGE AOG TIME
+
+            </div>
+
+
+            <div
+                class="exec-value"
+                id="aogKPIAverageTime"
+            >
+
+                -
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- KPI 4 -->
+        <!-- ============================================= -->
+
+        <div
+            class="exec-card"
+        >
+
+            <div class="exec-title">
+
+                MOST AFFECTED AIRCRAFT
+
+            </div>
+
+
+            <div
+                class="exec-value"
+                id="aogKPIMostAffected"
+            >
+
+                -
+
+            </div>
+
+
+            <div
+                id="aogKPIMostAffectedDetails"
+                style="
+                    margin-top:10px;
+                    font-size:12px;
+                    color:#7A8599;
+                    font-weight:600;
+                    line-height:1.45;
+                "
+            >
+
+                -
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- KPI 5 -->
+        <!-- ============================================= -->
+
+        <div
+            class="exec-card"
+        >
+
+            <div class="exec-title">
+
+                ON TIME
+
+            </div>
+
+
+            <div
+                class="exec-value"
+                id="aogKPIOnTime"
+            >
+
+                -%
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- KPI 6 -->
+        <!-- ============================================= -->
+
+        <div
+            class="exec-card"
+            id="aogCategoryKPICard"
+            onclick="
+                openAOGCategoryBreakdown()
+            "
+            style="
+                cursor:pointer;
+            "
+        >
+
+            <div class="exec-title">
+
+                DOMINANT CATEGORY
+
+            </div>
+
+
+            <div
+                class="exec-value"
+                id="aogKPIDominantCategory"
+            >
+
+                -
+
+            </div>
+
+
+            <div
+                id="aogKPIDominantCategoryCount"
+                style="
+                    margin-top:10px;
+                    font-size:12px;
+                    color:#7A8599;
+                    font-weight:600;
+                "
+            >
+
+                -
+
+            </div>
+
+
+            <div
+                style="
+                    margin-top:14px;
+                    text-align:right;
+                    font-size:11px;
+                    color:#0A4DA2;
+                    font-weight:700;
+                "
+            >
+
+                VIEW CATEGORY BREAKDOWN →
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- KPI 7 -->
+        <!-- ============================================= -->
+
+        <div
+            class="exec-card"
+            id="aogLongestKPICard"
+            onclick="
+                openAOGLongestRecord()
+            "
+            style="
+                cursor:pointer;
+            "
+        >
+
+            <div class="exec-title">
+
+                LONGEST AOG
+
+            </div>
+
+
+            <div
+                class="exec-value"
+                id="aogKPILongestReg"
+            >
+
+                -
+
+            </div>
+
+
+            <div
+                id="aogKPILongestDetails"
+                style="
+                    margin-top:10px;
+                    font-size:12px;
+                    color:#7A8599;
+                    font-weight:600;
+                    line-height:1.55;
+                "
+            >
+
+                -
+
+            </div>
+
+
+            <div
+                style="
+                    margin-top:14px;
+                    text-align:right;
+                    font-size:11px;
+                    color:#0A4DA2;
+                    font-weight:700;
+                "
+            >
+
+                VIEW AOG DETAILS →
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- AOG SECTION 2 — DISTRIBUTION & BASE ANALYSIS -->
+<!-- ===================================================== -->
+
+<section
+    id="aogDistributionSection"
+    class="aog-analysis-section"
+>
+
+
+    <!-- ================================================= -->
+    <!-- SECTION HEADER -->
+    <!-- ================================================= -->
+
+    <div class="exec-header">
+
+        <h2>
+            AOG Distribution &amp; Base Analysis
+        </h2>
+
+        <span>
+            Detailed analysis of Aircraft on Ground occurrences
+        </span>
+
+    </div>
+
+
+<!-- ================================================= -->
+<!-- ANALYSIS SCOPE -->
+<!-- ================================================= -->
+
+<div class="aog-analysis-scope">
+
+    <div class="aog-analysis-scope-info">
+
+        <div class="aog-analysis-scope-label">
+            ANALYSIS SCOPE
+        </div>
+
+        <div class="aog-analysis-scope-title">
+            Network &amp; Base Drilldown
+        </div>
+
+        <div class="aog-analysis-scope-description">
+            Analyse Portugal or drill down into a specific Portuguese base.
+        </div>
+
+    </div>
+
+
+    <div class="aog-analysis-scope-selector">
+
+        <label for="aogAnalysisBase">
+            BASE VIEW
+        </label>
+
+        <select
+            id="aogAnalysisBase"
+            onchange="
+                changeAOGAnalysisBaseView(
+                    this.value
+                )
+            "
+        >
+
+            <option value="ALL">
+                All PT Bases
+            </option>
+
+            <option value="OPO">
+                OPO
+            </option>
+
+            <option value="LIS">
+                LIS
+            </option>
+
+            <option value="FAO">
+                FAO
+            </option>
+
+            <option value="FNC">
+                FNC
+            </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+    <!-- ================================================= -->
+    <!-- ANALYSIS SUMMARY -->
+    <!-- ================================================= -->
+
+    <div
+        class="aog-analysis-grid"
+        id="aogDistributionSummary"
+    >
+
+
+        <!-- AIRCRAFT TYPES -->
+
+        <div
+            class="aog-analysis-card"
+        >
+
+            <div class="aog-analysis-card-title">
+
+                AOG BY AIRCRAFT TYPE
+
+            </div>
+
+
+            <div
+                id="aogAircraftTypeAnalysis"
+                class="aog-analysis-table"
+            >
+
+                <div class="aog-analysis-empty">
+                    Waiting for analysis...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CATEGORIES -->
+
+        <div
+            class="aog-analysis-card"
+        >
+
+            <div class="aog-analysis-card-title">
+
+                AOG BY CATEGORY
+
+            </div>
+
+
+            <div
+                id="aogCategoryAnalysis"
+                class="aog-analysis-table"
+            >
+
+                <div class="aog-analysis-empty">
+                    Waiting for analysis...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TIME DISTRIBUTION -->
+
+        <div
+            class="aog-analysis-card"
+        >
+
+            <div class="aog-analysis-card-title">
+
+                AOG TIME DISTRIBUTION
+
+            </div>
+
+
+            <div
+                id="aogTimeDistributionAnalysis"
+                class="aog-analysis-table"
+            >
+
+                <div class="aog-analysis-empty">
+                    Waiting for analysis...
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ================================================= -->
+<!-- DAILY ANALYSIS -->
+<!-- ================================================= -->
+
+<div
+    class="aog-analysis-chart"
+>
+
+
+    <!-- ================================================= -->
+    <!-- CHART HEADER -->
+    <!-- ================================================= -->
+
+    <div
+        class="aog-analysis-chart-header"
+    >
+
+        <div>
+
+            <div
+                class="aog-analysis-chart-title"
+            >
+                Daily AOG Performance
+            </div>
+
+
+            <div
+                class="aog-analysis-chart-subtitle"
+                id="aogDailyChartSubtitle"
+            >
+                Monthly AOG occurrence evolution
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- VIEW SELECTOR -->
+        <!-- ============================================= -->
+
+        <div
+            class="aog-analysis-chart-filter"
+        >
+
+            <label
+                for="aogDailyView"
+            >
+                View
+            </label>
+
+
+            <select
+                id="aogDailyView"
+                onchange="
+                    changeAOGDailyView(
+                        this.value
+                    )
+                "
+            >
+
+                <option value="TOTAL">
+                    Total AOG
+                </option>
+
+
+                <option value="AIRCRAFT_TYPE">
+                    Aircraft Type
+                </option>
+
+
+                <option value="CATEGORY">
+                    Category
+                </option>
+
+
+                <option value="TIME">
+                    AOG Time Distribution
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- DYNAMIC SECOND SELECTOR -->
+    <!-- ================================================= -->
+
+    <div
+        id="aogDailySubFilter"
+        class="aog-daily-subfilter"
+        style="display:none;"
+    >
+
+        <label
+            id="aogDailySubFilterLabel"
+            for="aogDailySubSelector"
+        >
+            Select
+        </label>
+
+
+        <select
+            id="aogDailySubSelector"
+            onchange="
+                changeAOGDailySubSelection(
+                    this.value
+                )
+            "
+        >
+        </select>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- CHART -->
+    <!-- ================================================= -->
+
+    <div
+        class="aog-analysis-chart-container"
+    >
+
+        <div
+            class="aog-analysis-chart-wrapper"
+        >
+
+            <canvas
+                id="aogDailyHistoryChart"
+            ></canvas>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- AOG SECTION 3 — RECURRING & IMPACT ANALYSIS -->
+<!-- ===================================================== -->
+
+<section
+    id="aogRecurringImpactSection"
+    class="aog-recurring-section"
+>
+
+
+    <!-- ================================================= -->
+    <!-- SECTION HEADER -->
+    <!-- ================================================= -->
+
+    <div class="exec-header">
+
+        <h2>
+            AOG Recurring &amp; Impact Analysis
+        </h2>
+
+        <span>
+            Recurring events, operational impact and distribution analysis
+        </span>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- RECURRING AIRCRAFT -->
+    <!-- ================================================= -->
+
+    <div class="aog-impact-card">
+
+        <div class="aog-impact-card-header">
+
+            <div>
+
+                <div class="aog-impact-card-title">
+                    RECURRING AIRCRAFT
+                </div>
+
+                <div class="aog-impact-card-subtitle">
+                    Aircraft with multiple AOG occurrences in the selected period
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="aogRecurringAircraftTable"
+            class="aog-impact-table-wrapper"
+        >
+
+            <div class="aog-impact-empty">
+                Waiting for analysis...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TOP AOG IMPACT -->
+    <!-- ================================================= -->
+
+    <div class="aog-impact-card">
+
+        <div class="aog-impact-card-header">
+
+            <div>
+
+                <div class="aog-impact-card-title">
+                    TOP AOG IMPACT
+                </div>
+
+                <div class="aog-impact-card-subtitle">
+                    Longest AOG events recorded in the selected period
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="aogTopImpactTable"
+            class="aog-impact-table-wrapper"
+        >
+
+            <div class="aog-impact-empty">
+                Waiting for analysis...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- RECURRING CATEGORY -->
+    <!-- ================================================= -->
+
+    <div class="aog-impact-card">
+
+        <div class="aog-impact-card-header">
+
+            <div>
+
+                <div class="aog-impact-card-title">
+                    RECURRING CATEGORY
+                </div>
+
+                <div class="aog-impact-card-subtitle">
+                    Category frequency and associated AOG duration
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="aogRecurringCategoryTable"
+            class="aog-impact-table-wrapper"
+        >
+
+            <div class="aog-impact-empty">
+                Waiting for analysis...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- BASE IMPACT -->
+    <!-- ================================================= -->
+
+    <div class="aog-impact-card">
+
+        <div class="aog-impact-card-header">
+
+            <div>
+
+                <div class="aog-impact-card-title">
+                    BASE IMPACT
+                </div>
+
+                <div class="aog-impact-card-subtitle">
+                    AOG activity and time impact by Portuguese base
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="aogBaseImpactTable"
+            class="aog-impact-table-wrapper"
+        >
+
+            <div class="aog-impact-empty">
+                Waiting for analysis...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- AOG IMPACT MATRIX -->
+    <!-- ================================================= -->
+
+    <div class="aog-impact-card">
+
+        <div class="aog-impact-card-header">
+
+            <div>
+
+                <div class="aog-impact-card-title">
+                    AOG IMPACT MATRIX
+                </div>
+
+                <div class="aog-impact-card-subtitle">
+                    Distribution of AOG occurrences by base and category
+                </div>
+
+            </div>
+
+
+            <div
+                class="aog-impact-matrix-filter"
+            >
+
+                <label
+                    for="aogImpactMatrixView"
+                >
+                    View
+                </label>
+
+
+                <select
+                    id="aogImpactMatrixView"
+                    onchange="
+                        changeAOGImpactMatrixView(
+                            this.value
+                        )
+                    "
+                >
+
+                    <option value="COUNT">
+                        Number of AOG
+                    </option>
+
+                    <option value="TOTAL_TIME">
+                        Total AOG Time
+                    </option>
+
+                    <option value="AVERAGE_TIME">
+                        Average AOG Time
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="aogImpactMatrixTable"
+            class="aog-impact-matrix-wrapper"
+        >
+
+            <div class="aog-impact-empty">
+                Waiting for analysis...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- DISTRIBUTION COMPARISON -->
+    <!-- ================================================= -->
+
+    <div class="aog-distribution-comparison">
+
+
+        <div class="aog-distribution-header">
+
+            <div>
+
+                <div class="aog-distribution-title">
+                    AOG Distribution Comparison
+                </div>
+
+                <div class="aog-distribution-subtitle">
+                    Portugal compared with the selected Portuguese base
+                </div>
+
+            </div>
+
+
+            <!-- BASE SELECTOR -->
+
+            <div
+                class="aog-distribution-base-selector"
+            >
+
+                <label
+                    for="aogSection3Base"
+                >
+                    Select Base
+                </label>
+
+
+                <select
+                    id="aogSection3Base"
+                    onchange="
+                        changeAOGSection3Base(
+                            this.value
+                        )
+                    "
+                >
+
+                    <option value="">
+                        Select a base...
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- CATEGORY DISTRIBUTION -->
+        <!-- ================================================= -->
+
+        <div class="aog-pie-comparison-grid">
+
+
+            <div class="aog-pie-card">
+
+                <div class="aog-pie-card-title">
+                    PORTUGAL
+                </div>
+
+                <div class="aog-pie-card-subtitle">
+                    Category Distribution
+                </div>
+
+
+                <div class="aog-pie-wrapper">
+
+                    <canvas
+                        id="aogPortugalCategoryPie"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <div class="aog-pie-card">
+
+                <div
+                    class="aog-pie-card-title"
+                    id="aogSelectedBaseCategoryTitle"
+                >
+                    SELECTED BASE
+                </div>
+
+                <div class="aog-pie-card-subtitle">
+                    Category Distribution
+                </div>
+
+
+                <div class="aog-pie-wrapper">
+
+                    <canvas
+                        id="aogBaseCategoryPie"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- TIME DISTRIBUTION -->
+            <!-- ================================================= -->
+
+            <div class="aog-pie-card">
+
+                <div class="aog-pie-card-title">
+                    PORTUGAL
+                </div>
+
+                <div class="aog-pie-card-subtitle">
+                    AOG Time Distribution
+                </div>
+
+
+                <div class="aog-pie-wrapper">
+
+                    <canvas
+                        id="aogPortugalTimePie"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <div class="aog-pie-card">
+
+                <div
+                    class="aog-pie-card-title"
+                    id="aogSelectedBaseTimeTitle"
+                >
+                    SELECTED BASE
+                </div>
+
+                <div class="aog-pie-card-subtitle">
+                    AOG Time Distribution
+                </div>
+
+
+                <div class="aog-pie-wrapper">
+
+                    <canvas
+                        id="aogBaseTimePie"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- AIRCRAFT TYPE DISTRIBUTION -->
+            <!-- ================================================= -->
+
+            <div class="aog-pie-card">
+
+                <div class="aog-pie-card-title">
+                    PORTUGAL
+                </div>
+
+                <div class="aog-pie-card-subtitle">
+                    Aircraft Type Distribution
+                </div>
+
+
+                <div class="aog-pie-wrapper">
+
+                    <canvas
+                        id="aogPortugalAircraftPie"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <div class="aog-pie-card">
+
+                <div
+                    class="aog-pie-card-title"
+                    id="aogSelectedBaseAircraftTitle"
+                >
+                    SELECTED BASE
+                </div>
+
+                <div class="aog-pie-card-subtitle">
+                    Aircraft Type Distribution
+                </div>
+
+
+                <div class="aog-pie-wrapper">
+
+                    <canvas
+                        id="aogBaseAircraftPie"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+<!-- ===================================================== -->
+<!-- AOG — TREND ANALYSIS -->
+<!-- ===================================================== -->
+
+<section
+    id="aogTrendAnalysis"
+    class="exec-section"
+>
+
+    <!-- ================================================= -->
+    <!-- SECTION HEADER -->
+    <!-- ================================================= -->
+
+    <div class="exec-header">
+
+        <div>
+
+            <h2>
+                AOG Trend Analysis
+            </h2>
+
+            <span>
+                Monthly Aircraft on Ground evolution
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+<!-- AOG TREND CONTROLS -->
+<!-- ================================================= -->
+
+<div
+    class="aog-trend-controls"
+>
+
+    <!-- ========================= -->
+    <!-- VIEW / PERIOD -->
+    <!-- ========================= -->
+
+    <div
+        class="aog-trend-control"
+    >
+
+        <label
+            for="aogTrendPeriod"
+        >
+            VIEW
+        </label>
+
+
+        <select
+            id="aogTrendPeriod"
+        >
+
+            <option value="all">
+                ALL AVAILABLE DATA
+            </option>
+
+            <option value="12">
+                LAST 12 MONTHS
+            </option>
+
+            <option value="6">
+                LAST 6 MONTHS
+            </option>
+
+            <option value="3">
+                LAST 3 MONTHS
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- DATA TYPE -->
+    <!-- ========================= -->
+
+    <div
+        class="aog-trend-control"
+    >
+
+        <label
+            for="aogTrendMetric"
+        >
+            DATA TYPE
+        </label>
+
+
+        <select
+            id="aogTrendMetric"
+        >
+
+            <option value="count">
+                Total AOG
+            </option>
+
+            <option value="averageTime">
+                Average AOG Time
+            </option>
+
+            <option value="totalTime">
+                Total AOG Time
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- COMPARE -->
+    <!-- ========================= -->
+
+    <div
+        class="aog-trend-control"
+    >
+
+        <label
+            for="aogTrendCompare"
+        >
+            COMPARE
+        </label>
+
+
+        <select
+            id="aogTrendCompare"
+        >
+
+            <option value="portugal">
+                Portugal
+            </option>
+
+            <option value="base">
+                Individual Base
+            </option>
+
+            <option value="allBases">
+                All Portuguese Bases
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- BASE SELECTOR -->
+    <!-- ========================= -->
+
+    <div
+        id="aogTrendBaseControl"
+        class="aog-trend-control"
+        style="display:none;"
+    >
+
+        <label
+            for="aogTrendBase"
+        >
+            BASE
+        </label>
+
+
+        <select
+            id="aogTrendBase"
+        >
+
+            <option value="">
+                Select base...
+            </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+
+    <!-- ================================================= -->
+    <!-- CHART -->
+    <!-- ================================================= -->
+
+    <div
+        class="aog-trend-card"
+    >
+
+        <div
+            class="aog-trend-card-header"
+        >
+
+            <div>
+
+                <div class="aog-trend-card-title">
+                    Monthly AOG Trend
+                </div>
+
+                <div
+                    class="aog-trend-card-subtitle"
+                    id="aogTrendChartSubtitle"
+                >
+                    Aircraft on Ground occurrences
+                </div>
+
+            </div>
+
+
+            <div
+                class="aog-trend-period-badge"
+                id="aogTrendPeriodBadge"
+            >
+                ALL DATA
+            </div>
+
+        </div>
+
+
+        <div
+            class="aog-trend-chart-wrapper"
+        >
+
+            <canvas
+                id="aogTrendChart"
+            ></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TREND KPIs -->
+    <!-- ================================================= -->
+
+    <div
+        id="aogTrendKPIs"
+        class="aog-trend-kpi-grid"
+    >
+
+        <div class="aog-trend-kpi">
+
+            <div class="aog-trend-kpi-label">
+                AVERAGE
+            </div>
+
+            <div
+                class="aog-trend-kpi-value"
+                id="aogTrendAverage"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="aog-trend-kpi">
+
+            <div class="aog-trend-kpi-label">
+                PEAK MONTH
+            </div>
+
+            <div
+                class="aog-trend-kpi-value"
+                id="aogTrendPeak"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="aog-trend-kpi">
+
+            <div class="aog-trend-kpi-label">
+                LOWEST MONTH
+            </div>
+
+            <div
+                class="aog-trend-kpi-value"
+                id="aogTrendLowest"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="aog-trend-kpi">
+
+            <div class="aog-trend-kpi-label">
+                TREND
+            </div>
+
+            <div
+                class="aog-trend-kpi-value"
+                id="aogTrendVariation"
+            >
+                -
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- INSIGHT -->
+    <!-- ================================================= -->
+
+    <div
+        id="aogTrendInsight"
+        class="aog-trend-insight"
+    >
+
+        <strong>
+            Operational Insight
+        </strong>
+
+        <span>
+            Waiting for trend data...
+        </span>
+
+    </div>
+
+</section>
+
+    </main>
+
+
+</div>
+
 <!-- =========================================================
      ANNUAL REPORT
 ========================================================= -->
@@ -44793,6 +46486,7 @@ CREATE USER MODAL
 <script src="acheck.js"></script>
 <script src="filestore.js"></script>
 <script src="annualReport.js"></script>
+<script src="aog.js"></script>
 
 </body>
 </html> 
