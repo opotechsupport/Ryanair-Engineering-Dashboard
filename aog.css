@@ -4906,3 +4906,9 @@
     }
 
 }
+
+body.home-page,
+body.home-page #app,
+body.home-page .app-container {
+    overflow: hidden !important;
+}
