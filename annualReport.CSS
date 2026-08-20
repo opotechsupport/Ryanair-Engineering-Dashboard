@@ -2391,4 +2391,801 @@
 
 }
 
+/* ==========================================================
+   ANNUAL FWD — PORTUGAL BASE PERFORMANCE
+========================================================== */
 
+.annual-fwd-portugal-bases{
+    grid-column: span 2;
+    min-height: 195px;
+}
+
+.annual-fwd-portugal-grid{
+
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-top:16px;
+
+}
+
+.annual-fwd-base-column{
+
+    background:linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #f7f9fc 100%
+    );
+
+    border:1px solid #e5ebf5;
+    border-radius:16px;
+
+    padding:14px 12px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+
+    transition:.25s ease;
+
+}
+
+.annual-fwd-base-column:hover{
+
+    transform:translateY(-3px);
+
+    border-color:#0057b8;
+
+    box-shadow:0 8px 20px rgba(0,87,184,.12);
+
+}
+
+.annual-fwd-base-code{
+
+    font-size:22px;
+    font-weight:800;
+    color:#003b95;
+    letter-spacing:1px;
+
+}
+
+.annual-fwd-base-city{
+
+    font-size:12px;
+    color:#70819d;
+    margin-bottom:14px;
+    font-weight:600;
+
+}
+
+.annual-fwd-base-metric{
+
+    width:100%;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:6px 0;
+    border-top:1px solid #edf2f8;
+
+}
+
+.annual-fwd-base-metric:first-of-type{
+    border-top:none;
+}
+
+.annual-fwd-base-metric span{
+
+    font-size:11px;
+    color:#7a8798;
+    font-weight:700;
+    letter-spacing:.4px;
+
+}
+
+.annual-fwd-base-metric strong{
+
+    font-size:15px;
+    color:#17326b;
+    font-weight:800;
+
+}
+
+/* ==========================================================
+   ANNUAL FWD — PERFORMANCE COMPARISON
+========================================================== */
+
+.annual-fwd-comparison{
+
+    grid-column:span 2;
+
+}
+
+.annual-fwd-comparison-heading{
+
+    margin:8px 0 14px;
+
+    font-size:12px;
+    color:#7b8ca4;
+    font-weight:700;
+    letter-spacing:.6px;
+
+}
+
+.annual-fwd-base-comparison-block{
+
+    padding:12px 0;
+    border-top:1px solid #eef2f7;
+
+}
+
+.annual-fwd-base-comparison-block:first-of-type{
+    border-top:none;
+}
+
+.annual-fwd-base-comparison-title{
+
+    font-size:14px;
+    font-weight:800;
+    color:#17326b;
+    margin-bottom:10px;
+
+}
+
+.annual-fwd-comparison-item{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    padding:7px 0;
+
+}
+
+.annual-fwd-comparison-item small{
+
+    display:block;
+    color:#8796aa;
+    font-size:11px;
+    font-weight:600;
+
+}
+
+.annual-fwd-comparison-item strong{
+
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:.4px;
+
+}
+
+/* STATUS */
+
+.comparison-indicator{
+
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+
+}
+
+.annual-fwd-comparison-item.positive .comparison-indicator{
+    background:#17b45f;
+}
+
+.annual-fwd-comparison-item.negative .comparison-indicator{
+    background:#e64040;
+}
+
+.annual-fwd-comparison-item.neutral .comparison-indicator{
+    background:#f4b400;
+}
+
+.annual-fwd-comparison-item.positive strong{
+    color:#169d53;
+}
+
+.annual-fwd-comparison-item.negative strong{
+    color:#d93d3d;
+}
+
+.annual-fwd-comparison-item.neutral strong{
+    color:#d49400;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:1200px){
+
+    .annual-fwd-portugal-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media (max-width:768px){
+
+    .annual-fwd-portugal-grid{
+        grid-template-columns:1fr;
+    }
+
+    .annual-fwd-portugal-bases,
+    .annual-fwd-comparison{
+        grid-column:span 1;
+    }
+
+}
+
+/* ==========================================================
+   ANNUAL FWD — PORTUGAL BASE PERFORMANCE (FINAL LAYOUT)
+========================================================== */
+
+.annual-fwd-portugal-bases{
+    grid-column: span 2;
+    min-height: 205px;
+}
+
+.annual-fwd-portugal-grid{
+
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-top:14px;
+
+}
+
+.annual-fwd-base-column{
+
+    background:linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #f8faff 100%
+    );
+
+    border:1px solid #e6edf7;
+    border-radius:16px;
+
+    padding:14px 12px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+
+    transition:.25s ease;
+
+}
+
+.annual-fwd-base-column:hover{
+
+    transform:translateY(-2px);
+
+    border-color:#0046ad;
+
+    box-shadow:0 8px 22px rgba(0,70,173,.10);
+
+}
+
+.annual-fwd-base-code{
+
+    font-size:20px;
+    font-weight:800;
+    color:#003087;
+    letter-spacing:.8px;
+    margin-bottom:2px;
+
+}
+
+.annual-fwd-base-city{
+
+    font-size:11px;
+    color:#6f8098;
+    font-weight:600;
+    margin-bottom:12px;
+
+}
+
+.annual-fwd-base-metric{
+
+    width:100%;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:6px 0;
+
+    border-top:1px solid #eef3fa;
+
+}
+
+.annual-fwd-base-metric:first-of-type{
+    border-top:none;
+}
+
+.annual-fwd-base-metric span{
+
+    font-size:10px;
+    font-weight:700;
+    color:#7d8ca4;
+    letter-spacing:.4px;
+
+}
+
+.annual-fwd-base-metric strong{
+
+    font-size:15px;
+    font-weight:800;
+    color:#17326b;
+
+}
+
+/* ==========================================================
+   ANNUAL FWD — PORTUGAL PERFORMANCE COMPARISON
+========================================================== */
+
+.annual-fwd-comparison{
+    grid-column:span 2;
+}
+
+.annual-fwd-base-comparison-block{
+
+    display:grid;
+    grid-template-columns:130px 1fr 1fr;
+    align-items:center;
+
+    gap:14px;
+
+    padding:10px 0;
+
+    border-top:1px solid #edf2f8;
+
+}
+
+.annual-fwd-base-comparison-block:first-of-type{
+    border-top:none;
+}
+
+.annual-fwd-base-comparison-title{
+
+    font-size:13px;
+    font-weight:800;
+    color:#17326b;
+
+}
+
+.annual-fwd-comparison-item{
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:6px 8px;
+
+    border-radius:10px;
+
+    background:#f8fbff;
+
+}
+
+.annual-fwd-comparison-item small{
+
+    display:block;
+    font-size:10px;
+    color:#8594aa;
+    font-weight:600;
+    margin-bottom:2px;
+
+}
+
+.annual-fwd-comparison-item strong{
+
+    font-size:12px;
+    font-weight:800;
+
+}
+
+.comparison-indicator{
+
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    flex-shrink:0;
+
+}
+
+.annual-fwd-comparison-item.positive{
+    background:rgba(22,163,74,.08);
+}
+
+.annual-fwd-comparison-item.positive strong{
+    color:#149954;
+}
+
+.annual-fwd-comparison-item.positive .comparison-indicator{
+    background:#16a34a;
+}
+
+.annual-fwd-comparison-item.negative{
+    background:rgba(220,38,38,.08);
+}
+
+.annual-fwd-comparison-item.negative strong{
+    color:#d93434;
+}
+
+.annual-fwd-comparison-item.negative .comparison-indicator{
+    background:#dc2626;
+}
+
+.annual-fwd-comparison-item.neutral{
+    background:rgba(245,196,0,.10);
+}
+
+.annual-fwd-comparison-item.neutral strong{
+    color:#c88a00;
+}
+
+.annual-fwd-comparison-item.neutral .comparison-indicator{
+    background:#f5c400;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:1300px){
+
+    .annual-fwd-portugal-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .annual-fwd-base-comparison-block{
+        grid-template-columns:1fr;
+        gap:8px;
+    }
+
+}
+
+@media (max-width:768px){
+
+    .annual-fwd-portugal-grid{
+        grid-template-columns:1fr;
+    }
+
+    .annual-fwd-portugal-bases,
+    .annual-fwd-comparison{
+        grid-column:span 1;
+    }
+
+}
+
+/* ==========================================================
+   DELAY CODES PERFORMANCE — EXECUTIVE RYANAIR VERSION
+========================================================== */
+
+.annual-fwd-delaycodes{
+
+    /* ocupa duas colunas como o Portugal Performance */
+    grid-column: span 2 !important;
+
+    min-height: 285px;
+
+    padding: 20px 22px !important;
+
+}
+
+.annual-fwd-delay-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:18px;
+
+    margin-top:18px;
+
+}
+
+.annual-delay-card{
+
+    background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFE 100%);
+
+    border:1px solid #E3EBF6;
+
+    border-radius:18px;
+
+    padding:18px;
+
+    transition:.25s ease;
+
+}
+
+.annual-delay-card:hover{
+
+    transform:translateY(-3px);
+
+    border-color:#003087;
+
+    box-shadow:0 12px 24px rgba(0,48,135,.12);
+
+}
+
+/* ---------- HEADER ---------- */
+
+.annual-delay-card-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    margin-bottom:12px;
+
+}
+
+.annual-delay-base-code{
+
+    font-size:20px;
+
+    font-weight:900;
+
+    color:#003087;
+
+    letter-spacing:.5px;
+
+}
+
+.annual-delay-base-city{
+
+    font-size:13px;
+
+    color:#70819C;
+
+    font-weight:600;
+
+    margin-top:2px;
+
+}
+
+.annual-delay-code-badge{
+
+    background:#F5C400;
+
+    color:#003087;
+
+    padding:5px 12px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:900;
+
+    letter-spacing:.6px;
+
+}
+
+/* ---------- DESCRIPTION ---------- */
+
+.annual-delay-description{
+
+    font-size:12px;
+
+    color:#4F617C;
+
+    font-weight:600;
+
+    line-height:1.35;
+
+    min-height:34px;
+
+    margin-bottom:14px;
+
+}
+
+/* ---------- FOOTER ---------- */
+
+.annual-delay-footer{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.annual-delay-percentage{
+
+    font-size:24px;
+
+    font-weight:900;
+
+    color:#16A34A;
+
+    line-height:1;
+
+}
+
+.annual-delay-count{
+
+    font-size:12px;
+
+    color:#74839B;
+
+    font-weight:700;
+
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width:1100px){
+
+    .annual-fwd-delay-grid{
+        grid-template-columns:1fr;
+    }
+
+    .annual-fwd-delaycodes{
+        grid-column:span 1 !important;
+    }
+
+}
+
+/* ==========================================================
+   NO INFO SECTION - KPI LAYOUT (3 CARDS SAME ROW)
+========================================================== */
+
+/* 3 KPI cards on the same row */
+.annual-noinfo-wrapper .annual-fwd-kpis{
+    display:grid;
+    grid-template-columns:2.4fr 1.1fr 1.1fr;
+    gap:22px;
+    align-items:stretch;
+    margin-bottom:24px;
+}
+
+/* Portugal Base Performance card */
+.annual-noinfo-wrapper .annual-fwd-portugal-bases{
+    min-height:240px;
+}
+
+.annual-noinfo-wrapper .annual-fwd-portugal-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-top:16px;
+}
+
+.annual-noinfo-wrapper .annual-fwd-base-column{
+    background:#F8FAFE;
+    border:1px solid #E4EBF6;
+    border-radius:16px;
+    padding:16px 14px;
+}
+
+/* Portugal and SPMFB cards */
+.annual-noinfo-wrapper .annual-fwd-kpi:not(.annual-fwd-portugal-bases){
+    min-height:240px;
+    display:flex;
+    flex-direction:column;
+}
+
+.annual-noinfo-wrapper .annual-fwd-kpi-row{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:16px;
+}
+
+/* SPMFB single metric centred */
+.annual-noinfo-wrapper .annual-noinfo-single-metric{
+    justify-content:center;
+    align-items:center;
+}
+
+.annual-noinfo-wrapper .annual-noinfo-single-metric div{
+    min-width:110px;
+}
+
+/* Bigger metric text */
+.annual-noinfo-wrapper .annual-fwd-kpi-row strong{
+    font-size:2rem;
+}
+
+.annual-noinfo-wrapper .annual-fwd-kpi-row span{
+    font-size:.72rem;
+    letter-spacing:1px;
+}
+
+/* Responsive */
+@media (max-width:1400px){
+    .annual-noinfo-wrapper .annual-fwd-kpis{
+        grid-template-columns:1fr;
+    }
+
+    .annual-noinfo-wrapper .annual-fwd-portugal-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media (max-width:900px){
+    .annual-noinfo-wrapper .annual-fwd-portugal-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+/* ==========================================================
+   NO INFO - PORTUGAL & SPMFB KPI
+========================================================== */
+
+.annual-noinfo-portugal-region{
+    min-height:240px;
+}
+
+.annual-noinfo-region-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin-top:16px;
+}
+
+.annual-noinfo-region-card{
+    background:#F8FAFE;
+    border:1px solid #E4EBF6;
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:145px;
+}
+
+.annual-noinfo-region-heading{
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:1px;
+    color:#6C7F99;
+    margin-bottom:14px;
+}
+
+.annual-noinfo-region-value{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.annual-noinfo-region-value:last-child{
+    margin-bottom:0;
+}
+
+.annual-noinfo-region-value span{
+    font-size:11px;
+    font-weight:700;
+    color:#70839C;
+    letter-spacing:.8px;
+}
+
+.annual-noinfo-region-value strong{
+    font-size:30px;
+    font-weight:900;
+    color:#003087;
+}
+
+.annual-noinfo-region-only{
+    justify-content:center;
+    flex-direction:column;
+    gap:8px;
+    text-align:center;
+}
+
+.annual-noinfo-region-only strong{
+    font-size:38px;
+}

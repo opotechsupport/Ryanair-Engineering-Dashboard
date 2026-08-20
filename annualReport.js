@@ -3584,48 +3584,47 @@ async function loadAnnualFWDData(year){
 }
 
 // =====================================================
-// ANNUAL FWD — BUILD YEARLY ANALYSIS
+// ANNUAL FWD — BUILD YEARLY ANALYSIS (PORTUGAL VERSION)
 // =====================================================
 
-function buildAnnualFWDAnalysis(
-    yearData
-){
+function buildAnnualFWDAnalysis(yearData){
 
     const result = {
 
-        year:
-            yearData.year,
+        year: yearData.year,
 
-        months:
-            [],
+        months: [],
 
         totals:{
 
-    opo:{
-        fwd:0,
-        nightStops:0,
-        rate:0
-    },
+            opo:{ fwd:0, nightStops:0, rate:0 },
+            lis:{ fwd:0, nightStops:0, rate:0 },
+            fao:{ fwd:0, nightStops:0, rate:0 },
+            fnc:{ fwd:0, nightStops:0, rate:0 },
 
-    portugal:{
-        fwd:0,
-        nightStops:0,
-        rate:0
-    },
+            portugal:{ fwd:0, nightStops:0, rate:0 },
+            spmfb:{ fwd:0, nightStops:0, rate:0 }
 
-    spmfb:{
-        fwd:0,
-        nightStops:0,
-        rate:0
-    }
-
-},
+        },
 
         monthly:{
 
             opo:[],
+            lis:[],
+            fao:[],
+            fnc:[],
+
             portugal:[],
             spmfb:[]
+
+        },
+
+        delayCodes:{
+
+            opo:{},
+            lis:{},
+            fao:{},
+            fnc:{}
 
         }
 
@@ -3636,352 +3635,253 @@ function buildAnnualFWDAnalysis(
     // LOOP MONTHS
     // =================================================
 
-    yearData.availableMonths.forEach(
-        month => {
+    yearData.availableMonths.forEach(month=>{
 
-            const monthKey =
-                String(month)
-                    .padStart(
-                        2,
-                        "0"
-                    );
+        const monthKey =
+            String(month).padStart(2,"0");
+
+        const monthData =
+            yearData.months[monthKey] ||
+            yearData.months[month];
+
+        if(!monthData || typeof monthData !== "object"){
+            return;
+        }
+
+        const monthStats = {
+
+            opo:{ fwd:0, nightStops:0 },
+            lis:{ fwd:0, nightStops:0 },
+            fao:{ fwd:0, nightStops:0 },
+            fnc:{ fwd:0, nightStops:0 },
+
+            portugal:{ fwd:0, nightStops:0 },
+            spmfb:{ fwd:0, nightStops:0 }
+
+        };
 
 
-            const monthData =
-                yearData.months[
-                    monthKey
-                ] ||
-                yearData.months[
-                    month
-                ];
+        // =============================================
+        // LOOP DAYS
+        // =============================================
 
+        Object.keys(monthData).forEach(day=>{
 
-            if(
-                !monthData ||
-                typeof monthData !==
-                    "object"
-            ){
+            const dayData = monthData[day];
 
+            if(!dayData || typeof dayData !== "object"){
                 return;
-
             }
 
 
-            const monthStats = {
+            // =========================================
+            // LOOP BASES
+            // =========================================
 
-                opo:{
-                    fwd:0,
-                    nightStops:0,
-                    flights:0
-                },
+            Object.keys(dayData).forEach(base=>{
 
-                portugal:{
-                    fwd:0,
-                    nightStops:0,
-                    flights:0
-                },
+                const data = dayData[base];
 
-                spmfb:{
-                    fwd:0,
-                    nightStops:0,
-                    flights:0
+                if(!data || typeof data !== "object"){
+                    return;
                 }
 
-            };
+                const fwd =
+                    Number(data.fwd) || 0;
+
+                const nightStop =
+                    Number(data.nightStop) || 0;
+
+                const country =
+                    BASE_COUNTRIES?.[base];
 
 
-            // =================================================
-            // LOOP DAYS
-            // =================================================
+                // =====================================
+                // INDIVIDUAL BASE TOTALS
+                // =====================================
 
-            Object.keys(
-                monthData
-            ).forEach(
-                day => {
+                switch(base){
 
-                    const dayData =
-                        monthData[
-                            day
-                        ];
+                    case "OPO":
+                        monthStats.opo.fwd += fwd;
+                        monthStats.opo.nightStops += nightStop;
+                        break;
 
+                    case "LIS":
+                        monthStats.lis.fwd += fwd;
+                        monthStats.lis.nightStops += nightStop;
+                        break;
 
-                    if(
-                        !dayData ||
-                        typeof dayData !==
-                            "object"
-                    ){
+                    case "FAO":
+                        monthStats.fao.fwd += fwd;
+                        monthStats.fao.nightStops += nightStop;
+                        break;
 
-                        return;
+                    case "FNC":
+                        monthStats.fnc.fwd += fwd;
+                        monthStats.fnc.nightStops += nightStop;
+                        break;
 
-                    }
-
-
-                    // ==========================================
-                    // LOOP BASES
-                    // ==========================================
-
-                    Object.keys(
-                        dayData
-                    ).forEach(
-                        base => {
-
-                            const data =
-                                dayData[
-                                    base
-                                ];
+                }
 
 
-                            if(
-                                !data ||
-                                typeof data !==
-                                    "object"
-                            ){
+                // =====================================
+                // PORTUGAL TOTAL
+                // =====================================
 
-                                return;
+                if(country === "Portugal"){
 
-                            }
+                    monthStats.portugal.fwd += fwd;
+                    monthStats.portugal.nightStops += nightStop;
 
-
-                            const fwd =
-                                Number(
-                                    data.fwd
-                                ) ||
-                                0;
+                }
 
 
-                            const nightStop =
-                                Number(
-                                    data.nightStop
-                                ) ||
-                                0;
+                // =====================================
+                // SPMFB REGION TOTAL
+                // =====================================
+
+                monthStats.spmfb.fwd += fwd;
+                monthStats.spmfb.nightStops += nightStop;
 
 
-                            /*
-                             * IMPORTANT
-                             *
-                             * We do NOT invent a flight count.
-                             *
-                             * FWD data currently stores:
-                             *
-                             *   nightStop
-                             *   fwd
-                             *   delayEvents
-                             *
-                             * Therefore flights/rate will be
-                             * calculated only where the existing
-                             * FWD dataset provides the required
-                             * denominator.
-                             */
+                // =====================================
+                // DELAY EVENTS (CORRIGIDO)
+                // =====================================
 
+                if(["OPO","LIS","FAO","FNC"].includes(base)){
 
-                            const country =
-                                BASE_COUNTRIES[
-                                    base
-                                ];
+                    const key = base.toLowerCase();
 
+                    const delayEvents =
+                        Array.isArray(data.delayEvents)
+                            ? data.delayEvents
+                            : [];
 
-                            const isSPMFB = true;
+                    delayEvents.forEach(event=>{
 
+                        const code =
+                            String(event.code || "").trim();
 
-                            // =================================
-                            // BASE / OPO
-                            // =================================
+                        if(!code) return;
 
-                            if(
-                                base ===
-                                "OPO"
-                            ){
+                        const description =
+                            String(event.description || "").trim();
 
-                                monthStats.opo.fwd +=
-                                    fwd;
+                        if(!result.delayCodes[key][code]){
 
-                                monthStats.opo.nightStops +=
-                                    nightStop;
+                            result.delayCodes[key][code] = {
 
-                            }
+                                count:0,
+                                description: description || "Delay Code"
 
-
-                            // =================================
-                            // COUNTRY
-                            // =================================
-
-                            if(
-                                country ===
-                                "Portugal"
-                            ){
-
-                                monthStats.portugal.fwd +=
-                                    fwd;
-
-                                monthStats.portugal.nightStops +=
-                                    nightStop;
-
-                            }
-
-
-                            // =================================
-                            // SPMFB REGION
-                            // =================================
-
-                            if(
-                                isSPMFB
-                            ){
-
-                                monthStats.spmfb.fwd +=
-                                    fwd;
-
-                                monthStats.spmfb.nightStops +=
-                                    nightStop;
-
-                            }
+                            };
 
                         }
-                    );
+
+                        result.delayCodes[key][code].count++;
+
+                    });
 
                 }
-            );
-
-
-            // =================================================
-            // SAVE MONTH
-            // =================================================
-
-            result.months.push(
-                month
-            );
-
-
-            result.monthly.opo.push({
-
-                month:
-                    month,
-
-                fwd:
-                    monthStats.opo.fwd,
-
-                nightStops:
-                    monthStats.opo.nightStops
 
             });
 
-
-            result.monthly.portugal.push({
-
-                month:
-                    month,
-
-                fwd:
-                    monthStats.portugal.fwd,
-
-                nightStops:
-                    monthStats.portugal.nightStops
-
-            });
+        });
 
 
-            result.monthly.spmfb.push({
+        // =============================================
+        // SAVE MONTHLY TOTALS
+        // =============================================
 
-                month:
-                    month,
+        result.months.push(month);
 
-                fwd:
-                    monthStats.spmfb.fwd,
+        ["opo","lis","fao","fnc","portugal","spmfb"].forEach(base=>{
 
-                nightStops:
-                    monthStats.spmfb.nightStops
+            result.monthly[base].push({
+
+                month,
+
+                fwd: monthStats[base].fwd,
+
+                nightStops: monthStats[base].nightStops
 
             });
 
+            result.totals[base].fwd += monthStats[base].fwd;
+            result.totals[base].nightStops += monthStats[base].nightStops;
 
-            // =================================================
-            // YEAR TOTALS
-            // =================================================
+        });
 
-            result.totals.opo.fwd +=
-                monthStats.opo.fwd;
-
-            result.totals.opo.nightStops +=
-                monthStats.opo.nightStops;
+    });
 
 
-            result.totals.portugal.fwd +=
-                monthStats.portugal.fwd;
+    // =================================================
+    // CALCULATE RATES
+    // =================================================
 
-            result.totals.portugal.nightStops +=
-                monthStats.portugal.nightStops;
+    ["opo","lis","fao","fnc","portugal","spmfb"].forEach(base=>{
 
+        const total = result.totals[base];
 
-            result.totals.spmfb.fwd +=
-                monthStats.spmfb.fwd;
+        total.rate =
+            total.nightStops > 0
+                ? Number(
+                    ((total.fwd / total.nightStops) * 100).toFixed(1)
+                )
+                : 0;
 
-            result.totals.spmfb.nightStops +=
-                monthStats.spmfb.nightStops;
-
-        }
-    );
-
-
-// =================================================
-// ANNUAL FWD RATE
-// SAME FORMULA AS MAIN FWD DASHBOARD
-// FWD / NIGHT STOPS × 100
-// =================================================
-
-result.totals.opo.rate =
-
-    result.totals.opo.nightStops
-
-        ? Number(
-
-            (
-                (
-                    result.totals.opo.fwd /
-                    result.totals.opo.nightStops
-                ) * 100
-
-            ).toFixed(1)
-
-        )
-
-        : 0;
+    });
 
 
-result.totals.portugal.rate =
+    // =================================================
+    // MOST FREQUENT DELAY CODE BY BASE
+    // =================================================
 
-    result.totals.portugal.nightStops
+    ["opo","lis","fao","fnc"].forEach(base=>{
 
-        ? Number(
+        const codes = result.delayCodes[base];
 
-            (
-                (
-                    result.totals.portugal.fwd /
-                    result.totals.portugal.nightStops
-                ) * 100
+        let top = {
 
-            ).toFixed(1)
+            code:"—",
+            description:"No Delay Events",
+            count:0,
+            percentage:0
 
-        )
+        };
 
-        : 0;
+        Object.entries(codes).forEach(([code,info])=>{
 
+            if(info.count > top.count){
 
-result.totals.spmfb.rate =
+                top = {
 
-    result.totals.spmfb.nightStops
+                    code,
 
-        ? Number(
+                    description: info.description,
 
-            (
-                (
-                    result.totals.spmfb.fwd /
-                    result.totals.spmfb.nightStops
-                ) * 100
+                    count: info.count,
 
-            ).toFixed(1)
+                    percentage:
+                        result.totals[base].fwd > 0
+                            ? Number(
+                                (
+                                    (info.count / result.totals[base].fwd) * 100
+                                ).toFixed(1)
+                            )
+                            : 0
 
-        )
+                };
 
-        : 0;
+            }
+
+        });
+
+        result.delayCodes[base] = top;
+
+    });
+
 
     return result;
 
@@ -3991,304 +3891,105 @@ result.totals.spmfb.rate =
 // ANNUAL FWD — RENDER SECTION
 // =====================================================
 
-function renderAnnualFWDSection(
-    analysis
-){
+function renderAnnualFWDSection(analysis){
 
     const container =
-        document.getElementById(
-            "annualFWDContent"
-        );
+        document.getElementById("annualFWDContent");
 
-
-    if(!container){
-
-        return;
-
-    }
-
+    if(!container) return;
 
     if(!analysis){
-
         container.innerHTML = "";
-
         return;
-
     }
-
 
     // =================================================
     // ANNUAL DATA
     // =================================================
 
-    const totals =
-        analysis.totals || {};
+    const totals = analysis.totals || {};
 
+    const opo = totals.opo || {};
+    const lis = totals.lis || {};
+    const fao = totals.fao || {};
+    const fnc = totals.fnc || {};
 
-    const opo =
-        totals.opo || {};
-
-
-    const portugal =
-        totals.portugal || {};
-
-
-    const spmfb =
-        totals.spmfb || {};
-
+    const portugal = totals.portugal || {};
+    const spmfb = totals.spmfb || {};
 
     // =================================================
     // MONTHLY DATA
     // =================================================
 
-    const months =
-        analysis.months || [];
+    const months = analysis.months || [];
 
+    const opoMonthly = analysis.monthly?.opo || [];
+    const lisMonthly = analysis.monthly?.lis || [];
+    const faoMonthly = analysis.monthly?.fao || [];
+    const fncMonthly = analysis.monthly?.fnc || [];
 
-    const opoMonthly =
-        analysis.monthly?.opo || [];
-
-
-    const portugalMonthly =
-        analysis.monthly?.portugal || [];
-
-
-    const spmfbMonthly =
-        analysis.monthly?.spmfb || [];
-
+    const portugalMonthly = analysis.monthly?.portugal || [];
+    const spmfbMonthly = analysis.monthly?.spmfb || [];
 
     // =================================================
     // MONTH NAMES
     // =================================================
 
     const monthNames = [
-
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec"
-
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
     ];
 
-
     // =================================================
-    // PEAK MONTH
+    // PEAK (PORTUGAL ONLY)
     // =================================================
 
-    function getPeak(
-        data
-    ){
+    function getPeak(data){
 
-        if(
-            !Array.isArray(data) ||
-            !data.length
-        ){
-
+        if(!Array.isArray(data) || !data.length){
             return null;
-
         }
 
-
-        return data.reduce(
-
-            (
-                max,
-                current
-            ) =>
-
-                Number(
-                    current.fwd || 0
-                ) >
-
-                Number(
-                    max.fwd || 0
-                )
-
-                    ? current
-                    : max
-
+        return data.reduce((max,current)=>
+            Number(current.fwd||0) > Number(max.fwd||0)
+                ? current
+                : max
         );
 
     }
 
-
-    const opoPeak =
-        getPeak(
-            opoMonthly
-        );
-
-
-    const portugalPeak =
-        getPeak(
-            portugalMonthly
-        );
-
-
-    const spmfbPeak =
-        getPeak(
-            spmfbMonthly
-        );
-
-
-    const peakCandidates = [
-
-        {
-            source: "OPO",
-            data: opoPeak
-        },
-
-        {
-            source: "Portugal",
-            data: portugalPeak
-        },
-
-        {
-            source: "SPMFB Region",
-            data: spmfbPeak
-        }
-
-    ].filter(
-        item =>
-            item.data
-    );
-
-
-    let peakSource = null;
-
-
-    peakCandidates.forEach(
-        item => {
-
-            if(
-                !peakSource ||
-                Number(
-                    item.data.fwd || 0
-                ) >
-
-                Number(
-                    peakSource.data.fwd || 0
-                )
-            ){
-
-                peakSource =
-                    item;
-
-            }
-
-        }
-    );
-
+    const portugalPeak = getPeak(portugalMonthly);
 
     const peakMonth =
-        peakSource?.data
-            ? monthNames[
-                Number(
-                    peakSource.data.month
-                ) - 1
-            ] || "—"
+        portugalPeak
+            ? monthNames[Number(portugalPeak.month)-1] || "—"
             : "—";
 
-
     const peakValue =
-        peakSource?.data
-            ? Number(
-                peakSource.data.fwd || 0
-            )
+        portugalPeak
+            ? Number(portugalPeak.fwd || 0)
             : 0;
-
 
     // =================================================
     // COMPARISON
-    // Lower FWD RATE = BETTER
     // =================================================
 
-    function compareRates(
-        opoRate,
-        referenceRate
-    ){
+    function compareRates(baseRate,referenceRate){
 
-        const opoValue =
-            Number(
-                opoRate || 0
-            );
+        const baseValue = Number(baseRate||0);
+        const refValue = Number(referenceRate||0);
 
-
-        const referenceValue =
-            Number(
-                referenceRate || 0
-            );
-
-
-        if(
-            opoValue <
-            referenceValue
-        ){
-
-            return {
-
-                text:
-                    "BETTER",
-
-                className:
-                    "positive"
-
-            };
-
+        if(baseValue < refValue){
+            return { text:"BETTER", className:"positive" };
         }
 
-
-        if(
-            opoValue >
-            referenceValue
-        ){
-
-            return {
-
-                text:
-                    "WORSE",
-
-                className:
-                    "negative"
-
-            };
-
+        if(baseValue > refValue){
+            return { text:"WORSE", className:"negative" };
         }
 
-
-        return {
-
-            text:
-                "IN LINE",
-
-            className:
-                "neutral"
-
-        };
+        return { text:"IN LINE", className:"neutral" };
 
     }
-
-
-    const opoVsPortugal =
-        compareRates(
-            opo.rate,
-            portugal.rate
-        );
-
-
-    const opoVsSPMFB =
-        compareRates(
-            opo.rate,
-            spmfb.rate
-        );
-
 
     // =================================================
     // HTML
@@ -4296,341 +3997,265 @@ function renderAnnualFWDSection(
 
     container.innerHTML = `
 
-        <div
-            class="annual-fwd-wrapper"
-        >
-
+        <div class="annual-fwd-wrapper">
 
             <!-- =========================================
-                 FOUR KPI CARDS
+                 KPI CARDS
             ========================================== -->
 
-            <div
-                class="annual-fwd-kpis"
-            >
-
+            <div class="annual-fwd-kpis">
 
                 <!-- =====================================
-                     OPO
+                     PORTUGAL BASE PERFORMANCE
                 ====================================== -->
 
-                <div
-                    class="annual-fwd-kpi"
-                >
+                <div class="annual-fwd-kpi annual-fwd-portugal-bases">
 
-                    <div
-                        class="annual-fwd-kpi-title"
-                    >
-
-                        OPO
-
+                    <div class="annual-fwd-kpi-title">
+                        PORTUGAL BASE PERFORMANCE
                     </div>
 
+                    <div class="annual-fwd-portugal-grid">
 
-                    <div
-                        class="annual-fwd-kpi-row"
-                    >
+                        ${[
+                            ["OPO","Porto",opo],
+                            ["LIS","Lisbon",lis],
+                            ["FAO","Faro",fao],
+                            ["FNC","Funchal",fnc]
+                        ].map(([code,city,data])=>`
 
+                            <div class="annual-fwd-base-column">
 
-                        <div>
+                                <div class="annual-fwd-base-code">
+                                    ${code}
+                                </div>
 
-                            <span>
-                                FWD
-                            </span>
+                                <div class="annual-fwd-base-city">
+                                    ${city}
+                                </div>
 
-                            <strong>
-                                ${Number(
-                                    opo.fwd || 0
-                                )}
-                            </strong>
+                                <div class="annual-fwd-base-metric">
+                                    <span>FWD</span>
+                                    <strong>${Number(data.fwd||0)}</strong>
+                                </div>
 
-                        </div>
+                                <div class="annual-fwd-base-metric">
+                                    <span>RATE</span>
+                                    <strong>${Number(data.rate||0).toFixed(1)}%</strong>
+                                </div>
 
+                                <div class="annual-fwd-base-metric">
+                                    <span>NS</span>
+                                    <strong>${Number(data.nightStops||0)}</strong>
+                                </div>
 
-                        <div>
+                            </div>
 
-                            <span>
-                                RATE
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    opo.rate || 0
-                                ).toFixed(1)}%
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                NS
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    opo.nightStops || 0
-                                )}
-                            </strong>
-
-                        </div>
-
+                        `).join("")}
 
                     </div>
 
                 </div>
-
 
                 <!-- =====================================
                      PORTUGAL
                 ====================================== -->
 
-                <div
-                    class="annual-fwd-kpi"
-                >
+                <div class="annual-fwd-kpi">
 
-                    <div
-                        class="annual-fwd-kpi-title"
-                    >
-
+                    <div class="annual-fwd-kpi-title">
                         PORTUGAL
-
                     </div>
 
-
-                    <div
-                        class="annual-fwd-kpi-row"
-                    >
-
+                    <div class="annual-fwd-kpi-row">
 
                         <div>
-
-                            <span>
-                                FWD
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    portugal.fwd || 0
-                                )}
-                            </strong>
-
+                            <span>FWD</span>
+                            <strong>${Number(portugal.fwd||0)}</strong>
                         </div>
-
 
                         <div>
-
-                            <span>
-                                RATE
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    portugal.rate || 0
-                                ).toFixed(1)}%
-                            </strong>
-
+                            <span>RATE</span>
+                            <strong>${Number(portugal.rate||0).toFixed(1)}%</strong>
                         </div>
-
 
                         <div>
-
-                            <span>
-                                NS
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    portugal.nightStops || 0
-                                )}
-                            </strong>
-
+                            <span>NS</span>
+                            <strong>${Number(portugal.nightStops||0)}</strong>
                         </div>
-
 
                     </div>
 
                 </div>
-
 
                 <!-- =====================================
                      SPMFB REGION
                 ====================================== -->
 
-                <div
-                    class="annual-fwd-kpi"
-                >
+                <div class="annual-fwd-kpi">
 
-                    <div
-                        class="annual-fwd-kpi-title"
-                    >
-
+                    <div class="annual-fwd-kpi-title">
                         SPMFB REGION
-
                     </div>
 
-
-                    <div
-                        class="annual-fwd-kpi-row"
-                    >
-
+                    <div class="annual-fwd-kpi-row">
 
                         <div>
-
-                            <span>
-                                FWD
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    spmfb.fwd || 0
-                                )}
-                            </strong>
-
+                            <span>FWD</span>
+                            <strong>${Number(spmfb.fwd||0)}</strong>
                         </div>
-
 
                         <div>
-
-                            <span>
-                                RATE
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    spmfb.rate || 0
-                                ).toFixed(1)}%
-                            </strong>
-
+                            <span>RATE</span>
+                            <strong>${Number(spmfb.rate||0).toFixed(1)}%</strong>
                         </div>
-
 
                         <div>
-
-                            <span>
-                                NS
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    spmfb.nightStops || 0
-                                )}
-                            </strong>
-
+                            <span>NS</span>
+                            <strong>${Number(spmfb.nightStops||0)}</strong>
                         </div>
-
 
                     </div>
 
                 </div>
-
 
                 <!-- =====================================
-                     OPO COMPARISON
+                     PORTUGAL COMPARISON
                 ====================================== -->
 
-                <div
-                    class="
-                        annual-fwd-kpi
-                        annual-fwd-comparison
-                    "
-                >
+                <div class="annual-fwd-kpi annual-fwd-comparison">
 
-                    <div
-                        class="annual-fwd-kpi-title"
-                    >
-
-                        OPO PERFORMANCE
-
+                    <div class="annual-fwd-kpi-title">
+                        PORTUGAL PERFORMANCE
                     </div>
 
-
-                    <div
-                        class="annual-fwd-comparison-heading"
-                    >
-
-                        OPO COMPARISON
-
+                    <div class="annual-fwd-comparison-heading">
+                        PERFORMANCE VS PORTUGAL & SPMFB REGION
                     </div>
 
+                    ${[
+                        ["OPO","Porto",opo],
+                        ["LIS","Lisbon",lis],
+                        ["FAO","Faro",fao],
+                        ["FNC","Funchal",fnc]
+                    ].map(([code,city,data])=>{
 
-                    <!-- PORTUGAL -->
+                        const vsPT = compareRates(data.rate, portugal.rate);
+                        const vsSP = compareRates(data.rate, spmfb.rate);
 
-                    <div
-                        class="
-                            annual-fwd-comparison-item
-                            ${opoVsPortugal.className}
-                        "
-                    >
+                        return `
 
-                        <span
-                            class="comparison-indicator"
-                        ></span>
+                            <div class="annual-fwd-base-comparison-block">
 
+                                <div class="annual-fwd-base-comparison-title">
+                                    ${code} (${city})
+                                </div>
 
-                        <div>
+                                <div class="annual-fwd-comparison-item ${vsPT.className}">
+                                    <span class="comparison-indicator"></span>
 
-                            <small>
-                                Portugal Average
-                            </small>
+                                    <div>
+                                        <small>Portugal Average</small>
+                                        <strong>${vsPT.text}</strong>
+                                    </div>
 
-                            <strong>
-                                ${opoVsPortugal.text}
-                            </strong>
+                                </div>
 
-                        </div>
+                                <div class="annual-fwd-comparison-item ${vsSP.className}">
+                                    <span class="comparison-indicator"></span>
 
-                    </div>
+                                    <div>
+                                        <small>SPMFB Region Average</small>
+                                        <strong>${vsSP.text}</strong>
+                                    </div>
 
+                                </div>
 
-                    <!-- SPMFB -->
+                            </div>
 
-                    <div
-                        class="
-                            annual-fwd-comparison-item
-                            ${opoVsSPMFB.className}
-                        "
-                    >
+                        `;
 
-                        <span
-                            class="comparison-indicator"
-                        ></span>
-
-
-                        <div>
-
-                            <small>
-                                SPMFB Region Average
-                            </small>
-
-                            <strong>
-                                ${opoVsSPMFB.text}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
+                    }).join("")}
 
                 </div>
 
+<!-- =====================================
+     PORTUGAL DELAY CODES PERFORMANCE
+===================================== -->
+
+<div class="annual-fwd-kpi annual-fwd-delaycodes">
+
+    <div class="annual-fwd-kpi-title">
+        DELAY CODES PERFORMANCE
+    </div>
+
+    <div class="annual-fwd-comparison-heading">
+        MOST FREQUENT FIRST WAVE DELAY CODE BY BASE
+    </div>
+
+    <div class="annual-fwd-delay-grid">
+
+        ${[
+            ["OPO","Porto",analysis.delayCodes?.opo || {}],
+            ["LIS","Lisbon",analysis.delayCodes?.lis || {}],
+            ["FAO","Faro",analysis.delayCodes?.fao || {}],
+            ["FNC","Funchal",analysis.delayCodes?.fnc || {}]
+        ].map(([base,city,delay]) => `
+
+            <div class="annual-delay-card">
+
+                <div class="annual-delay-card-header">
+
+                    <div>
+
+                        <div class="annual-delay-base-code">
+                            ${base}
+                        </div>
+
+                        <div class="annual-delay-base-city">
+                            ${city}
+                        </div>
+
+                    </div>
+
+                    <div class="annual-delay-code-badge">
+                        ${delay.code || "—"}
+                    </div>
+
+                </div>
+
+                <div class="annual-delay-description">
+                    ${delay.description || "No delay events recorded"}
+                </div>
+
+                <div class="annual-delay-footer">
+
+                    <div class="annual-delay-percentage">
+                        ${Number(delay.percentage || 0).toFixed(1)}%
+                    </div>
+
+                    <div class="annual-delay-count">
+                        ${delay.count || 0} event${Number(delay.count || 0) === 1 ? "" : "s"}
+                    </div>
+
+                </div>
 
             </div>
 
+        `).join("")}
 
+    </div>
+
+</div>
+
+</div>
             <!-- =========================================
                  MONTHLY CHART
             ========================================== -->
 
-            <div
-                class="annual-fwd-chart-card"
-            >
+            <div class="annual-fwd-chart-card">
 
-
-                <div
-                    class="annual-fwd-chart-header"
-                >
+                <div class="annual-fwd-chart-header">
 
                     <div>
 
@@ -4644,496 +4269,275 @@ function renderAnnualFWDSection(
 
                     </div>
 
-
-                    <div
-                        class="annual-fwd-peak"
-                    >
+                    <div class="annual-fwd-peak">
 
                         Peak:
 
-                        <strong>
-                            ${peakMonth}
-                        </strong>
+                        <strong>${peakMonth}</strong>
 
-                        <span>
-                            (${peakValue} FWD)
-                        </span>
+                        <span>(${peakValue} FWD)</span>
 
                     </div>
 
                 </div>
 
-
-                <div
-                    class="annual-fwd-chart-wrap"
-                >
-
-                    <canvas
-                        id="annualFWDMonthlyChart"
-                    ></canvas>
-
+                <div class="annual-fwd-chart-wrap">
+                    <canvas id="annualFWDMonthlyChart"></canvas>
                 </div>
 
-
             </div>
-
 
         </div>
 
     `;
 
-
     // =================================================
     // CHART.JS CHECK
     // =================================================
 
-    if(
-        typeof Chart ===
-        "undefined"
-    ){
-
-        console.warn(
-            "Chart.js is not available."
-        );
-
+    if(typeof Chart === "undefined"){
+        console.warn("Chart.js is not available.");
         return;
-
     }
 
+    const canvas = document.getElementById("annualFWDMonthlyChart");
+    if(!canvas) return;
 
-    // =================================================
-    // CANVAS
-    // =================================================
-
-    const canvas =
-        document.getElementById(
-            "annualFWDMonthlyChart"
-        );
-
-
-    if(!canvas){
-
-        return;
-
-    }
-
-
-    // =================================================
-    // DESTROY PREVIOUS CHART
-    // =================================================
-
+    // Destroy previous chart
     if(
         window.annualFWDMonthlyChart &&
-        typeof
-        window.annualFWDMonthlyChart.destroy ===
-        "function"
+        typeof window.annualFWDMonthlyChart.destroy === "function"
     ){
-
-        window
-            .annualFWDMonthlyChart
-            .destroy();
-
+        window.annualFWDMonthlyChart.destroy();
     }
 
-
-    window.annualFWDMonthlyChart =
-        null;
-
+    window.annualFWDMonthlyChart = null;
 
     // =================================================
     // LABELS
     // =================================================
 
-    const labels =
-        months.map(
-
-            month =>
-
-                monthNames[
-                    Number(month) - 1
-                ] || String(month)
-
-        );
-
+    const labels = months.map(
+        month => monthNames[Number(month)-1] || String(month)
+    );
 
     // =================================================
-    // DATA
+    // CHART DATA
     // =================================================
 
-    const opoChartData =
-        months.map(
+    function buildSeries(monthlyArray){
+        return months.map(month=>{
+            const row = monthlyArray.find(
+                item => Number(item.month) === Number(month)
+            );
+            return Number(row?.fwd || 0);
+        });
+    }
 
-            month => {
-
-                const row =
-                    opoMonthly.find(
-                        item =>
-                            Number(
-                                item.month
-                            ) ===
-                            Number(month)
-                    );
-
-                return Number(
-                    row?.fwd || 0
-                );
-
-            }
-
-        );
-
-
-    const portugalChartData =
-        months.map(
-
-            month => {
-
-                const row =
-                    portugalMonthly.find(
-                        item =>
-                            Number(
-                                item.month
-                            ) ===
-                            Number(month)
-                    );
-
-                return Number(
-                    row?.fwd || 0
-                );
-
-            }
-
-        );
-
-
-    const spmfbChartData =
-        months.map(
-
-            month => {
-
-                const row =
-                    spmfbMonthly.find(
-                        item =>
-                            Number(
-                                item.month
-                            ) ===
-                            Number(month)
-                    );
-
-                return Number(
-                    row?.fwd || 0
-                );
-
-            }
-
-        );
-
+    const opoChartData      = buildSeries(opoMonthly);
+    const lisChartData      = buildSeries(lisMonthly);
+    const faoChartData      = buildSeries(faoMonthly);
+    const fncChartData      = buildSeries(fncMonthly);
+    const portugalChartData = buildSeries(portugalMonthly);
+    const spmfbChartData    = buildSeries(spmfbMonthly);
 
     // =================================================
     // CREATE CHART
     // =================================================
 
-    window.annualFWDMonthlyChart =
+    window.annualFWDMonthlyChart = new Chart(
+        canvas.getContext("2d"),
+        {
 
-        new Chart(
+            type: "line",
 
-            canvas.getContext(
-                "2d"
-            ),
+            data:{
 
-            {
+                labels,
 
-                type:
-                    "line",
+                datasets:[
 
+                    // OPO
+                    {
+                        label:"OPO",
+                        data:opoChartData,
+                        borderColor:"#003399",
+                        backgroundColor:"rgba(0,51,153,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#003399",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
-                data:{
+                    // LIS
+                    {
+                        label:"LIS",
+                        data:lisChartData,
+                        borderColor:"#F5C400",
+                        backgroundColor:"rgba(245,196,0,0.10)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#F5C400",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
-                    labels:
-                        labels,
+                    // FAO
+                    {
+                        label:"FAO",
+                        data:faoChartData,
+                        borderColor:"#16A34A",
+                        backgroundColor:"rgba(22,163,74,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#16A34A",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
+                    // FNC
+                    {
+                        label:"FNC",
+                        data:fncChartData,
+                        borderColor:"#8B5CF6",
+                        backgroundColor:"rgba(139,92,246,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#8B5CF6",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
-                    datasets:[
+                    // PORTUGAL
+                    {
+                        label:"Portugal",
+                        data:portugalChartData,
+                        borderColor:"#E67E22",
+                        backgroundColor:"rgba(230,126,34,0.10)",
+                        borderWidth:4,
+                        pointRadius:5,
+                        pointHoverRadius:7,
+                        pointBackgroundColor:"#E67E22",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        borderDash:[8,5],
+                        tension:0.35,
+                        fill:false
+                    },
 
+                    // SPMFB REGION
+                    {
+                        label:"SPMFB Region",
+                        data:spmfbChartData,
+                        borderColor:"#64748B",
+                        backgroundColor:"rgba(100,116,139,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#64748B",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    }
 
-                        // OPO
-                        {
+                ]
 
-                            label:
-                                "OPO",
+            },
 
-                            data:
-                                opoChartData,
+            options:{
 
-                            borderColor:
-                                "#003399",
+                responsive:true,
+                maintainAspectRatio:false,
 
-                            backgroundColor:
-                                "rgba(0,51,153,0.08)",
+                interaction:{
+                    mode:"index",
+                    intersect:false
+                },
 
-                            borderWidth:
-                                3,
+                plugins:{
 
-                            pointRadius:
-                                4,
+                    datalabels: annualChartDataLabels(),
 
-                            pointHoverRadius:
-                                6,
+                    legend:{
+                        display:true,
+                        position:"top",
+                        align:"center",
 
-                            pointBackgroundColor:
-                                "#003399",
+                        labels:{
+                            usePointStyle:true,
+                            pointStyle:"circle",
+                            padding:20,
+                            boxWidth:10,
+                            color:"#17326B",
 
-                            pointBorderColor:
-                                "#ffffff",
-
-                            pointBorderWidth:
-                                2,
-
-                            tension:
-                                0.3,
-
-                            fill:
-                                false
-
-                        },
-
-
-                        // PORTUGAL
-                        {
-
-                            label:
-                                "Portugal",
-
-                            data:
-                                portugalChartData,
-
-                            borderColor:
-                                "#f5c400",
-
-                            backgroundColor:
-                                "rgba(245,196,0,0.10)",
-
-                            borderWidth:
-                                3,
-
-                            pointRadius:
-                                4,
-
-                            pointHoverRadius:
-                                6,
-
-                            pointBackgroundColor:
-                                "#f5c400",
-
-                            pointBorderColor:
-                                "#ffffff",
-
-                            pointBorderWidth:
-                                2,
-
-                            tension:
-                                0.3,
-
-                            fill:
-                                false
-
-                        },
-
-
-                        // SPMFB
-                        {
-
-                            label:
-                                "SPMFB Region",
-
-                            data:
-                                spmfbChartData,
-
-                            borderColor:
-                                "#4f6fae",
-
-                            backgroundColor:
-                                "rgba(79,111,174,0.08)",
-
-                            borderWidth:
-                                3,
-
-                            pointRadius:
-                                4,
-
-                            pointHoverRadius:
-                                6,
-
-                            pointBackgroundColor:
-                                "#4f6fae",
-
-                            pointBorderColor:
-                                "#ffffff",
-
-                            pointBorderWidth:
-                                2,
-
-                            tension:
-                                0.3,
-
-                            fill:
-                                false
-
+                            font:{
+                                size:12,
+                                weight:"700"
+                            }
                         }
+                    },
 
-                    ]
+                    tooltip:{
+                        backgroundColor:"#082D70",
+                        titleColor:"#FFFFFF",
+                        bodyColor:"#FFFFFF",
+                        padding:12,
+                        cornerRadius:8,
+                        displayColors:true
+                    }
 
                 },
 
+                scales:{
 
-                options:{
-
-                    responsive:
-                        true,
-
-                    maintainAspectRatio:
-                        false,
-
-
-                    interaction:{
-
-                        mode:
-                            "index",
-
-                        intersect:
-                            false
-
-                    },
-
-
-                    plugins:{
-
-                        datalabels: annualChartDataLabels(),
-
-                        legend:{
-
-                            display:
-                                true,
-
-                            position:
-                                "top",
-
-                            align:
-                                "end",
-
-                            labels:{
-
-                                usePointStyle:
-                                    true,
-
-                                pointStyle:
-                                    "circle",
-
-                                padding:
-                                    18,
-
-                                boxWidth:
-                                    9,
-
-                                font:{
-
-                                    size:
-                                        12,
-
-                                    weight:
-                                        "700"
-
-                                }
-
-                            }
-
+                    x:{
+                        grid:{
+                            display:false
                         },
 
-
-                        tooltip:{
-
-                            backgroundColor:
-                                "#082d70",
-
-                            titleColor:
-                                "#ffffff",
-
-                            bodyColor:
-                                "#ffffff",
-
-                            padding:
-                                12,
-
-                            cornerRadius:
-                                8
-
+                        ticks:{
+                            color:"#71829A",
+                            font:{
+                                size:11,
+                                weight:"600"
+                            }
                         }
-
                     },
 
+                    y:{
+                        beginAtZero:true,
 
-                    scales:{
-
-                        x:{
-
-                            grid:{
-
-                                display:
-                                    false
-
-                            },
-
-                            ticks:{
-
-                                color:
-                                    "#71829a",
-
-                                font:{
-
-                                    size:
-                                        11,
-
-                                    weight:
-                                        "600"
-
-                                }
-
-                            }
-
+                        grid:{
+                            color:"#EDF1F6"
                         },
 
-
-                        y:{
-
-                            beginAtZero:
-                                true,
-
-                            grid:{
-
-                                color:
-                                    "#edf1f6"
-
-                            },
-
-                            ticks:{
-
-                                color:
-                                    "#71829a",
-
-                                precision:
-                                    0
-
-                            }
-
+                        ticks:{
+                            color:"#71829A",
+                            precision:0
                         }
-
                     }
 
                 }
 
             }
 
-        );
+        }
+
+    );
 
 }
 
@@ -5381,380 +4785,161 @@ async function loadAnnualNoInfoData(
 
 
 // =====================================================
-// ANNUAL NO INFO — BUILD YEARLY ANALYSIS
+// ANNUAL NO INFO — BUILD YEARLY ANALYSIS (PORTUGAL VERSION)
 // =====================================================
 
-function buildAnnualNoInfoAnalysis(
-    yearData
-){
+function buildAnnualNoInfoAnalysis(yearData){
 
     const result = {
 
-        year:
-            yearData?.year,
+        year: yearData?.year,
 
         months:[],
 
-
         totals:{
+            opo:{ noInfo:0, rate:0 },
+            lis:{ noInfo:0, rate:0 },
+            fao:{ noInfo:0, rate:0 },
+            fnc:{ noInfo:0, rate:0 },
 
-            opo:{
-
-                noInfo:0,
-
-                rate:0
-
-            },
-
-
-            portugal:{
-
-                noInfo:0,
-
-                rate:0
-
-            },
-
-
-            spmfb:{
-
-                noInfo:0,
-
-                rate:0
-
-            }
-
+            portugal:{ noInfo:0, rate:0 },
+            spmfb:{ noInfo:0, rate:100 }
         },
 
-
         monthly:{
-
             opo:[],
+            lis:[],
+            fao:[],
+            fnc:[],
 
             portugal:[],
-
             spmfb:[]
-
         }
 
     };
 
-
-    if(
-        !yearData ||
-        !Array.isArray(
-            yearData.availableMonths
-        )
-    ){
-
+    if(!yearData || !Array.isArray(yearData.availableMonths)){
         return result;
-
     }
 
+    yearData.availableMonths.forEach(month=>{
 
-    // =================================================
-    // MONTH LOOP
-    // =================================================
+        const monthKey = String(month).padStart(2,"0");
 
-    yearData.availableMonths.forEach(
-        month => {
+        const monthData =
+            yearData.months[monthKey] ||
+            yearData.months[month];
 
-            const monthKey =
-                String(month)
-                    .padStart(
-                        2,
-                        "0"
-                    );
+        if(!monthData) return;
 
+        const baseChart =
+            Array.isArray(monthData.chart)
+                ? monthData.chart
+                : [];
 
-            const monthData =
-                yearData.months[
-                    monthKey
-                ] ||
-                yearData.months[
-                    month
-                ];
+        const getBaseValue = code=>{
 
-
-            if(
-                !monthData ||
-                typeof monthData !==
-                    "object"
-            ){
-
-                return;
-
-            }
-
-
-            // =========================================
-            // TOTAL NO INFO
-            // =========================================
-
-            const total =
-                Number(
-                    monthData.total || 0
+            const base =
+                baseChart.find(item =>
+                    String(item.base || "").toUpperCase() === code
                 );
 
-
-            // =========================================
-            // ALL BASE PERCENTAGES
-            // =========================================
-
-            const baseChart =
-                Array.isArray(
-                    monthData.chart
-                )
-                    ? monthData.chart
-                    : [];
-
-
-            // =========================================
-            // FIND OPO SHARE
-            // =========================================
-
-            const opoBase =
-                baseChart.find(
-                    item =>
-                        String(
-                            item?.base || ""
-                        )
-                        .trim()
-                        .toUpperCase()
-                        ===
-                        "OPO"
-                );
-
-
-            const opoShare =
-                Number(
-                    opoBase?.val || 0
-                );
-
-
-            // =========================================
-            // OPO NUMBER
-            // =========================================
-            //
-            // Base chart percentages represent
-            // the distribution of total No Info.
-            //
-            // Therefore:
-            //
-            // OPO events =
-            // total × OPO percentage
-            //
-            // =========================================
-
-            const opoNoInfo =
-                total > 0
-
-                    ?
-
-                    (
-                        total *
-                        opoShare /
-                        100
-                    )
-
-                    : 0;
-
-
-            // =========================================
-            // PORTUGAL TOTAL
-            // =========================================
-
-            const portugalNoInfo =
-                Number(
-                    monthData.portugalTotal ||
-                    0
-                );
-
-
-            // =========================================
-            // MONTHLY RATES
-            // =========================================
-            //
-            // No Info does not have a flight
-            // denominator like FWD.
-            //
-            // The available and validated metric
-            // is the percentage share of total
-            // No Info events.
-            //
-            // =========================================
-
-            const portugalRate =
-                total > 0
-
-                    ?
-
-                    (
-                        portugalNoInfo /
-                        total *
-                        100
-                    )
-
-                    : 0;
-
-
-            const opoRate =
-                total > 0
-
-                    ?
-
-                    (
-                        opoNoInfo /
-                        total *
-                        100
-                    )
-
-                    : 0;
-
-
-            const spmfbRate =
-                total > 0
-                    ? 100
-                    : 0;
-
-
-            // =========================================
-            // ANNUAL TOTALS
-            // =========================================
-
-            result.totals.opo.noInfo +=
-                opoNoInfo;
-
-
-            result.totals.portugal.noInfo +=
-                portugalNoInfo;
-
-
-            result.totals.spmfb.noInfo +=
-                total;
-
-
-            // =========================================
-            // MONTHS
-            // =========================================
-
-            result.months.push(
-                month
-            );
-
-
-            // =========================================
-            // MONTHLY DATA
-            // =========================================
-
-            result.monthly.opo.push({
-
-                month,
-
-                noInfo:
-                    opoNoInfo,
-
-                rate:
-                    opoRate
-
-            });
-
-
-            result.monthly.portugal.push({
-
-                month,
-
-                noInfo:
-                    portugalNoInfo,
-
-                rate:
-                    portugalRate
-
-            });
-
-
-            result.monthly.spmfb.push({
-
-                month,
-
-                noInfo:
-                    total,
-
-                rate:
-                    spmfbRate
-
-            });
-
-        }
-    );
-
-
-    // =================================================
-    // ANNUAL RATES
-    // =================================================
-
-    const annualTotal =
-        result.totals.spmfb.noInfo;
-
-
-    if(
-        annualTotal > 0
-    ){
-
-        result.totals.opo.rate =
-            (
-                result.totals.opo.noInfo /
-                annualTotal *
-                100
-            );
-
-
-        result.totals.portugal.rate =
-            (
-                result.totals.portugal.noInfo /
-                annualTotal *
-                100
-            );
-
-
-        result.totals.spmfb.rate =
-            100;
-
-    }
-
-
-    // =================================================
-    // ROUND TOTAL COUNTS
-    // =================================================
-
-    result.totals.opo.noInfo =
-        Math.round(
-            result.totals.opo.noInfo
-        );
-
-
-    result.totals.portugal.noInfo =
-        Math.round(
-            result.totals.portugal.noInfo
-        );
-
-
-    result.totals.spmfb.noInfo =
-        Math.round(
-            result.totals.spmfb.noInfo
-        );
-
-
-    console.log(
-        "ANNUAL NO INFO — Analysis:",
-        result
-    );
-
+            return Number(base?.val || 0);
+
+        };
+
+        const opoNoInfo = getBaseValue("OPO");
+        const lisNoInfo = getBaseValue("LIS");
+        const faoNoInfo = getBaseValue("FAO");
+        const fncNoInfo = getBaseValue("FNC");
+
+        const portugalNoInfo =
+            opoNoInfo + lisNoInfo + faoNoInfo + fncNoInfo;
+
+        const spmfbNoInfo =
+            Number(monthData.total || 0);
+
+        const calcRate = value =>
+            portugalNoInfo > 0
+                ? Number(((value / portugalNoInfo) * 100).toFixed(1))
+                : 0;
+
+        const portugalRate =
+            spmfbNoInfo > 0
+                ? Number(((portugalNoInfo / spmfbNoInfo) * 100).toFixed(1))
+                : 0;
+
+        result.months.push(month);
+
+        result.monthly.opo.push({
+            month,
+            noInfo:opoNoInfo,
+            rate:calcRate(opoNoInfo)
+        });
+
+        result.monthly.lis.push({
+            month,
+            noInfo:lisNoInfo,
+            rate:calcRate(lisNoInfo)
+        });
+
+        result.monthly.fao.push({
+            month,
+            noInfo:faoNoInfo,
+            rate:calcRate(faoNoInfo)
+        });
+
+        result.monthly.fnc.push({
+            month,
+            noInfo:fncNoInfo,
+            rate:calcRate(fncNoInfo)
+        });
+
+        result.monthly.portugal.push({
+            month,
+            noInfo:portugalNoInfo,
+            rate:portugalRate
+        });
+
+        result.monthly.spmfb.push({
+            month,
+            noInfo:spmfbNoInfo,
+            rate:100
+        });
+
+        result.totals.opo.noInfo += opoNoInfo;
+        result.totals.lis.noInfo += lisNoInfo;
+        result.totals.fao.noInfo += faoNoInfo;
+        result.totals.fnc.noInfo += fncNoInfo;
+
+        result.totals.portugal.noInfo += portugalNoInfo;
+        result.totals.spmfb.noInfo += spmfbNoInfo;
+
+    });
+
+    const totalPortugal = result.totals.portugal.noInfo;
+    const totalSPMFB = result.totals.spmfb.noInfo;
+
+    const calcAnnualRate = value =>
+        totalPortugal > 0
+            ? Number(((value / totalPortugal) * 100).toFixed(1))
+            : 0;
+
+    result.totals.opo.rate = calcAnnualRate(result.totals.opo.noInfo);
+    result.totals.lis.rate = calcAnnualRate(result.totals.lis.noInfo);
+    result.totals.fao.rate = calcAnnualRate(result.totals.fao.noInfo);
+    result.totals.fnc.rate = calcAnnualRate(result.totals.fnc.noInfo);
+
+    result.totals.portugal.rate =
+        totalSPMFB > 0
+            ? Number(((totalPortugal / totalSPMFB) * 100).toFixed(1))
+            : 0;
+
+    result.totals.spmfb.rate = 100;
 
     return result;
 
 }
-
 
 // =====================================================
 // ANNUAL NO INFO — RATE COMPARISON
@@ -5828,178 +5013,82 @@ function compareAnnualNoInfoRates(
 
 
 // =====================================================
-// ANNUAL NO INFO — RENDER SECTION
+// ANNUAL NO INFO — RENDER SECTION (PORTUGAL VERSION)
 // =====================================================
 
-function renderAnnualNoInfoSection(
-    analysis
-){
+function renderAnnualNoInfoSection(analysis){
 
     const container =
-        document.getElementById(
-            "annualNoInfoContent"
-        );
-
+        document.getElementById("annualNoInfoContent");
 
     if(!container){
-
-        console.warn(
-            "ANNUAL NO INFO — Content container not found."
-        );
-
+        console.warn("ANNUAL NO INFO — Content container not found.");
         return;
-
     }
-
 
     if(!analysis){
-
-        container.innerHTML =
-            "";
-
+        container.innerHTML = "";
         return;
-
     }
 
+    // =================================================
+    // TOTALS
+    // =================================================
 
-    const totals =
-        analysis.totals || {};
+    const totals = analysis.totals || {};
 
+    const opo = totals.opo || {};
+    const lis = totals.lis || {};
+    const fao = totals.fao || {};
+    const fnc = totals.fnc || {};
 
-    const opo =
-        totals.opo || {};
+    const portugal = totals.portugal || {};
+    const spmfb = totals.spmfb || {};
 
+    // =================================================
+    // MONTHLY DATA
+    // =================================================
 
-    const portugal =
-        totals.portugal || {};
+    const months = analysis.months || [];
 
+    const opoMonthly = analysis.monthly?.opo || [];
+    const lisMonthly = analysis.monthly?.lis || [];
+    const faoMonthly = analysis.monthly?.fao || [];
+    const fncMonthly = analysis.monthly?.fnc || [];
 
-    const spmfb =
-        totals.spmfb || {};
-
-
-    const months =
-        analysis.months || [];
-
-
-    const opoMonthly =
-        analysis.monthly?.opo || [];
-
-
-    const portugalMonthly =
-        analysis.monthly?.portugal || [];
-
-
-    const spmfbMonthly =
-        analysis.monthly?.spmfb || [];
-
+    const portugalMonthly = analysis.monthly?.portugal || [];
+    const spmfbMonthly = analysis.monthly?.spmfb || [];
 
     // =================================================
     // MONTH NAMES
     // =================================================
 
     const monthNames = [
-
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec"
-
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
     ];
 
-
     // =================================================
-    // PEAK MONTH
+    // PEAK MONTH (PORTUGAL)
     // =================================================
-
-    const peakCandidates = [
-
-        ...opoMonthly.map(
-            item => ({
-
-                source:
-                    "OPO",
-
-                ...item
-
-            })
-        ),
-
-        ...portugalMonthly.map(
-            item => ({
-
-                source:
-                    "Portugal",
-
-                ...item
-
-            })
-        ),
-
-        ...spmfbMonthly.map(
-            item => ({
-
-                source:
-                    "SPMFB Region",
-
-                ...item
-
-            })
-        )
-
-    ];
-
 
     const peak =
-        peakCandidates.reduce(
-
-            (
-                max,
-                item
-            ) =>
-
-                !max ||
-                Number(
-                    item.rate || 0
-                ) >
-                Number(
-                    max.rate || 0
-                )
-
-                    ? item
-                    : max,
-
+        portugalMonthly.reduce((max,item)=>
+            !max || item.noInfo > max.noInfo
+                ? item
+                : max,
             null
-
         );
-
 
     const peakMonth =
         peak
-            ? monthNames[
-                Number(
-                    peak.month
-                ) - 1
-            ] || "—"
+            ? monthNames[Number(peak.month)-1]
             : "—";
 
-
-    const peakRate =
+    const peakValue =
         peak
-            ? Number(
-                peak.rate || 0
-            )
+            ? Number(peak.noInfo || 0)
             : 0;
-
-
 
     // =================================================
     // HTML
@@ -6007,193 +5096,118 @@ function renderAnnualNoInfoSection(
 
     container.innerHTML = `
 
-        <div
-            class="annual-fwd-wrapper annual-noinfo-wrapper"
-        >
-
+        <div class="annual-fwd-wrapper annual-noinfo-wrapper">
 
             <!-- =====================================
                  KPI CARDS
             ====================================== -->
 
-            <div
-                class="annual-fwd-kpis"
-            >
+            <div class="annual-fwd-kpis">
 
+                <!-- PORTUGAL BASE PERFORMANCE -->
 
-                <!-- OPO -->
+                <div class="annual-fwd-kpi annual-fwd-portugal-bases">
 
-                <div
-                    class="annual-fwd-kpi"
-                >
-
-                    <div
-                        class="annual-fwd-kpi-title"
-                    >
-
-                        OPO
-
+                    <div class="annual-fwd-kpi-title">
+                        PORTUGAL BASE PERFORMANCE
                     </div>
 
+                    <div class="annual-fwd-portugal-grid">
 
-                    <div
-                        class="annual-fwd-kpi-row"
-                    >
+                        ${[
+                            ["OPO","Porto",opo],
+                            ["LIS","Lisbon",lis],
+                            ["FAO","Faro",fao],
+                            ["FNC","Funchal",fnc]
+                        ].map(([code,city,data])=>`
 
-                        <div>
+                            <div class="annual-fwd-base-column">
 
-                            <span>
-                                NO INFO
-                            </span>
+                                <div class="annual-fwd-base-code">
+                                    ${code}
+                                </div>
 
-                            <strong>
-                                ${Number(
-                                    opo.noInfo || 0
-                                )}
-                            </strong>
+                                <div class="annual-fwd-base-city">
+                                    ${city}
+                                </div>
 
-                        </div>
+                                <div class="annual-fwd-base-metric">
+                                    <span>NO INFO</span>
+                                    <strong>${Math.round(Number(data.noInfo || 0))}</strong>
+                                </div>
 
+                                <div class="annual-fwd-base-metric">
+                                    <span>RATE</span>
+                                    <strong>${Number(data.rate || 0).toFixed(1)}%</strong>
+                                </div>
 
-                        <div>
+                            </div>
 
-                            <span>
-                                RATE
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    opo.rate || 0
-                                ).toFixed(1)}%
-                            </strong>
-
-                        </div>
-
+                        `).join("")}
 
                     </div>
 
                 </div>
 
+                <!-- PORTUGAL + SPMFB REGION -->
 
-                <!-- PORTUGAL -->
+<div class="annual-fwd-kpi annual-noinfo-portugal-region">
 
-                <div
-                    class="annual-fwd-kpi"
-                >
+    <div class="annual-fwd-kpi-title">
+        PORTUGAL & SPMFB REGION
+    </div>
 
-                    <div
-                        class="annual-fwd-kpi-title"
-                    >
+    <div class="annual-noinfo-region-grid">
 
-                        PORTUGAL
+        <!-- Portugal -->
 
-                    </div>
+        <div class="annual-noinfo-region-card">
 
+            <div class="annual-noinfo-region-heading">
+                PORTUGAL
+            </div>
 
-                    <div
-                        class="annual-fwd-kpi-row
-                               annual-noinfo-two-metrics"
-                    >
+            <div class="annual-noinfo-region-value">
+                <span>NO INFO</span>
+                <strong>${Math.round(Number(portugal.noInfo || 0))}</strong>
+            </div>
 
-                        <div>
+            <div class="annual-noinfo-region-value">
+                <span>RATE vs SPMFB</span>
+                <strong>${Number(portugal.rate || 0).toFixed(1)}%</strong>
+            </div>
 
-                            <span>
-                                NO INFO
-                            </span>
+        </div>
 
-                            <strong>
-                                ${Number(
-                                    portugal.noInfo || 0
-                                )}
-                            </strong>
+        <!-- SPMFB -->
 
-                        </div>
+        <div class="annual-noinfo-region-card">
 
+            <div class="annual-noinfo-region-heading">
+                SPMFB REGION
+            </div>
 
-                        <div>
+            <div class="annual-noinfo-region-value annual-noinfo-region-only">
 
-                            <span>
-                                RATE
-                            </span>
+                <span>NO INFO</span>
 
-                            <strong>
-                                ${Number(
-                                    portugal.rate || 0
-                                ).toFixed(1)}%
-                            </strong>
+                <strong>${Math.round(Number(spmfb.noInfo || 0))}</strong>
 
-                        </div>
+            </div>
 
-                    </div>
+        </div>
 
-                </div>
+    </div>
 
-
-                <!-- SPMFB REGION -->
-
-                <div
-                    class="annual-fwd-kpi"
-                >
-
-                    <div
-                        class="annual-fwd-kpi-title"
-                    >
-
-                        SPMFB REGION
-
-                    </div>
-
-
-                    <div
-                        class="annual-fwd-kpi-row
-                               annual-noinfo-two-metrics"
-                    >
-
-                        <div>
-
-                            <span>
-                                NO INFO
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    spmfb.noInfo || 0
-                                )}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                RATE
-                            </span>
-
-                            <strong>
-                                ${Number(
-                                    spmfb.rate || 0
-                                ).toFixed(1)}%
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+</div>
 
             <!-- =====================================
-                 MONTHLY RATE CHART
+                 MONTHLY NO INFO CHART
             ====================================== -->
 
-            <div
-                class="annual-fwd-chart-card"
-            >
+            <div class="annual-fwd-chart-card">
 
-                <div
-                    class="annual-fwd-chart-header"
-                >
+                <div class="annual-fwd-chart-header">
 
                     <div>
 
@@ -6202,459 +5216,290 @@ function renderAnnualNoInfoSection(
                         </h3>
 
                         <span>
-                            No Info rate evolution across available months
+                            Number of No Info events across Portuguese bases
                         </span>
 
                     </div>
 
-
-                    <div
-                        class="annual-fwd-peak"
-                    >
+                    <div class="annual-fwd-peak">
 
                         Peak:
 
-                        <strong>
-                            ${peakMonth}
-                        </strong>
+                        <strong>${peakMonth}</strong>
 
-                        <span>
-                            (${peakRate.toFixed(1)}%)
-                        </span>
+                        <span>(${peakValue} No Info)</span>
 
                     </div>
 
                 </div>
 
+                <div class="annual-fwd-chart-wrap">
 
-                <div
-                    class="annual-fwd-chart-wrap"
-                >
-
-                    <canvas
-                        id="annualNoInfoMonthlyChart"
-                    ></canvas>
+                    <canvas id="annualNoInfoMonthlyChart"></canvas>
 
                 </div>
 
             </div>
 
-
         </div>
 
     `;
 
-
     // =================================================
-    // CHART
+    // CHART.JS CHECK
     // =================================================
 
-    if(
-        typeof Chart ===
-        "undefined"
-    ){
-
-        console.warn(
-            "ANNUAL NO INFO — Chart.js not available."
-        );
-
+    if(typeof Chart === "undefined"){
+        console.warn("ANNUAL NO INFO — Chart.js not available.");
         return;
-
     }
-
 
     const canvas =
-        document.getElementById(
-            "annualNoInfoMonthlyChart"
-        );
-
+        document.getElementById("annualNoInfoMonthlyChart");
 
     if(!canvas){
-
         return;
-
     }
 
-
-    // =================================================
-    // DESTROY PREVIOUS CHART
-    // =================================================
+    // Destroy previous chart
 
     if(
         window.annualNoInfoMonthlyChart &&
-        typeof
-        window.annualNoInfoMonthlyChart.destroy ===
-        "function"
+        typeof window.annualNoInfoMonthlyChart.destroy === "function"
     ){
-
-        window
-            .annualNoInfoMonthlyChart
-            .destroy();
-
+        window.annualNoInfoMonthlyChart.destroy();
     }
 
+    window.annualNoInfoMonthlyChart = null;
+
+    // =================================================
+    // LABELS
+    // =================================================
 
     const labels =
-        months.map(
-            month =>
-                monthNames[
-                    Number(month) - 1
-                ] || String(month)
+        months.map(month =>
+            monthNames[Number(month)-1] || String(month)
         );
 
-
     // =================================================
-    // ALIGN MONTHLY DATA
+    // MONTHLY VALUES (NUMBER OF NO INFOS)
     // =================================================
 
-    function monthlyValues(
-        data
-    ){
+    function monthlyValues(data){
 
-        return months.map(
+        return months.map(month=>{
 
-            month => {
-
-                const row =
-                    data.find(
-                        item =>
-                            Number(
-                                item.month
-                            ) ===
-                            Number(month)
-                    );
-
-
-                return Number(
-                    row?.rate || 0
+            const row =
+                data.find(item =>
+                    Number(item.month) === Number(month)
                 );
 
-            }
+            return Number(row?.noInfo || 0);
 
-        );
+        });
 
     }
 
+    const opoData = monthlyValues(opoMonthly);
+    const lisData = monthlyValues(lisMonthly);
+    const faoData = monthlyValues(faoMonthly);
+    const fncData = monthlyValues(fncMonthly);
 
-    const opoRateData =
-        monthlyValues(
-            opoMonthly
-        );
-
-
-    const portugalRateData =
-        monthlyValues(
-            portugalMonthly
-        );
-
-
-    const spmfbRateData =
-        monthlyValues(
-            spmfbMonthly
-        );
-
+    const portugalData = monthlyValues(portugalMonthly);
+    const spmfbData = monthlyValues(spmfbMonthly);
 
     // =================================================
     // CREATE CHART
     // =================================================
 
-    window.annualNoInfoMonthlyChart =
+    window.annualNoInfoMonthlyChart = new Chart(
 
-        new Chart(
+        canvas.getContext("2d"),
 
-            canvas.getContext(
-                "2d"
-            ),
+        {
 
-            {
+            type:"line",
 
-                type:
-                    "line",
+            data:{
 
+                labels,
 
-                data:{
+                datasets:[
 
-                    labels,
+                    {
+                        label:"OPO",
+                        data:opoData,
+                        borderColor:"#003399",
+                        backgroundColor:"rgba(0,51,153,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#003399",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
+                    {
+                        label:"LIS",
+                        data:lisData,
+                        borderColor:"#F5C400",
+                        backgroundColor:"rgba(245,196,0,0.10)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#F5C400",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
-                    datasets:[
+                    {
+                        label:"FAO",
+                        data:faoData,
+                        borderColor:"#16A34A",
+                        backgroundColor:"rgba(22,163,74,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#16A34A",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
+                    {
+                        label:"FNC",
+                        data:fncData,
+                        borderColor:"#8B5CF6",
+                        backgroundColor:"rgba(139,92,246,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#8B5CF6",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
-                        {
+                    {
+                        label:"Portugal",
+                        data:portugalData,
+                        borderColor:"#E67E22",
+                        backgroundColor:"rgba(230,126,34,0.10)",
+                        borderWidth:4,
+                        borderDash:[8,5],
+                        pointRadius:5,
+                        pointHoverRadius:7,
+                        pointBackgroundColor:"#E67E22",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    },
 
-                            label:
-                                "OPO",
+                    {
+                        label:"SPMFB Region",
+                        data:spmfbData,
+                        borderColor:"#64748B",
+                        backgroundColor:"rgba(100,116,139,0.08)",
+                        borderWidth:3,
+                        pointRadius:4,
+                        pointHoverRadius:6,
+                        pointBackgroundColor:"#64748B",
+                        pointBorderColor:"#FFFFFF",
+                        pointBorderWidth:2,
+                        tension:0.35,
+                        fill:false
+                    }
 
-                            data:
-                                opoRateData,
+                ]
 
-                            borderColor:
-                                "#003399",
+            },
 
-                            backgroundColor:
-                                "rgba(0,51,153,0.08)",
+            options:{
 
-                            borderWidth:
-                                3,
+                responsive:true,
+                maintainAspectRatio:false,
 
-                            pointRadius:
-                                4,
+                interaction:{
+                    mode:"index",
+                    intersect:false
+                },
 
-                            pointHoverRadius:
-                                6,
+                plugins:{
 
-                            pointBackgroundColor:
-                                "#003399",
+                    datalabels: annualChartDataLabels(),
 
-                            pointBorderColor:
-                                "#ffffff",
+                    legend:{
+                        display:true,
+                        position:"top",
+                        align:"center",
 
-                            pointBorderWidth:
-                                2,
+                        labels:{
+                            usePointStyle:true,
+                            pointStyle:"circle",
+                            padding:20,
+                            boxWidth:10,
+                            color:"#17326B",
 
-                            tension:
-                                0.3,
+                            font:{
+                                size:12,
+                                weight:"700"
+                            }
+                        }
+                    },
 
-                            fill:
-                                false
+                    tooltip:{
+                        backgroundColor:"#082D70",
+                        titleColor:"#FFFFFF",
+                        bodyColor:"#FFFFFF",
+                        padding:12,
+                        cornerRadius:8,
 
-                        },
-
-
-                        {
-
-                            label:
-                                "Portugal",
-
-                            data:
-                                portugalRateData,
-
-                            borderColor:
-                                "#f5c400",
-
-                            backgroundColor:
-                                "rgba(245,196,0,0.10)",
-
-                            borderWidth:
-                                3,
-
-                            pointRadius:
-                                4,
-
-                            pointHoverRadius:
-                                6,
-
-                            pointBackgroundColor:
-                                "#f5c400",
-
-                            pointBorderColor:
-                                "#ffffff",
-
-                            pointBorderWidth:
-                                2,
-
-                            tension:
-                                0.3,
-
-                            fill:
-                                false
-
-                        },
-
-
-                        {
-
-                            label:
-                                "SPMFB Region",
-
-                            data:
-                                spmfbRateData,
-
-                            borderColor:
-                                "#4f6fae",
-
-                            backgroundColor:
-                                "rgba(79,111,174,0.08)",
-
-                            borderWidth:
-                                3,
-
-                            pointRadius:
-                                4,
-
-                            pointHoverRadius:
-                                6,
-
-                            pointBackgroundColor:
-                                "#4f6fae",
-
-                            pointBorderColor:
-                                "#ffffff",
-
-                            pointBorderWidth:
-                                2,
-
-                            tension:
-                                0.3,
-
-                            fill:
-                                false
-
+                        callbacks:{
+                            label:context =>
+                                `${context.dataset.label}: ${context.raw} No Info`
                         }
 
-                    ]
+                    }
 
                 },
 
+                scales:{
 
-                options:{
-
-                    responsive:
-                        true,
-
-                    maintainAspectRatio:
-                        false,
-
-
-                    interaction:{
-
-                        mode:
-                            "index",
-
-                        intersect:
-                            false
-
-                    },
-
-
-                    plugins:{
-                        datalabels: annualChartDataLabels(),
-                        legend:{
-
-                            display:
-                                true,
-
-                            position:
-                                "top",
-
-                            align:
-                                "end",
-
-                            labels:{
-
-                                usePointStyle:
-                                    true,
-
-                                pointStyle:
-                                    "circle",
-
-                                padding:
-                                    18,
-
-                                boxWidth:
-                                    9,
-
-                                font:{
-
-                                    size:
-                                        12,
-
-                                    weight:
-                                        "700"
-
-                                }
-
-                            }
-
+                    x:{
+                        grid:{
+                            display:false
                         },
 
+                        ticks:{
+                            color:"#71829A",
 
-                        tooltip:{
-
-                            backgroundColor:
-                                "#082d70",
-
-                            titleColor:
-                                "#ffffff",
-
-                            bodyColor:
-                                "#ffffff",
-
-                            padding:
-                                12,
-
-                            cornerRadius:
-                                8,
-
-                            callbacks:{
-
-                                label:
-                                    context =>
-                                        `${context.dataset.label}: ${Number(
-                                            context.raw || 0
-                                        ).toFixed(1)}%`
-
+                            font:{
+                                size:11,
+                                weight:"600"
                             }
 
                         }
 
                     },
 
+                    y:{
 
-                    scales:{
+                        beginAtZero:true,
 
-                        x:{
-
-                            grid:{
-
-                                display:
-                                    false
-
-                            },
-
-                            ticks:{
-
-                                color:
-                                    "#71829a",
-
-                                font:{
-
-                                    size:
-                                        11,
-
-                                    weight:
-                                        "600"
-
-                                }
-
-                            }
-
+                        grid:{
+                            color:"#EDF1F6"
                         },
 
-
-                        y:{
-
-                            beginAtZero:
-                                true,
-
-                            grid:{
-
-                                color:
-                                    "#edf1f6"
-
-                            },
-
-                            ticks:{
-
-                                color:
-                                    "#71829a",
-
-                                callback:
-                                    value =>
-                                        `${value}%`
-
-                            }
-
+                        ticks:{
+                            color:"#71829A",
+                            precision:0
                         }
 
                     }
@@ -6663,10 +5508,11 @@ function renderAnnualNoInfoSection(
 
             }
 
-        );
+        }
+
+    );
 
 }
-
 
 // =====================================================
 // ANNUAL NO INFO — REFRESH
