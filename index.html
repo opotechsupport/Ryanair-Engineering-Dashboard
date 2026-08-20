@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="ryanair-logo-page.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="annualReport.css">
+    <link rel="stylesheet" href="./annualReport.css">
     <link rel="stylesheet" href="aog.css">
     <title>Ryanair Engineering Dashboard</title>
     <style>
@@ -26885,6 +26885,16 @@ window.openBasesModal = openBasesModal;
 window.closeBasesModal = closeBasesModal;
 
 function goHome(){
+
+// RESTORE PAGE SCROLL (GitHub Pages fix)
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+
+    document.body.classList.remove("modal-open");
+
+    // Fecha qualquer modal que tenha ficado aberto
+    document.querySelectorAll(".aog-management-overlay").forEach(modal => modal.remove());
+
 
     document.getElementById("dashboardContainer").style.display="none";
 
