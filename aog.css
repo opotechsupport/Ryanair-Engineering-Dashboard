@@ -4912,3 +4912,597 @@ body.home-page #app,
 body.home-page .app-container {
     overflow: hidden !important;
 }
+
+/* ==========================================================
+   AOG TREND ANALYSIS (RYANAIR STYLE)
+========================================================== */
+
+.aog-trend-toolbar{
+
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:28px;
+
+}
+
+.aog-trend-filter-card{
+
+    background:#fff;
+    border:1px solid #E5EAF2;
+    border-radius:14px;
+    padding:14px 16px;
+    box-shadow:0 3px 12px rgba(0,0,0,.05);
+
+}
+
+.aog-trend-filter-card label{
+
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    color:#5B6980;
+    margin-bottom:8px;
+    text-transform:uppercase;
+
+}
+
+.aog-trend-filter-card select{
+
+    width:100%;
+    border:none;
+    background:#F5F8FC;
+    border-radius:10px;
+    padding:10px;
+    font-weight:600;
+    color:#082D70;
+
+}
+
+
+/* ==========================================================
+   TREND KPI CARDS — RYANAIR STYLE
+========================================================== */
+
+.aog-trend-kpis-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin:26px 0 30px;
+}
+
+.aog-trend-kpi-card{
+
+    background:#FFFFFF;
+    border:1px solid #DCE6F2;
+    border-top:6px solid #FFD200;
+    border-radius:18px;
+    padding:20px;
+    min-height:145px;
+
+    box-shadow:0 8px 20px rgba(0,34,102,.06);
+    transition:.25s ease;
+
+}
+
+.aog-trend-kpi-card:hover{
+
+    transform:translateY(-4px);
+    box-shadow:0 12px 26px rgba(0,34,102,.12);
+
+}
+
+.trend-kpi-label{
+
+    font-size:11px;
+    font-weight:800;
+    color:#6C7B91;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:12px;
+
+}
+
+.trend-kpi-value{
+
+    font-size:38px;
+    font-weight:800;
+    color:#002D72;
+    line-height:1.05;
+
+}
+
+.trend-kpi-value small{
+
+    display:block;
+    margin-top:8px;
+
+    font-size:13px;
+    font-weight:700;
+    color:#64748B;
+
+}
+
+/* Remove as cores antigas */
+
+.aog-trend-kpi-card.blue,
+.aog-trend-kpi-card.orange,
+.aog-trend-kpi-card.green,
+.aog-trend-kpi-card.yellow{
+
+    background:#FFFFFF;
+    color:#002D72;
+
+}
+
+.aog-trend-comparison-card{
+
+    background:#FFFFFF;
+    border:1px solid #DCE6F2;
+    border-radius:18px;
+    padding:22px;
+    margin:28px 0;
+
+    box-shadow:0 6px 16px rgba(0,34,102,.05);
+
+}
+
+.aog-trend-comparison-header{
+
+    color:#002D72;
+    font-size:18px;
+    font-weight:800;
+    margin-bottom:18px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+}
+
+.trend-comparison-row{
+
+    display:grid;
+    grid-template-columns:120px 1fr 120px;
+
+    align-items:center;
+    padding:14px 0;
+    border-bottom:1px solid #EDF2F7;
+
+}
+
+.trend-comparison-row:last-child{
+
+    border-bottom:none;
+
+}
+
+.trend-average{
+
+    text-align:center;
+    font-weight:700;
+    color:#334155;
+
+}
+
+.trend-diff.above{
+
+    color:#DC2626;
+    font-weight:800;
+
+}
+
+.trend-diff.below{
+
+    color:#16A34A;
+    font-weight:800;
+
+}
+
+.trend-status{
+
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+
+    padding:6px 12px;
+    border-radius:999px;
+
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.5px;
+    margin-bottom:10px;
+
+}
+
+.trend-status.up{
+
+    background:#FFF3E8;
+    color:#EA580C;
+
+}
+
+.trend-status.down{
+
+    background:#EAFBF0;
+    color:#15803D;
+
+}
+
+.trend-status.stable{
+
+    background:#EEF4FF;
+    color:#005BCE;
+
+}
+
+.trend-status.baseline{
+
+    background:#FFF8D6;
+    color:#A16207;
+
+}
+
+.trend-value{
+
+    font-size:30px;
+    font-weight:800;
+    color:#002D72;
+
+}
+
+
+/* ==========================================================
+   AOG TREND TABLE — SAME STYLE AS FWD TABLES
+========================================================== */
+
+.aog-trend-table-card{
+    margin-top:28px;
+    background:#FFFFFF;
+    border:1px solid #DCE6F2;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,34,102,.05);
+}
+
+.aog-trend-table-header{
+    background:#001B5E;
+    color:#FFD200;
+    padding:18px 22px;
+    font-size:18px;
+    font-weight:800;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+}
+
+.aog-trend-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.aog-trend-table thead{
+    background:#001B5E;
+}
+
+.aog-trend-table thead th{
+    color:#FFD200;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.8px;
+    text-transform:uppercase;
+    padding:16px 12px;
+    text-align:center;
+}
+
+.aog-trend-table tbody td{
+    padding:16px 12px;
+    text-align:center;
+    font-weight:700;
+    color:#001B5E;
+    border-bottom:1px solid #E8EEF6;
+}
+
+.aog-trend-table tbody tr:nth-child(even){
+    background:#F7FAFF;
+}
+
+.aog-trend-table tbody tr:hover{
+    background:#FFF8DC;
+    transition:.2s;
+}
+
+.aog-trend-table tbody tr:last-child td{
+    border-bottom:none;
+}
+
+/* Diferença vs Portugal */
+
+.trend-diff-positive{
+    color:#DC2626;
+    font-weight:800;
+}
+
+.trend-diff-negative{
+    color:#16A34A;
+    font-weight:800;
+}
+
+.trend-diff-neutral{
+    color:#005BCE;
+    font-weight:800;
+}
+
+
+.aog-operational-insight-card{
+
+    margin-top:30px;
+
+    background:linear-gradient(
+        90deg,
+        #FFFDF5 0%,
+        #FFF7D1 100%
+    );
+
+    border-left:8px solid #FFD200;
+    border-radius:18px;
+
+    padding:24px 28px;
+
+    box-shadow:0 6px 16px rgba(255,210,0,.12);
+
+}
+
+.aog-operational-insight-card strong{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    color:#002D72;
+    font-size:17px;
+    font-weight:800;
+    margin-bottom:12px;
+
+}
+
+.aog-operational-insight-card strong::before{
+
+    content:"💡";
+    font-size:22px;
+
+}
+
+.aog-operational-insight-card span{
+
+    color:#334155;
+    font-size:14px;
+    line-height:1.8;
+
+}
+
+
+/* Responsive */
+
+@media(max-width:1200px){
+
+    .aog-trend-toolbar{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+    .aog-trend-kpis-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media(max-width:700px){
+
+    .aog-trend-toolbar{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .aog-trend-kpis-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+/* DAILY AOG CHART */
+
+.aog-analysis-chart-wrapper{
+    height:420px;
+    padding:10px 10px 0;
+}
+
+#aogDailyHistoryChart{
+    width:100% !important;
+    height:100% !important;
+}
+
+/* ===========================
+   AOG TIME SUMMARY
+=========================== */
+
+.aog-time-summary{
+
+    background:linear-gradient(135deg,#073590,#0B4DB8);
+    color:white;
+
+    border-radius:14px;
+
+    padding:18px 20px;
+
+    margin-bottom:18px;
+
+    box-shadow:0 10px 25px rgba(7,53,144,.15);
+
+}
+
+.aog-time-summary-label{
+
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+
+    opacity:.75;
+
+    margin-bottom:6px;
+
+}
+
+.aog-time-summary-value{
+
+    font-size:34px;
+    font-weight:800;
+
+    color:#FFD200;
+
+    line-height:1;
+
+}
+
+.aog-time-summary-caption{
+
+    margin-top:6px;
+    font-size:13px;
+    opacity:.85;
+
+}
+
+.aog-time-row{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:12px 4px;
+
+    border-bottom:1px solid #E8EEF8;
+
+}
+
+.aog-time-row:last-child{
+
+    border-bottom:none;
+
+}
+
+/* =====================================================
+   EXECUTIVE PDF LOADING
+===================================================== */
+
+.executive-pdf-loading{
+
+    position:fixed;
+    inset:0;
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(4,24,74,.55);
+    backdrop-filter:blur(10px);
+
+    z-index:99999;
+}
+
+.executive-pdf-loading.show{
+    display:flex;
+}
+
+.executive-pdf-loading-card{
+
+    width:430px;
+
+    background:#FFF;
+
+    border-radius:24px;
+
+    padding:38px;
+
+    text-align:center;
+
+    box-shadow:0 25px 60px rgba(0,0,0,.22);
+}
+
+.executive-pdf-loading-card h2{
+
+    margin:18px 0 8px;
+
+    color:#073590;
+
+    font-size:24px;
+}
+
+.executive-pdf-loading-card p{
+
+    color:#5E6B84;
+    margin-bottom:28px;
+}
+
+.executive-spinner{
+
+    width:74px;
+    height:74px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    border:6px solid #DCE8FF;
+    border-top-color:#FFD200;
+
+    animation:spinExecutive .9s linear infinite;
+}
+
+@keyframes spinExecutive{
+
+    to{
+        transform:rotate(360deg);
+    }
+
+}
+
+.executive-progress-bar{
+
+    width:100%;
+    height:12px;
+
+    background:#E7EDF8;
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+    margin-bottom:14px;
+}
+
+#executiveProgressFill{
+
+    width:0%;
+
+    height:100%;
+
+    background:linear-gradient(90deg,#FFD200,#F7B500);
+
+    transition:width .4s ease;
+}
+
+#executiveProgressText{
+
+    display:block;
+
+    color:#073590;
+
+    font-weight:700;
+
+    font-size:14px;
+}

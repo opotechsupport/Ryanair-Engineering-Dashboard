@@ -4,7 +4,6 @@
 // INITIAL STRUCTURE
 // =========================================================
 
-
 // =========================================================
 // STATE
 // =========================================================
@@ -312,17 +311,6 @@ initializeAOGDashboard();
 }
 
 
-// =========================================================
-// AOG — EXPORT PDF
-// =========================================================
-
-function exportAOGPDF(){
-
-    showAOGDevelopmentMessage(
-        "Export PDF"
-    );
-
-}
 
 
 // =========================================================
@@ -3671,9 +3659,7 @@ function createAOGSearchResultsModal(
                             aog-management-button
                             aog-management-button-yellow
                         "
-                        onclick="
-                            exportAOGSearchPDF()
-                        "
+onclick="exportAOGPDF()"
                     >
                         EXTRACT PDF
                     </button>
@@ -6336,6 +6322,559 @@ async function confirmAOGDelete() {
 
 }
 
+/* =========================================================
+   AOG RECORDED PDF HEADER (PREMIUM RYANAIR)
+========================================================= */
+
+async function drawAOGRecordedPDFHeader(doc){
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // ---------- LOAD LOGO ----------
+    const logo = await new Promise((resolve,reject)=>{
+
+        const img = new Image();
+
+        img.onload = ()=> resolve(img);
+        img.onerror = reject;
+
+        img.src = "ryanair-logo-2.png";
+
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = logo.width;
+    canvas.height = logo.height;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(logo,0,0);
+
+    const logo64 = canvas.toDataURL("image/png");
+
+    // ======================================================
+    // HEADER BACKGROUND
+    // ======================================================
+
+    doc.setFillColor(4,30,84);               // Azul mais escuro
+    doc.rect(0,0,pageWidth,38,"F");
+
+    // Barra amarela principal
+    doc.setFillColor(255,204,0);
+    doc.rect(0,35,pageWidth,3.2,"F");
+
+    // Barra amarela fina
+    doc.rect(0,37.2,pageWidth,0.8,"F");
+
+    // ======================================================
+    // LOGO
+    // ======================================================
+
+    doc.addImage(
+        logo64,
+        "PNG",
+        10,
+        5,
+        75,
+        16
+    );
+
+    // ======================================================
+    // TITLES
+    // ======================================================
+
+    doc.setTextColor(255,255,255);
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(18);
+    doc.text("RYANAIR ENGINEERING",100,13);
+
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(8.5);
+    doc.text("Portugal Overview • Engineering Dashboard",100,18);
+
+    // TÍTULO AMARELO
+    doc.setTextColor(255,204,0);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(15);
+    doc.text("AOG RECORD REPORT",100,27);
+
+    // ======================================================
+    // DATE
+    // ======================================================
+
+    const generated = new Date().toLocaleString("en-GB",{
+        day:"2-digit",
+        month:"short",
+        year:"numeric",
+        hour:"2-digit",
+        minute:"2-digit"
+    }).replace(","," •");
+
+    doc.setTextColor(220,226,234);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(8);
+
+    doc.text(
+        generated,
+        pageWidth-10,
+        12,
+        {align:"right"}
+    );
+
+    // ======================================================
+    // INFO CARD WITH SHADOW
+    // ======================================================
+
+    doc.setFillColor(225,229,235);
+    doc.roundedRect(
+        11,
+        43,
+        pageWidth-20,
+        22,
+        2,
+        2,
+        "F"
+    );
+
+    doc.setFillColor(255,255,255);
+    doc.roundedRect(
+        10,
+        42,
+        pageWidth-20,
+        22,
+        2,
+        2,
+        "F"
+    );
+
+    doc.setDrawColor(220,226,234);
+    doc.roundedRect(
+        10,
+        42,
+        pageWidth-20,
+        22,
+        2,
+        2,
+        "S"
+    );
+
+    const labels = {
+        REG:"Aircraft Registration",
+        TYPE:"Aircraft Type",
+        BASE:"Base",
+        CATEGORY:"Category"
+    };
+
+    const reportType =
+        labels[AOG_MANAGEMENT_SEARCH_TYPE] || "AOG Records";
+
+    const searchValue =
+        AOG_MANAGEMENT_SEARCH_VALUE || "ALL";
+
+    const total =
+        (AOG_MANAGEMENT_FILTERED_RECORDS || []).length;
+
+    const period =
+        getAOGRecordedPeriodLabel().replaceAll("_"," ");
+
+    // Labels
+    doc.setTextColor(107,114,128);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(6.8);
+
+    doc.text("REPORT TYPE",15,48);
+    doc.text("SEARCH VALUE",80,48);
+    doc.text("PERIOD",145,48);
+    doc.text("MATCHING RECORDS",205,48);
+
+    // Values
+    doc.setTextColor(31,41,55);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(10);
+
+    doc.text(reportType,15,56);
+    doc.text(String(searchValue),80,56);
+    doc.text(period,145,56);
+
+    doc.setTextColor(4,30,84);
+    doc.setFontSize(16);
+    doc.text(
+        String(total),
+        240,
+        56,
+        {align:"right"}
+    );
+
+    return 70;
+
+}
+
+/* =========================================================
+   RYANAIR WATERMARK
+========================================================= */
+
+async function drawAOGRecordedWatermark(doc){
+
+    const logo = await new Promise((resolve,reject)=>{
+
+        const img = new Image();
+
+        img.onload = ()=> resolve(img);
+        img.onerror = reject;
+
+        img.src = "ryanair-logo-3.png";
+
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = logo.width;
+    canvas.height = logo.height;
+
+    const ctx = canvas.getContext("2d");
+    ctx.globalAlpha = 0.06;   // Muito subtil
+    ctx.drawImage(logo,0,0);
+
+    const base64 = canvas.toDataURL("image/png");
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.addImage(
+        base64,
+        "PNG",
+        pageWidth/2-90,
+        pageHeight/2 - 45,
+        180,
+        130
+    );
+
+}
+
+/* =========================================================
+   AOG RECORDED PDF FOOTER
+========================================================= */
+
+function drawAOGRecordedPDFFooter(
+    doc,
+    pageNumber,
+    totalPages
+){
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // ---------- TOP FOOTER LINE ----------
+    doc.setDrawColor(255,204,0);
+    doc.setLineWidth(0.6);
+
+    doc.line(
+        10,
+        pageHeight - 11,
+        pageWidth - 10,
+        pageHeight - 11
+    );
+
+    // ---------- LEFT TEXT ----------
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(7);
+    doc.setTextColor(107,114,128);
+
+    doc.text(
+        "Internal Use Only • Ryanair Engineering",
+        10,
+        pageHeight - 6
+    );
+
+    // ---------- CENTRE TEXT ----------
+    doc.setFontSize(6.5);
+
+    doc.text(
+        "Aircraft on Ground (AOG) Record Report",
+        pageWidth / 2,
+        pageHeight - 6,
+        { align: "center" }
+    );
+
+    // ---------- PAGE NUMBER ----------
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(7);
+    doc.setTextColor(7,43,116);
+
+    doc.text(
+        `Page ${pageNumber} of ${totalPages}`,
+        pageWidth - 10,
+        pageHeight - 6,
+        { align: "right" }
+    );
+
+}
+
+/* =========================================================
+   AOG RECORDED PDF TABLE
+========================================================= */
+
+function drawAOGRecordedPDFTable(doc, records, startY){
+
+    doc.autoTable({
+
+        startY,
+
+        margin:{
+            left:10,
+            right:10
+        },
+
+        head:[[
+            "REG",
+            "TYPE",
+            "BASE",
+            "CATEGORY",
+            "START",
+            "FINISH",
+            "AOG TIME",
+            "DEFECT",
+            "ACTION",
+            "COMMENTS"
+        ]],
+
+        body: records.map(record=>{
+
+            const duration =
+                calculateAOGRecordDuration(record);
+
+            return [
+
+                record.reg || "-",
+
+                record.aircraftType || "-",
+
+                record.base || "-",
+
+                record.category || "-",
+
+                `${formatAOGDate(record.startDate)} ${record.startTime || "-"}`,
+
+                `${formatAOGDate(record.finishDate)} ${record.actualFinishTime || "-"}`,
+
+                duration !== null
+                    ? formatAOGDuration(duration)
+                    : "-",
+
+                record.defect || "-",
+
+                record.action || "-",
+
+                record.comments || "-"
+
+            ];
+
+        }),
+
+        theme:"grid",
+
+        styles:{
+            font:"helvetica",
+            fontSize:7,
+            cellPadding:2.3,
+            textColor:[31,41,55],
+            lineColor:[220,226,234],
+            lineWidth:0.2,
+            overflow:"linebreak",
+            valign:"top"
+        },
+
+        headStyles:{
+            fillColor:[7,43,116],
+            textColor:[255,255,255],
+            fontStyle:"bold",
+            halign:"center",
+            valign:"middle",
+            fontSize:7.5
+        },
+
+        alternateRowStyles:{
+            fillColor:[248,249,251]
+        },
+
+        columnStyles:{
+
+            0:{cellWidth:17,fontStyle:"bold",halign:"center"},
+            1:{cellWidth:16,halign:"center"},
+            2:{cellWidth:15,halign:"center"},
+            3:{cellWidth:24},
+            4:{cellWidth:26},
+            5:{cellWidth:26},
+            6:{cellWidth:18,fontStyle:"bold",halign:"center"},
+            7:{cellWidth:44},
+            8:{cellWidth:44},
+            9:{cellWidth:44}
+
+        },
+
+        didParseCell(data){
+
+            if(data.section !== "body") return;
+
+            // Registration em azul
+            if(data.column.index === 0){
+
+                data.cell.styles.textColor = [7,43,116];
+                data.cell.styles.fontStyle = "bold";
+
+            }
+
+            // AOG Time destacado
+            if(data.column.index === 6){
+
+                data.cell.styles.textColor = [180,83,9];
+                data.cell.styles.fillColor = [255,249,220];
+                data.cell.styles.fontStyle = "bold";
+
+            }
+
+            // Categoria ligeiramente destacada
+            if(data.column.index === 3){
+
+                data.cell.styles.textColor = [7,43,116];
+                data.cell.styles.fontStyle = "bold";
+
+            }
+
+        }
+
+    });
+
+    return doc.lastAutoTable.finalY;
+
+}
+
+/* =========================================================
+   GET AOG RECORDED PERIOD LABEL
+========================================================= */
+
+function getAOGRecordedPeriodLabel(){
+
+    const periodType =
+        document.getElementById("aogResultsPeriodType")?.value || "ALL";
+
+    if(periodType === "ALL"){
+        return "All_Data";
+    }
+
+    if(periodType === "YEAR"){
+
+        return document.getElementById("aogResultsYear")?.value || "Year";
+
+    }
+
+if (periodType === "MONTH") {
+
+    const monthSelect =
+        document.getElementById("aogResultsMonth");
+
+    const monthLabel =
+        monthSelect
+            ? monthSelect.options[monthSelect.selectedIndex].text.trim()
+            : "";
+
+    // Se o texto do mês já contém o ano ("June 2026"), devolve-o diretamente.
+    if (/\d{4}/.test(monthLabel)) {
+        return monthLabel.replace(/\s+/g, "_");
+    }
+
+    // Caso contrário junta o ano.
+    const year =
+        document.getElementById("aogResultsYear")?.value || "";
+
+    return `${monthLabel}_${year}`.trim();
+
+}
+
+    return "All_Data";
+
+}
+
+/* =========================================================
+   EXPORT AOG RECORD PDF
+========================================================= */
+
+async function exportAOGPDF(){
+
+    const records = AOG_MANAGEMENT_FILTERED_RECORDS || [];
+
+    if(!records.length){
+
+        showNotification(
+            "No AOG records found for the selected filters.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+    // ---------- CREATE PDF ----------
+    const doc = new window.jspdf.jsPDF({
+        orientation:"landscape",
+        unit:"mm",
+        format:"a4"
+    });
+
+    // ---------- HEADER ----------
+    const startY =
+        await drawAOGRecordedPDFHeader(doc);
+
+    // ---------- TABLE ----------
+    drawAOGRecordedPDFTable(
+        doc,
+        records,
+        startY
+    );
+
+    // ---------- FOOTER (ALL PAGES) ----------
+    const totalPages =
+        doc.internal.getNumberOfPages();
+
+    for(let page = 1; page <= totalPages; page++){
+
+        doc.setPage(page);
+
+    await drawAOGRecordedWatermark(doc);
+
+        drawAOGRecordedPDFFooter(
+            doc,
+            page,
+            totalPages
+        );
+
+    }
+
+    // ---------- FILE NAME ----------
+    const labels = {
+        REG:"Registration",
+        TYPE:"AircraftType",
+        BASE:"Base",
+        CATEGORY:"Category"
+    };
+
+    const report =
+        labels[AOG_MANAGEMENT_SEARCH_TYPE] || "Records";
+
+    const value =
+        (AOG_MANAGEMENT_SEARCH_VALUE || "ALL")
+            .replace(/\s+/g,"_")
+            .replace(/\//g,"-");
+
+    const period =
+        getAOGRecordedPeriodLabel()
+            .replace(/\s+/g,"_")
+            .replace(/\//g,"-");
+
+    doc.save(
+        `AOG_Record_Report_${report}_${value}_${period}.pdf`
+    );
+
+}
 
 /* =========================================================
    GLOBAL EXPORTS
@@ -7380,35 +7919,6 @@ async function aogFirebaseRemove(
 }
 
 
-/* =========================================================
-   PDF PLACEHOLDER
-========================================================= */
-
-function exportAOGSearchPDF() {
-
-    /*
-        FUTURE PDF ENGINE
-
-        IMPORTANT:
-        Only the records currently shown by
-        the search are exported.
-
-        AOG_MANAGEMENT_FILTERED_RECORDS
-        already contains exactly that dataset.
-    */
-
-    console.log(
-        "AOG PDF export data:",
-        AOG_MANAGEMENT_FILTERED_RECORDS
-    );
-
-
-    aogShowSuccess(
-        "AOG PDF",
-        "PDF extraction will be configured for this section next."
-    );
-
-}
 
 
 /* =========================================================
@@ -11150,290 +11660,176 @@ function getAOGDaysInSelectedMonth(){
    BUILD DAILY AOG SERIES
 ========================================================= */
 
-function buildAOGDailySeries(
-    records
-){
+function buildAOGDailySeries(records){
 
-    const days =
-        getAOGDaysInSelectedMonth();
-
+    const days = getAOGDaysInSelectedMonth();
 
     /* =====================================================
        DAY LABELS
     ===================================================== */
 
-    const labels =
-        Array.from(
-            {
-                length:
-                    days
-            },
-            (
-                _,
-                index
-            ) =>
-                String(
-                    index + 1
-                )
-        );
-
+    const labels = Array.from(
+        { length: days },
+        (_, index) => String(index + 1)
+    );
 
     /* =====================================================
        INITIAL VALUES
     ===================================================== */
 
-    const values =
-        labels.map(
-            () => 0
-        );
+    const values = labels.map(() => 0);
 
+    /* =====================================================
+       EXTRA ARRAYS FOR TIME → ALL
+    ===================================================== */
+
+    const totalMinutesPerDay = labels.map(() => 0);
+    const occurrencesPerDay = labels.map(() => 0);
 
     /* =====================================================
        PROCESS RECORDS
     ===================================================== */
 
-    records.forEach(
-        record => {
+    records.forEach(record => {
 
-            const date =
-                String(
-                    record.startDate ||
-                    ""
-                )
-                .trim();
+        const date = String(record.startDate || "").trim();
 
+        const day = Number(date.slice(8,10));
 
-            /*
-                Expected format:
+        if(!day || day < 1 || day > days){
+            return;
+        }
 
-                YYYY-MM-DD
+        const index = day - 1;
 
-                Example:
+        /* =================================================
+           TOTAL AOG
+        ================================================= */
 
-                2026-08-15
-            */
+        if(CURRENT_AOG_DAILY_VIEW === "TOTAL"){
+            values[index]++;
+            return;
+        }
 
-            const day =
-                Number(
-                    date.slice(
-                        8,
-                        10
-                    )
+        /* =================================================
+           AIRCRAFT TYPE
+        ================================================= */
+
+        if(CURRENT_AOG_DAILY_VIEW === "AIRCRAFT_TYPE"){
+
+            const aircraftType = String(
+                record.aircraftType ||
+                record.type ||
+                ""
+            ).trim();
+
+            if(CURRENT_AOG_DAILY_SUB_SELECTION === "ALL"){
+                values[index]++;
+                return;
+            }
+
+            if(aircraftType === CURRENT_AOG_DAILY_SUB_SELECTION){
+                values[index]++;
+            }
+
+            return;
+        }
+
+        /* =================================================
+           CATEGORY
+        ================================================= */
+
+        if(CURRENT_AOG_DAILY_VIEW === "CATEGORY"){
+
+            const category = String(record.category || "").trim();
+
+            if(CURRENT_AOG_DAILY_SUB_SELECTION === "ALL"){
+                values[index]++;
+                return;
+            }
+
+            if(category === CURRENT_AOG_DAILY_SUB_SELECTION){
+                values[index]++;
+            }
+
+            return;
+        }
+
+        /* =================================================
+           AOG TIME DISTRIBUTION
+        ================================================= */
+
+        if(CURRENT_AOG_DAILY_VIEW === "TIME"){
+
+            const duration = getAOGAnalysisDuration(record);
+
+            if(!Number.isFinite(duration)){
+                return;
+            }
+
+            /* ---------------------------------------------
+               ALL = Average AOG Hours for that day
+            --------------------------------------------- */
+
+            if(CURRENT_AOG_DAILY_SUB_SELECTION === "ALL"){
+
+                totalMinutesPerDay[index] += duration;
+                occurrencesPerDay[index]++;
+
+                return;
+            }
+
+            /* ---------------------------------------------
+               Buckets = Frequency
+            --------------------------------------------- */
+
+            const hours = duration / 60;
+
+            const bucket = getAOGTimeBucket(hours);
+
+            if(bucket === CURRENT_AOG_DAILY_SUB_SELECTION){
+                values[index]++;
+            }
+
+            return;
+        }
+
+    });
+
+    /* =====================================================
+       CALCULATE DAILY AVERAGE HOURS
+    ===================================================== */
+
+    if(
+        CURRENT_AOG_DAILY_VIEW === "TIME" &&
+        CURRENT_AOG_DAILY_SUB_SELECTION === "ALL"
+    ){
+
+        for(let i = 0; i < days; i++){
+
+            if(occurrencesPerDay[i] > 0){
+
+                values[i] = Number(
+                    (
+                        totalMinutesPerDay[i] /
+                        occurrencesPerDay[i] /
+                        60
+                    ).toFixed(2)
                 );
 
+            }else{
 
-            /*
-                Ignore invalid dates.
-            */
-
-            if(
-                !day ||
-                day < 1 ||
-                day > days
-            ){
-
-                return;
-
-            }
-
-
-            const index =
-                day - 1;
-
-
-            /* =================================================
-               TOTAL AOG
-            ================================================= */
-
-            if(
-                CURRENT_AOG_DAILY_VIEW ===
-                "TOTAL"
-            ){
-
-                values[index]++;
-
-                return;
-
-            }
-
-
-            /* =================================================
-               AIRCRAFT TYPE
-            ================================================= */
-
-            if(
-                CURRENT_AOG_DAILY_VIEW ===
-                "AIRCRAFT_TYPE"
-            ){
-
-                const aircraftType =
-                    String(
-                        record.aircraftType ||
-                        record.type ||
-                        ""
-                    )
-                    .trim();
-
-
-                /*
-                    ALL AIRCRAFT TYPES
-                */
-
-                if(
-                    CURRENT_AOG_DAILY_SUB_SELECTION ===
-                    "ALL"
-                ){
-
-                    values[index]++;
-
-                    return;
-
-                }
-
-
-                /*
-                    SPECIFIC AIRCRAFT TYPE
-                */
-
-                if(
-                    aircraftType ===
-                    CURRENT_AOG_DAILY_SUB_SELECTION
-                ){
-
-                    values[index]++;
-
-                }
-
-
-                return;
-
-            }
-
-
-            /* =================================================
-               CATEGORY
-            ================================================= */
-
-            if(
-                CURRENT_AOG_DAILY_VIEW ===
-                "CATEGORY"
-            ){
-
-                const category =
-                    String(
-                        record.category ||
-                        ""
-                    )
-                    .trim();
-
-
-                /*
-                    ALL CATEGORIES
-                */
-
-                if(
-                    CURRENT_AOG_DAILY_SUB_SELECTION ===
-                    "ALL"
-                ){
-
-                    values[index]++;
-
-                    return;
-
-                }
-
-
-                /*
-                    SPECIFIC CATEGORY
-                */
-
-                if(
-                    category ===
-                    CURRENT_AOG_DAILY_SUB_SELECTION
-                ){
-
-                    values[index]++;
-
-                }
-
-
-                return;
-
-            }
-
-
-            /* =================================================
-               AOG TIME DISTRIBUTION
-            ================================================= */
-
-            if(
-                CURRENT_AOG_DAILY_VIEW ===
-                "TIME"
-            ){
-
-                const duration =
-                    getAOGAnalysisDuration(
-                        record
-                    );
-
-
-                /*
-                    Cannot classify an AOG
-                    without a valid duration.
-                */
-
-                if(
-                    !Number.isFinite(
-                        duration
-                    )
-                ){
-
-                    return;
-
-                }
-
-
-                const hours =
-                    duration /
-                    60;
-
-
-                const bucket =
-                    getAOGTimeBucket(
-                        hours
-                    );
-
-
-                /*
-                    Selected time bucket.
-                */
-
-                if(
-                    bucket ===
-                    CURRENT_AOG_DAILY_SUB_SELECTION
-                ){
-
-                    values[index]++;
-
-                }
-
-
-                return;
+                values[i] = 0;
 
             }
 
         }
-    );
 
+    }
 
     return {
-
-        labels:
-            labels,
-
-        values:
-            values
-
+        labels,
+        values
     };
 
 }
@@ -11500,266 +11896,248 @@ function getAOGTimeBucket(
    DAILY CHART
 ========================================================= */
 
-function renderAOGDailyHistoryChart(
-    records
-){
+function renderAOGDailyHistoryChart(records){
 
     const canvas =
-        document.getElementById(
-            "aogDailyHistoryChart"
-        );
+        document.getElementById("aogDailyHistoryChart");
 
-
-    if(
-        !canvas
-    ){
-
+    if(!canvas){
         return;
-
     }
 
-
-    if(
-        AOG_DAILY_HISTORY_CHART
-    ){
-
+    if(AOG_DAILY_HISTORY_CHART){
         AOG_DAILY_HISTORY_CHART.destroy();
-
-        AOG_DAILY_HISTORY_CHART =
-            null;
-
+        AOG_DAILY_HISTORY_CHART = null;
     }
-
 
     const series =
-        buildAOGDailySeries(
-            records
-        );
+        buildAOGDailySeries(records);
 
+    /* ---------------------------------------------
+       Average mode (AOG Time → All)
+       ALTERAÇÃO: aceita ALL e All
+    --------------------------------------------- */
+
+    const selectedTimeFilter =
+        String(CURRENT_AOG_DAILY_SUB_SELECTION || "")
+            .trim()
+            .toUpperCase();
+
+    const isAverageMode =
+        CURRENT_AOG_DAILY_VIEW === "TIME" &&
+        selectedTimeFilter === "ALL";
+
+    /* ---------------------------------------------
+       Dynamic Scale
+    --------------------------------------------- */
+
+    const highestValue =
+        Math.max(...series.values,1);
+
+    const yAxisMax =
+        isAverageMode
+            ? Math.ceil(highestValue + 1)
+            : (highestValue <= 2
+                ? 2
+                : Math.ceil(highestValue * 1.25));
+
+    /* ---------------------------------------------
+       Subtitle
+    --------------------------------------------- */
 
     const subtitle =
-        document.getElementById(
-            "aogDailyChartSubtitle"
-        );
+        document.getElementById("aogDailyChartSubtitle");
 
-
-    if(
-        subtitle
-    ){
+    if(subtitle){
 
         let text =
             "Monthly AOG occurrence evolution";
 
-
-        if(
-            CURRENT_AOG_ANALYSIS_SCOPE ===
-            "BASE"
-        ){
-
+        if(CURRENT_AOG_ANALYSIS_SCOPE === "BASE"){
             text =
                 `${CURRENT_AOG_ANALYSIS_BASE} · ${getAOGCurrentPeriodLabel()}`;
-
-        }
-
-        else{
-
+        }else{
             text =
                 `All PT Bases · ${getAOGCurrentPeriodLabel()}`;
-
         }
 
-
-        if(
-            CURRENT_AOG_DAILY_VIEW ===
-            "AIRCRAFT_TYPE"
-        ){
-
-            text +=
-                ` · Aircraft Type: ${CURRENT_AOG_DAILY_SUB_SELECTION}`;
-
+        if(CURRENT_AOG_DAILY_VIEW === "AIRCRAFT_TYPE"){
+            text += ` · Aircraft Type: ${CURRENT_AOG_DAILY_SUB_SELECTION}`;
         }
 
-
-        if(
-            CURRENT_AOG_DAILY_VIEW ===
-            "CATEGORY"
-        ){
-
-            text +=
-                ` · Category: ${CURRENT_AOG_DAILY_SUB_SELECTION}`;
-
+        if(CURRENT_AOG_DAILY_VIEW === "CATEGORY"){
+            text += ` · Category: ${CURRENT_AOG_DAILY_SUB_SELECTION}`;
         }
 
-
-        if(
-            CURRENT_AOG_DAILY_VIEW ===
-            "TIME"
-        ){
-
-            text +=
-                ` · Time: ${CURRENT_AOG_DAILY_SUB_SELECTION}`;
-
+        if(CURRENT_AOG_DAILY_VIEW === "TIME"){
+            text += ` · Time: ${
+                isAverageMode
+                    ? "Average AOG Hours"
+                    : CURRENT_AOG_DAILY_SUB_SELECTION
+            }`;
         }
 
-
-        subtitle.textContent =
-            text;
-
+        subtitle.textContent = text;
     }
 
+    /* ---------------------------------------------
+       Chart
+    --------------------------------------------- */
 
     AOG_DAILY_HISTORY_CHART =
-        new Chart(
-            canvas,
-            {
+        new Chart(canvas,{
 
-                type:
-                    "bar",
+            data:{
 
+                labels:series.labels,
 
-                data:{
+                datasets:[
 
-                    labels:
-                        series.labels,
+                    {
+                        type:"bar",
 
+                        label:
+                            isAverageMode
+                                ? "Average AOG Hours"
+                                : "Total AOG",
 
-                    datasets:[
+                        data:series.values,
 
-                        {
+                        backgroundColor:"#073590",
+                        borderColor:"#073590",
 
-                            label:
-                                "AOG",
+                        borderRadius:9,
+                        borderSkipped:false,
 
-                            data:
-                                series.values,
+                        categoryPercentage:0.72,
+                        barPercentage:0.82,
+                        maxBarThickness:34,
 
-                            backgroundColor:
-                                "#073590",
+                        order:2,
 
-                            borderColor:
-                                "#073590",
-
-                            borderRadius:
-                                9,
-
-                            borderSkipped:
-                                false,
-
-                            categoryPercentage:
-                                0.72,
-
-                            barPercentage:
-                                0.82,
-
-                            maxBarThickness:
-                                34
-
+                        datalabels:{
+                            anchor:"end",
+                            align:"top",
+                            offset:5,
+                            color:"#073590",
+                            font:{
+                                family:"Montserrat",
+                                weight:"700",
+                                size:12
+                            },
+                            formatter:(value)=> value > 0 ? value : ""
                         }
+                    },
 
-                    ]
+                    {
+                        type:"line",
 
+                        label:"Daily Performance",
+
+                        data:series.values,
+
+                        borderColor:"#FFD200",
+                        backgroundColor:"#FFD200",
+
+                        borderWidth:3,
+                        tension:0.35,
+
+                        fill:false,
+
+                        pointRadius:4,
+                        pointHoverRadius:6,
+
+                        pointBackgroundColor:"#FFD200",
+                        pointBorderColor:"#073590",
+                        pointBorderWidth:2,
+
+                        datalabels:{
+                            display:false
+                        },
+
+                        order:1
+                    }
+
+                ]
+
+            },
+
+            options:{
+
+                responsive:true,
+                maintainAspectRatio:false,
+
+                interaction:{
+                    mode:"index",
+                    intersect:false
                 },
 
+                layout:{
+                    padding:{
+                        top:25,
+                        right:15,
+                        left:8,
+                        bottom:5
+                    }
+                },
 
-                options:{
+                plugins:{
 
-                    responsive:
-                        true,
-
-                    maintainAspectRatio:
-                        false,
-
-
-                    interaction:{
-
-                        mode:
-                            "index",
-
-                        intersect:
-                            false
-
+                    datalabels:{
+                        display:true
                     },
 
+                    legend:{
+                        display:true,
+                        position:"top",
+                        align:"end",
 
-                    plugins:{
-
-                        legend:{
-
-                            display:
-                                false
-
-                        },
-
-
-                        tooltip:{
-
-                            callbacks:{
-
-                                label:
-                                    function(
-                                        context
-                                    ){
-
-                                        return (
-                                            " AOG: " +
-                                            Number(
-                                                context.raw ||
-                                                0
-                                            )
-                                        );
-
-                                    }
-
+                        labels:{
+                            usePointStyle:true,
+                            pointStyle:"circle",
+                            color:"#002D72",
+                            font:{
+                                family:"Montserrat",
+                                size:12,
+                                weight:"700"
                             }
-
                         }
-
                     },
 
+                    tooltip:{
 
-                    scales:{
+                        backgroundColor:"#001B5E",
+                        titleColor:"#FFD200",
+                        bodyColor:"#FFFFFF",
 
-                        x:{
+                        borderColor:"#FFD200",
+                        borderWidth:1,
 
-                            title:{
+                        cornerRadius:10,
+                        padding:12,
 
-                                display:
-                                    true,
+                        callbacks:{
 
-                                text:
-                                    "Day"
-
+                            title:function(items){
+                                return `Day ${items[0].label}`;
                             },
 
-                            grid:{
+                            label:function(context){
 
-                                display:
-                                    false
+                                const value =
+                                    Number(context.raw || 0);
 
-                            }
+                                if(context.dataset.type === "line"){
 
-                        },
+                                    return isAverageMode
+                                        ? `Average AOG Hours: ${value.toFixed(2)} h`
+                                        : `Daily Performance: ${value}`;
 
+                                }
 
-                        y:{
-
-                            beginAtZero:
-                                true,
-
-                            ticks:{
-
-                                precision:
-                                    0
-
-                            },
-
-                            title:{
-
-                                display:
-                                    true,
-
-                                text:
-                                    "AOG Occurrences"
+                                return isAverageMode
+                                    ? `Average AOG Hours: ${value.toFixed(2)} h`
+                                    : `Total AOG: ${value}`;
 
                             }
 
@@ -11767,13 +12145,54 @@ function renderAOGDailyHistoryChart(
 
                     }
 
+                },
+
+                scales:{
+
+                    x:{
+
+                        title:{
+                            display:true,
+                            text:"Day"
+                        },
+
+                        grid:{
+                            display:false
+                        }
+
+                    },
+
+                    y:{
+
+                        beginAtZero:true,
+                        min:0,
+                        max:yAxisMax,
+
+                        ticks:{
+                            precision:isAverageMode ? 1 : 0,
+                            stepSize:1
+                        },
+
+                        title:{
+                            display:true,
+                            text:isAverageMode
+                                ? "Average AOG Hours"
+                                : "AOG Occurrences"
+                        },
+
+                        grid:{
+                            color:"#E5EDF7"
+                        }
+
+                    }
+
                 }
 
             }
-        );
+
+        });
 
 }
-
 
 /* =========================================================
    PERIOD CHANGE HOOK
@@ -14960,85 +15379,62 @@ function aogTrendFindBaseData(
 // AOG TREND — POPULATE BASE SELECTOR
 // =========================================================
 
+/* =========================================================
+   AOG TREND — POPULATE BASE SELECTORS
+========================================================= */
+
 function populateAOGTrendBases(){
 
-    const select =
-        document.getElementById(
-            "aogTrendBase"
-        );
+    const selectorA =
+        document.getElementById("aogTrendBaseA");
 
+    const selectorB =
+        document.getElementById("aogTrendBaseB");
 
-    if(!select){
-
-        return;
-
-    }
-
-
-    const current =
-        String(
-            select.value ||
-            ""
-        )
-        .trim()
-        .toUpperCase();
-
-
-    /*
-     * FIXED PORTUGUESE NETWORK
-     */
+    const selectors = [
+        selectorA,
+        selectorB
+    ];
 
     const bases = [
-
         "OPO",
         "LIS",
         "FAO",
         "FNC"
-
     ];
 
+    selectors.forEach((select,index)=>{
 
-    select.innerHTML = `
+        if(!select) return;
 
-        <option
-            value=""
-        >
+        const current = select.value;
 
-            Select base...
+        select.innerHTML = "";
 
-        </option>
+        /* Default option */
 
-        ${
-            bases
-                .map(
-                    base => `
+        const defaultOption = document.createElement("option");
+        defaultOption.value = index === 0 ? "ALL" : "";
+        defaultOption.textContent = index === 0
+            ? "All Portuguese Bases"
+            : "None";
 
-                        <option
-                            value="${base}"
-                        >
+        select.appendChild(defaultOption);
 
-                            ${base}
+        bases.forEach(base=>{
 
-                        </option>
+            const option = document.createElement("option");
+            option.value = base;
+            option.textContent = base;
 
-                    `
-                )
-                .join("")
-        }
+            select.appendChild(option);
 
-    `;
+        });
 
+        if(current)
+            select.value = current;
 
-    if(
-        bases.includes(
-            current
-        )
-    ){
-
-        select.value =
-            current;
-
-    }
+    });
 
 }
 
@@ -15929,610 +16325,160 @@ function calculateAOGTrendLine(
 }
 
 
-// =========================================================
-// AOG TREND — DRAW CHART
-// =========================================================
+/* =========================================================
+   AOG TREND — DRAW CHART (V2 FINAL)
+========================================================= */
 
-function drawAOGTrendChart(
-    periods,
-    datasets,
-    metric
-){
+function drawAOGTrendChart(periods, datasets, metric){
 
-    if(
-        typeof Chart ===
-        "undefined"
-    ){
+    const canvas = document.getElementById("aogTrendChart");
+    if(!canvas || typeof Chart === "undefined") return;
 
-        console.error(
-            "AOG TREND — Chart.js unavailable."
-        );
-
-        return;
-
+    if(window.activeCharts?.aogTrendChart){
+        window.activeCharts.aogTrendChart.destroy();
     }
 
+    window.activeCharts = window.activeCharts || {};
 
-    const canvas =
-        document.getElementById(
-            "aogTrendChart"
-        );
+    /* ---------- Dynamic Scale ---------- */
 
+    const values = [];
 
-    if(!canvas){
+    datasets.forEach(ds=>{
+        ds.data.forEach(v=>{
+            if(Number.isFinite(Number(v))) values.push(Number(v));
+        });
+    });
 
-        return;
+    const highest = values.length ? Math.max(...values) : 1;
 
-    }
-
-
-    /*
-     * =====================================================
-     * DESTROY PREVIOUS CHART
-     * =====================================================
-     */
-
-    if(
-        window.activeCharts &&
-        window.activeCharts.aogTrendChart
-    ){
-
-        try{
-
-            window.activeCharts
-                .aogTrendChart
-                .destroy();
-
-        }
-        catch(error){
-
-            console.warn(
-                "AOG TREND — chart destroy:",
-                error
-            );
-
-        }
-
-    }
-
-
-    if(
-        !window.activeCharts
-    ){
-
-        window.activeCharts = {};
-
-    }
-
-
-    /*
-     * =====================================================
-     * COLLECT ALL NUMERIC VALUES
-     * =====================================================
-     *
-     * Portugal
-     * Bases
-     * Calculated Trend
-     *
-     * Everything contributes to the scale.
-     *
-     */
-
-    const allValues = [];
-
-
-    (
-        Array.isArray(
-            datasets
-        )
-            ?
-            datasets
-            :
-            []
-    )
-    .forEach(
-        dataset => {
-
-            (
-                Array.isArray(
-                    dataset.data
-                )
-                    ?
-                    dataset.data
-                    :
-                    []
-            )
-            .forEach(
-                value => {
-
-                    const number =
-                        Number(
-                            value
-                        );
-
-
-                    if(
-                        Number.isFinite(
-                            number
-                        )
-                    ){
-
-                        allValues.push(
-                            number
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-
-    /*
-     * =====================================================
-     * DYNAMIC Y SCALE
-     * =====================================================
-     */
-
-    const highest =
-        allValues.length
-            ?
-                Math.max(
-                    ...allValues
-                )
-            :
-                0;
-
-
-    let chartMax;
-
-
-    if(
-        highest <= 0
-    ){
-
-        chartMax =
-            1;
-
-    }
-
-    else if(
+    const yMax =
         highest <= 1
-    ){
+            ? 2
+            : Math.ceil((highest * 1.18) / 2) * 2;
 
-        /*
-         * Prevent a 0 → 1 graph from looking glued
-         * to the ceiling.
-         */
+    window.activeCharts.aogTrendChart =
+        new Chart(canvas.getContext("2d"),{
 
-        chartMax =
-            2;
+            type:"line",
 
-    }
+            data:{
+                labels:periods.map(p=>p.label),
+                datasets
+            },
 
-    else{
+            options:{
 
-        /*
-         * 18% breathing room.
-         */
+                responsive:true,
+                maintainAspectRatio:false,
 
-        const padded =
-            highest *
-            1.18;
-
-
-        /*
-         * For integer/count metrics, round to a
-         * useful integer scale.
-         */
-
-        if(
-            metric === "count"
-        ){
-
-            chartMax =
-                Math.max(
-                    2,
-                    Math.ceil(
-                        padded
-                    )
-                );
-
-        }
-        else{
-
-            chartMax =
-                Math.max(
-                    1,
-                    Number(
-                        padded.toFixed(
-                            1
-                        )
-                    )
-                );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * BUILD CHART
-     * =====================================================
-     */
-
-    window.activeCharts
-        .aogTrendChart =
-
-        new Chart(
-
-            canvas.getContext(
-                "2d"
-            ),
-
-            {
-
-                type:
-                    "line",
-
-
-                data:{
-
-                    labels:
-                        (
-                            Array.isArray(
-                                periods
-                            )
-                                ?
-                                periods
-                                :
-                                []
-                        )
-                        .map(
-                            period =>
-                                period.label
-                        ),
-
-
-                    datasets:
-                        datasets
-
+                interaction:{
+                    mode:"index",
+                    intersect:false
                 },
 
+                plugins:{
 
-                options:{
+                    legend:{
+                        position:"top",
+                        align:"end",
 
-                    responsive:
-                        true,
-
-                    maintainAspectRatio:
-                        false,
-
-
-                    interaction:{
-
-                        mode:
-                            "index",
-
-                        intersect:
-                            false
-
+                        labels:{
+                            usePointStyle:true,
+                            pointStyle:"circle",
+                            padding:16,
+                            font:{
+                                size:11,
+                                weight:"700"
+                            },
+                            color:"#082d70"
+                        }
                     },
 
+                    tooltip:{
+                        backgroundColor:"#082d70",
+                        borderColor:"#FFD200",
+                        borderWidth:1,
+                        cornerRadius:10,
+                        padding:12,
 
-                    animation:{
+                        callbacks:{
 
-                        duration:
-                            450,
+                            label(context){
 
-                        easing:
-                            "easeOutQuart"
+                                const ds = context.dataset;
+                                const value = Number(context.raw);
 
-                    },
+                                let text =
+                                    `${ds.label}: ${aogTrendFormatValue(value,metric)}`;
 
+                                if(ds.id!=="PORTUGAL" && ds.id!=="TREND"){
 
-                    plugins:{
+                                    const portugal =
+                                        datasets.find(x=>x.id==="PORTUGAL");
 
-                        legend:{
+                                    const ref =
+                                        Number(portugal.data[context.dataIndex]);
 
-                            display:
-                                true,
+                                    if(Number.isFinite(ref) && ref!==0){
 
-                            position:
-                                "top",
+                                        const diff=((value-ref)/ref)*100;
 
-                            align:
-                                "end",
-
-                            labels:{
-
-                                usePointStyle:
-                                    true,
-
-                                pointStyle:
-                                    "circle",
-
-                                padding:
-                                    18,
-
-                                boxWidth:
-                                    9,
-
-                                color:
-                                    "#082d70",
-
-                                font:{
-
-                                    size:
-                                        11,
-
-                                    weight:
-                                        "800"
-
-                                }
-
-                            }
-
-                        },
-
-
-                        tooltip:{
-
-                            backgroundColor:
-                                "#082d70",
-
-                            titleColor:
-                                "#ffffff",
-
-                            bodyColor:
-                                "#ffffff",
-
-                            borderColor:
-                                "#f5c400",
-
-                            borderWidth:
-                                1,
-
-                            padding:
-                                12,
-
-                            cornerRadius:
-                                9,
-
-
-                            callbacks:{
-
-                                label:
-                                    function(
-                                        context
-                                    ){
-
-                                        const dataset =
-                                            context.dataset;
-
-
-                                        const value =
-                                            Number(
-                                                context.raw
-                                            );
-
-
-                                        let label =
-
-                                            dataset.label +
-                                            ": " +
-                                            aogTrendFormatValue(
-                                                value,
-                                                metric
-                                            );
-
-
-                                        /*
-                                         * Portugal is the reference.
-                                         */
-
-                                        if(
-                                            dataset.role ===
-                                            "base"
-                                        ){
-
-                                            const portugal =
-                                                datasets.find(
-                                                    item =>
-                                                        item.id ===
-                                                        "PORTUGAL"
-                                                );
-
-
-                                            const portugalValue =
-                                                Number(
-                                                    portugal
-                                                        ?.data?.[
-                                                            context.dataIndex
-                                                        ]
-                                                );
-
-
-                                            if(
-                                                Number.isFinite(
-                                                    portugalValue
-                                                ) &&
-                                                portugalValue !==
-                                                    0 &&
-                                                Number.isFinite(
-                                                    value
-                                                )
-                                            ){
-
-                                                const difference =
-
-                                                    (
-                                                        (
-                                                            value -
-                                                            portugalValue
-                                                        )
-                                                        /
-                                                        Math.abs(
-                                                            portugalValue
-                                                        )
-                                                    )
-                                                    *
-                                                    100;
-
-
-                                                label +=
-
-                                                    "  |  " +
-
-                                                    (
-                                                        difference >=
-                                                        0
-                                                            ? "+"
-                                                            : ""
-                                                    ) +
-
-                                                    difference.toFixed(
-                                                        1
-                                                    ) +
-
-                                                    "% vs PT";
-
-                                            }
-
-                                        }
-
-
-                                        return label;
+                                        text +=
+                                            ` (${diff>=0?"+":""}${diff.toFixed(1)}% vs PT)`;
 
                                     }
 
+                                }
+
+                                return text;
+
                             }
-
-                        },
-
-
-                        datalabels:{
-
-                            display:
-                                false
 
                         }
 
+                    }
+
+                },
+
+                scales:{
+
+                    x:{
+                        grid:{display:false},
+                        ticks:{
+                            color:"#60748A",
+                            font:{
+                                size:11,
+                                weight:"600"
+                            }
+                        }
                     },
 
+                    y:{
+                        beginAtZero:true,
+                        max:yMax,
 
-                    scales:{
-
-                        x:{
-
-                            grid:{
-
-                                display:
-                                    false
-
-                            },
-
-
-                            ticks:{
-
-                                color:
-                                    "#71829a",
-
-                                font:{
-
-                                    size:
-                                        11,
-
-                                    weight:
-                                        "600"
-
-                                },
-
-                                maxRotation:
-                                    45,
-
-                                minRotation:
-                                    0
-
-                            }
-
+                        grid:{
+                            color:"#E8EEF7"
                         },
 
-
-                        y:{
-
-                            beginAtZero:
-                                true,
-
-                            min:
-                                0,
-
-                            max:
-                                chartMax,
-
-
-                            grid:{
-
-                                color:
-                                    "#edf1f6"
-
-                            },
-
-
-                            ticks:{
-
-                                color:
-                                    "#71829a",
-
-                                font:{
-
-                                    size:
-                                        11,
-
-                                    weight:
-                                        "600"
-
-                                },
-
-                                precision:
-                                    metric ===
-                                    "count"
-                                        ?
-                                        0
-                                        :
-                                        undefined
-
-                            },
-
-
-                            title:{
-
-                                display:
-                                    true,
-
-                                text:
-                                    aogTrendMetricLabel(
-                                        metric
-                                    ),
-
-                                color:
-                                    "#082d70",
-
-                                font:{
-
-                                    size:
-                                        12,
-
-                                    weight:
-                                        "800"
-
-                                }
-
+                        ticks:{
+                            color:"#60748A",
+                            precision: metric==="count" ? 0 : 1,
+                            font:{
+                                size:11,
+                                weight:"600"
                             }
+                        },
 
+                        title:{
+                            display:true,
+                            text:aogTrendMetricLabel(metric),
+                            color:"#082d70",
+                            font:{
+                                size:12,
+                                weight:"700"
+                            }
                         }
 
                     }
@@ -16541,7 +16487,7 @@ function drawAOGTrendChart(
 
             }
 
-        );
+        });
 
 }
 
@@ -16693,660 +16639,156 @@ function aogTrendBuildBaseDataset(
 //
 // =========================================================
 
-function buildAOGTrendDatasets(
-    periods,
-    metric,
-    compare
-){
+
+/* =========================================================
+   AOG TREND — BUILD DATASETS
+========================================================= */
+
+function buildAOGTrendDatasets(periods,metric){
 
     const datasets = [];
 
-
-    const safePeriods =
-        Array.isArray(periods)
-            ? periods
-            : [];
-
-
-    /*
-     * =====================================================
-     * COLOUR SYSTEM
-     * =====================================================
-     */
-
-    const COLORS = {
-
-        portugal:
-            "#003399",
-
-        opo:
-            "#f5c400",
-
-        lis:
-            "#16a3a8",
-
-        fao:
-            "#f97316",
-
-        fnc:
-            "#7c3aed",
-
-        trend:
-            "#e87500"
-
+    const colours = {
+        PORTUGAL:"#003399",
+        OPO:"#FFC300",
+        LIS:"#16A34A",
+        FAO:"#F97316",
+        FNC:"#9333EA",
+        TREND:"#64748B"
     };
 
-
-    /*
-     * =====================================================
-     * PORTUGAL DATA
-     * =====================================================
-     */
+    /* Portugal is ALWAYS present */
 
     const portugalValues =
-        aogTrendBuildPortugalDataset(
-            safePeriods,
-            metric
-        );
-
-
-    /*
-     * =====================================================
-     * PORTUGAL DATASET
-     * =====================================================
-     */
+        aogTrendBuildPortugalDataset(periods,metric);
 
     datasets.push({
-
-        id:
-            "PORTUGAL",
-
-        label:
-            "Portugal",
-
-        role:
-            "reference",
-
-        data:
-            portugalValues,
-
-        borderColor:
-            COLORS.portugal,
-
-        backgroundColor:
-            "rgba(0,51,153,.08)",
-
-        borderWidth:
-            3.5,
-
-        pointRadius:
-            4.5,
-
-        pointHoverRadius:
-            7,
-
-        pointBackgroundColor:
-            COLORS.portugal,
-
-        pointBorderColor:
-            "#ffffff",
-
-        pointBorderWidth:
-            2,
-
-        tension:
-            .28,
-
-        fill:
-            false,
-
-        spanGaps:
-            false
-
+        id:"PORTUGAL",
+        label:"Portugal",
+        data:portugalValues,
+        borderColor:colours.PORTUGAL,
+        backgroundColor:"rgba(0,51,153,.08)",
+        borderWidth:3,
+        tension:.35,
+        pointRadius:4,
+        pointHoverRadius:6,
+        fill:false
     });
 
+    /* Comparison selectors */
 
-    /*
-     * =====================================================
-     * DETERMINE BASES TO DISPLAY
-     * =====================================================
-     *
-     * We deliberately use the fixed Portuguese network:
-     *
-     * OPO
-     * LIS
-     * FAO
-     * FNC
-     *
-     * This prevents accidental Firebase keys or future
-     * locations from appearing in this Trend selector.
-     *
-     */
+    const baseA =
+        document.getElementById("aogTrendBaseA")?.value || "ALL";
 
-    const knownBases = [
+    const baseB =
+        document.getElementById("aogTrendBaseB")?.value || "";
 
-        "OPO",
-        "LIS",
-        "FAO",
-        "FNC"
+    let bases = [];
 
-    ];
+    if(baseA==="ALL"){
 
+        bases = ["OPO","LIS","FAO","FNC"];
 
-    let selectedBases = [];
+    }else{
 
+        bases.push(baseA);
 
-    /*
-     * -----------------------------------------------------
-     * ALL PORTUGUESE BASES
-     * -----------------------------------------------------
-     */
-
-    if(
-        compare === "allBases" ||
-        compare === "all" ||
-        compare === "bases"
-    ){
-
-        selectedBases =
-            knownBases.slice(
-                0,
-                5
-            );
+        if(baseB && baseB!==baseA)
+            bases.push(baseB);
 
     }
 
-
-    /*
-     * -----------------------------------------------------
-     * SPECIFIC BASE
-     * -----------------------------------------------------
-     */
-
-    else if(
-        compare === "base"
-    ){
-
-        const selectedBase =
-            String(
-                document.getElementById(
-                    "aogTrendBase"
-                )?.value ||
-                ""
-            )
-            .trim()
-            .toUpperCase();
-
-
-        if(
-            knownBases.includes(
-                selectedBase
-            )
-        ){
-
-            selectedBases = [
-
-                selectedBase
-
-            ];
-
-        }
-
-    }
-
-
-    /*
-     * -----------------------------------------------------
-     * PORTUGAL ONLY
-     * -----------------------------------------------------
-     */
-
-    else{
-
-        selectedBases = [];
-
-    }
-
-
-    /*
-     * =====================================================
-     * BASE COLOUR MAP
-     * =====================================================
-     */
-
-    const baseColors = {
-
-        OPO:
-            COLORS.opo,
-
-        LIS:
-            COLORS.lis,
-
-        FAO:
-            COLORS.fao,
-
-        FNC:
-            COLORS.fnc
-
-    };
-
-
-    /*
-     * =====================================================
-     * ADD BASE DATASETS
-     * =====================================================
-     */
-
-    selectedBases
-        .forEach(
-            base => {
-
-                const values =
-                    aogTrendBuildBaseDataset(
-                        safePeriods,
-                        base,
-                        metric
-                    );
-
-
-                datasets.push({
-
-                    id:
-                        base,
-
-                    label:
-                        base,
-
-                    role:
-                        "base",
-
-                    base:
-                        base,
-
-                    data:
-                        values,
-
-                    borderColor:
-                        baseColors[
-                            base
-                        ] ||
-                        "#71829a",
-
-                    backgroundColor:
-                        "transparent",
-
-                    borderWidth:
-                        2.7,
-
-                    pointRadius:
-                        3.5,
-
-                    pointHoverRadius:
-                        6,
-
-                    pointBackgroundColor:
-                        baseColors[
-                            base
-                        ] ||
-                        "#71829a",
-
-                    pointBorderColor:
-                        "#ffffff",
-
-                    pointBorderWidth:
-                        1.5,
-
-                    tension:
-                        .28,
-
-                    fill:
-                        false,
-
-                    spanGaps:
-                        false
-
-                });
-
-            }
-        );
-
-
-    /*
-     * =====================================================
-     * CALCULATED PORTUGAL TREND
-     * =====================================================
-     *
-     * This line is calculated from Portugal only.
-     *
-     */
-
-    const trendValues =
-        calculateAOGPortugalTrend(
-            portugalValues
-        );
-
-
-    /*
-     * We only add the calculated trend when
-     * Portugal has at least one usable value.
-     */
-
-    const hasPortugalData =
-        trendValues.some(
-            value =>
-                Number.isFinite(
-                    Number(value)
-                )
-        );
-
-
-    if(
-        hasPortugalData
-    ){
+    bases.forEach(base=>{
 
         datasets.push({
 
-            id:
-                "PORTUGAL_TREND",
-
-            label:
-                "Calculated Trend — Portugal",
-
-            role:
-                "trend",
+            id:base,
+            label:base,
+            base:base,
 
             data:
-                trendValues,
+                aogTrendBuildBaseDataset(
+                    periods,
+                    base,
+                    metric
+                ),
 
-            borderColor:
-                COLORS.trend,
-
-            backgroundColor:
-                "transparent",
-
-            borderWidth:
-                2.5,
-
-            borderDash:
-                [
-                    8,
-                    6
-                ],
-
-            pointRadius:
-                0,
-
-            pointHoverRadius:
-                4,
-
-            pointBackgroundColor:
-                COLORS.trend,
-
-            tension:
-                0,
-
-            fill:
-                false,
-
-            spanGaps:
-                true
+            borderColor:colours[base],
+            backgroundColor:"transparent",
+            borderWidth:2.5,
+            tension:.35,
+            pointRadius:3,
+            pointHoverRadius:5,
+            fill:false
 
         });
 
-    }
+    });
 
+    /* Portugal calculated trend */
+
+    datasets.push({
+
+        id:"TREND",
+
+        label:"Portugal Trend",
+
+        data:calculateAOGPortugalTrend(portugalValues),
+
+        borderColor:colours.TREND,
+
+        borderDash:[10,6],
+
+        borderWidth:2,
+
+        pointRadius:0,
+
+        tension:0,
+
+        fill:false
+
+    });
 
     return datasets;
 
 }
 
 
-// =========================================================
-// AOG TREND — CALCULATE PORTUGAL LINE
-// =========================================================
-//
-// Linear regression:
-//
-// y = a + bx
-//
-// x = month index
-// y = Portugal metric
-//
-// With only one month:
-// → horizontal baseline.
-//
-// Missing months:
-// → ignored in regression but remain null in output.
-//
-// =========================================================
+/* =========================================================
+   AOG TREND — LINEAR REGRESSION
+========================================================= */
 
-function calculateAOGPortugalTrend(
-    values
-){
+function calculateAOGPortugalTrend(values){
 
-    if(
-        !Array.isArray(values) ||
-        !values.length
-    ){
+    const clean = values
+        .map((v,i)=>({
+            x:i,
+            y:Number(v)
+        }))
+        .filter(v=>Number.isFinite(v.y));
 
-        return [];
+    if(clean.length===0)
+        return values.map(()=>null);
 
-    }
+    if(clean.length===1)
+        return values.map(()=>clean[0].y);
 
+    const n = clean.length;
 
-    const points = [];
-
-
-    values.forEach(
-        (
-            value,
-            index
-        ) => {
-
-            const number =
-                Number(
-                    value
-                );
-
-
-            if(
-                Number.isFinite(
-                    number
-                )
-            ){
-
-                points.push({
-
-                    x:
-                        index,
-
-                    y:
-                        number
-
-                });
-
-            }
-
-        }
-    );
-
-
-    if(
-        !points.length
-    ){
-
-        return values.map(
-            () => null
-        );
-
-    }
-
-
-    /*
-     * -----------------------------------------------------
-     * ONE DATA POINT
-     * -----------------------------------------------------
-     *
-     * The operational baseline is simply that value.
-     */
-
-    if(
-        points.length === 1
-    ){
-
-        return values.map(
-            () =>
-                points[0].y
-        );
-
-    }
-
-
-    /*
-     * -----------------------------------------------------
-     * LINEAR REGRESSION
-     * -----------------------------------------------------
-     */
-
-    const n =
-        points.length;
-
-
-    const sumX =
-        points.reduce(
-            (
-                sum,
-                point
-            ) =>
-                sum +
-                point.x,
-            0
-        );
-
-
-    const sumY =
-        points.reduce(
-            (
-                sum,
-                point
-            ) =>
-                sum +
-                point.y,
-            0
-        );
-
-
-    const sumXY =
-        points.reduce(
-            (
-                sum,
-                point
-            ) =>
-                sum +
-                (
-                    point.x *
-                    point.y
-                ),
-            0
-        );
-
-
-    const sumXX =
-        points.reduce(
-            (
-                sum,
-                point
-            ) =>
-                sum +
-                (
-                    point.x *
-                    point.x
-                ),
-            0
-        );
-
-
-    const denominator =
-        (
-            n *
-            sumXX
-        )
-        -
-        (
-            sumX *
-            sumX
-        );
-
-
-    /*
-     * Safety fallback.
-     */
-
-    if(
-        denominator === 0
-    ){
-
-        const average =
-            sumY /
-            n;
-
-
-        return values.map(
-            () =>
-                average
-        );
-
-    }
-
+    const sumX = clean.reduce((a,b)=>a+b.x,0);
+    const sumY = clean.reduce((a,b)=>a+b.y,0);
+    const sumXY = clean.reduce((a,b)=>a+b.x*b.y,0);
+    const sumXX = clean.reduce((a,b)=>a+b.x*b.x,0);
 
     const slope =
-        (
-            (
-                n *
-                sumXY
-            )
-            -
-            (
-                sumX *
-                sumY
-            )
-        )
-        /
-        denominator;
-
+        (n*sumXY-sumX*sumY) /
+        (n*sumXX-sumX*sumX);
 
     const intercept =
-        (
-            sumY -
-            (
-                slope *
-                sumX
-            )
-        )
-        /
-        n;
+        (sumY-slope*sumX)/n;
 
-
-    return values.map(
-        (
-            value,
-            index
-        ) => {
-
-            /*
-             * We want the trend visible across
-             * the complete chart.
-             */
-
-            return (
-                intercept +
-                (
-                    slope *
-                    index
-                )
-            );
-
-        }
+    return values.map((_,i)=>
+        Number((intercept+slope*i).toFixed(2))
     );
 
 }
@@ -17575,1077 +17017,146 @@ function aogTrendFormatValue(
 }
 
 
-// =========================================================
-// AOG TREND — KPI ANALYSIS
-// =========================================================
+/* =========================================================
+   AOG TREND — KPI CALCULATIONS (V2 FINAL)
+========================================================= */
 
-function updateAOGTrendKPIs(
-    periods,
-    datasets,
-    metric
-){
+function updateAOGTrendKPIs(periods,datasets,metric){
 
-    const safePeriods =
-        Array.isArray(periods)
-            ? periods
-            : [];
+    const portugal =
+        datasets.find(x=>x.id==="PORTUGAL");
 
+    if(!portugal) return;
 
-    const safeDatasets =
-        Array.isArray(datasets)
-            ? datasets
-            : [];
+    const values =
+        portugal.data.filter(v=>Number.isFinite(Number(v)));
 
+    if(!values.length) return;
 
-    /*
-     * =====================================================
-     * FIND PORTUGAL
-     * =====================================================
-     */
+    const average =
+        values.reduce((a,b)=>a+b,0)/values.length;
 
-    const portugalDataset =
-        safeDatasets.find(
-            dataset =>
-                dataset.id ===
-                "PORTUGAL"
-        );
+    const peak =
+        Math.max(...values);
 
+    const low =
+        Math.min(...values);
 
-    const portugalValues =
-        portugalDataset?.data ||
-        [];
+    const peakIndex =
+        portugal.data.indexOf(peak);
 
+    const lowIndex =
+        portugal.data.indexOf(low);
 
-    /*
-     * =====================================================
-     * GENERIC HELPERS
-     * =====================================================
-     */
+    const first =
+        values[0];
 
-    function validValues(
-        values
-    ){
+    const last =
+        values[values.length-1];
 
-        return (
-            Array.isArray(values)
-                ? values
-                : []
-        )
-        .map(
-            Number
-        )
-        .filter(
-            Number.isFinite
-        );
+    let variation = 0;
 
-    }
+    if(first!==0)
+        variation=((last-first)/first)*100;
 
+    /* -------- Average -------- */
 
-    function average(
-        values
-    ){
+    document.getElementById("aogTrendAverage").innerHTML=`
+        ${aogTrendFormatValue(average,metric)}
+        <small>AOG / month</small>
+    `;
 
-        const valid =
-            validValues(
-                values
-            );
+    /* -------- Peak -------- */
 
+    document.getElementById("aogTrendPeak").innerHTML=`
+        ${periods[peakIndex].label}
+        <small>${aogTrendFormatValue(peak,metric)}</small>
+    `;
 
-        if(
-            !valid.length
-        ){
+    /* -------- Lowest -------- */
 
-            return null;
+    document.getElementById("aogTrendLowest").innerHTML=`
+        ${periods[lowIndex].label}
+        <small>${aogTrendFormatValue(low,metric)}</small>
+    `;
 
-        }
+    /* -------- Trend -------- */
 
+    const trendElement =
+        document.getElementById("aogTrendVariation");
 
-        return (
-            valid.reduce(
-                (
-                    sum,
-                    value
-                ) =>
-                    sum +
-                    value,
-                0
-            )
-            /
-            valid.length
-        );
+    let trendLabel = "STABLE";
+    let trendClass = "stable";
+
+    if(values.length===1){
+
+        trendLabel="BASELINE";
+        trendClass="baseline";
+
+    }else if(variation>5){
+
+        trendLabel="INCREASING";
+        trendClass="up";
+
+    }else if(variation<-5){
+
+        trendLabel="IMPROVING";
+        trendClass="down";
 
     }
 
+    trendElement.innerHTML=`
+        <div class="trend-status ${trendClass}">
+            ${trendLabel}
+        </div>
+        <div class="trend-value">
+            ${variation>=0?"+":""}${variation.toFixed(1)}%
+        </div>
+    `;
 
-    function peak(
-        values
-    ){
+    /* -------- Comparison Card -------- */
 
-        const valid =
-            validValues(
-                values
-            );
+    const comparison =
+        document.getElementById("aogTrendComparison");
 
+    if(comparison){
 
-        return valid.length
-            ?
-                Math.max(
-                    ...valid
-                )
-            :
-                null;
+        const bases =
+            datasets.filter(d=>d.id!=="PORTUGAL" && d.id!=="TREND");
 
-    }
+        comparison.innerHTML="";
 
+        bases.forEach(base=>{
 
-    function lowest(
-        values
-    ){
+            const baseValues =
+                base.data.filter(v=>Number.isFinite(Number(v)));
 
-        const valid =
-            validValues(
-                values
-            );
+            if(!baseValues.length) return;
 
+            const baseAverage =
+                baseValues.reduce((a,b)=>a+b,0)/baseValues.length;
 
-        return valid.length
-            ?
-                Math.min(
-                    ...valid
-                )
-            :
-                null;
+            const diff=((baseAverage-average)/average)*100;
 
-    }
+            comparison.innerHTML +=`
 
+                <div class="trend-comparison-row">
 
-    function getLastValidIndex(
-        values
-    ){
+                    <div class="trend-base">${base.label}</div>
 
-        for(
-            let index =
-                values.length - 1;
+                    <div class="trend-average">
+                        ${aogTrendFormatValue(baseAverage,metric)}
+                    </div>
 
-            index >= 0;
+                    <div class="trend-diff ${diff>0?"above":"below"}">
+                        ${diff>=0?"+":""}${diff.toFixed(1)}%
+                    </div>
 
-            index--
-        ){
-
-            if(
-                Number.isFinite(
-                    Number(
-                        values[index]
-                    )
-                )
-            ){
-
-                return index;
-
-            }
-
-        }
-
-
-        return -1;
-
-    }
-
-
-    function getFirstValidIndex(
-        values
-    ){
-
-        for(
-            let index = 0;
-
-            index <
-            values.length;
-
-            index++
-        ){
-
-            if(
-                Number.isFinite(
-                    Number(
-                        values[index]
-                    )
-                )
-            ){
-
-                return index;
-
-            }
-
-        }
-
-
-        return -1;
-
-    }
-
-
-    function getPercentageDifference(
-        value,
-        reference
-    ){
-
-        const current =
-            Number(
-                value
-            );
-
-
-        const benchmark =
-            Number(
-                reference
-            );
-
-
-        if(
-            !Number.isFinite(
-                current
-            ) ||
-            !Number.isFinite(
-                benchmark
-            ) ||
-            benchmark === 0
-        ){
-
-            return null;
-
-        }
-
-
-        return (
-
-            (
-                (
-                    current -
-                    benchmark
-                )
-                /
-                Math.abs(
-                    benchmark
-                )
-            )
-            *
-            100
-
-        );
-
-    }
-
-
-    /*
-     * =====================================================
-     * PORTUGAL KPI VALUES
-     * =====================================================
-     */
-
-    const portugalAverage =
-        average(
-            portugalValues
-        );
-
-
-    const portugalPeak =
-        peak(
-            portugalValues
-        );
-
-
-    const portugalLowest =
-        lowest(
-            portugalValues
-        );
-
-
-    const portugalFirstIndex =
-        getFirstValidIndex(
-            portugalValues
-        );
-
-
-    const portugalLastIndex =
-        getLastValidIndex(
-            portugalValues
-        );
-
-
-    const portugalFirst =
-        portugalFirstIndex >= 0
-            ?
-                Number(
-                    portugalValues[
-                        portugalFirstIndex
-                    ]
-                )
-            :
-                null;
-
-
-    const portugalLast =
-        portugalLastIndex >= 0
-            ?
-                Number(
-                    portugalValues[
-                        portugalLastIndex
-                    ]
-                )
-            :
-                null;
-
-
-    /*
-     * =====================================================
-     * PORTUGAL OVERALL VARIATION
-     * =====================================================
-     */
-
-    let portugalVariation =
-        null;
-
-
-    if(
-        portugalFirst !== null &&
-        portugalLast !== null
-    ){
-
-        if(
-            portugalFirst !== 0
-        ){
-
-            portugalVariation =
-                (
-                    (
-                        portugalLast -
-                        portugalFirst
-                    )
-                    /
-                    Math.abs(
-                        portugalFirst
-                    )
-                )
-                *
-                100;
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * FIND KPI ELEMENTS
-     * =====================================================
-     */
-
-    const averageElement =
-        document.getElementById(
-            "aogTrendAverage"
-        );
-
-
-    const peakElement =
-        document.getElementById(
-            "aogTrendPeak"
-        );
-
-
-    const lowestElement =
-        document.getElementById(
-            "aogTrendLowest"
-        );
-
-
-    const variationElement =
-        document.getElementById(
-            "aogTrendVariation"
-        );
-
-
-    /*
-     * =====================================================
-     * AVERAGE
-     * =====================================================
-     */
-
-    if(
-        averageElement
-    ){
-
-        averageElement.textContent =
-            aogTrendFormatValue(
-                portugalAverage,
-                metric
-            );
-
-    }
-
-
-    /*
-     * =====================================================
-     * PEAK
-     * =====================================================
-     */
-
-    if(
-        peakElement
-    ){
-
-        if(
-            portugalPeak === null
-        ){
-
-            peakElement.textContent =
-                "—";
-
-        }
-        else{
-
-            const index =
-                portugalValues.indexOf(
-                    portugalPeak
-                );
-
-
-            const label =
-                safePeriods[
-                    index
-                ]?.label ||
-                "—";
-
-
-            peakElement.textContent =
-
-                label +
-                " · " +
-                aogTrendFormatValue(
-                    portugalPeak,
-                    metric
-                );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * LOWEST
-     * =====================================================
-     */
-
-    if(
-        lowestElement
-    ){
-
-        if(
-            portugalLowest === null
-        ){
-
-            lowestElement.textContent =
-                "—";
-
-        }
-        else{
-
-            const index =
-                portugalValues.indexOf(
-                    portugalLowest
-                );
-
-
-            const label =
-                safePeriods[
-                    index
-                ]?.label ||
-                "—";
-
-
-            lowestElement.textContent =
-
-                label +
-                " · " +
-                aogTrendFormatValue(
-                    portugalLowest,
-                    metric
-                );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * TREND KPI
-     * =====================================================
-     */
-
-    if(
-        variationElement
-    ){
-
-        /*
-         * One month = baseline.
-         */
-
-        if(
-            validValues(
-                portugalValues
-            ).length === 1
-        ){
-
-            variationElement.innerHTML = `
-
-                <span
-                    class="aog-trend-kpi-status baseline"
-                >
-                    BASELINE
-                </span>
+                </div>
 
             `;
 
-        }
-
-
-        else if(
-            portugalVariation === null
-        ){
-
-            variationElement.textContent =
-                "—";
-
-        }
-
-
-        else{
-
-            let direction =
-                "STABLE";
-
-
-            if(
-                portugalVariation >
-                5
-            ){
-
-                direction =
-                    "UP";
-
-            }
-            else if(
-                portugalVariation <
-                -5
-            ){
-
-                direction =
-                    "DOWN";
-
-            }
-
-
-            const sign =
-                portugalVariation >= 0
-                    ? "+"
-                    : "";
-
-
-            variationElement.innerHTML = `
-
-                <span
-                    class="
-                        aog-trend-kpi-status
-                        ${
-                            direction === "UP"
-                                ? "up"
-                                :
-                            direction === "DOWN"
-                                ? "down"
-                                :
-                                "stable"
-                        }
-                    "
-                >
-
-                    ${direction}
-
-                </span>
-
-
-                <strong>
-
-                    ${
-                        sign
-                    }${
-                        portugalVariation.toFixed(
-                            1
-                        )
-                    }%
-
-                </strong>
-
-            `;
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * BASE COMPARISON BREAKDOWN
-     * =====================================================
-     *
-     * Every base is compared against the SAME Portugal
-     * reference.
-     *
-     */
-
-    const baseDatasets =
-        safeDatasets.filter(
-            dataset =>
-                dataset.role ===
-                "base"
-        );
-
-
-    const kpiElements = [
-
-        averageElement,
-
-        peakElement,
-
-        lowestElement,
-
-        variationElement
-
-    ];
-
-
-    kpiElements.forEach(
-        element => {
-
-            if(!element){
-
-                return;
-
-            }
-
-
-            const parent =
-                element.parentElement;
-
-
-            if(!parent){
-
-                return;
-
-            }
-
-
-            const old =
-                parent.querySelector(
-                    ".aog-trend-kpi-breakdown"
-                );
-
-
-            if(old){
-
-                old.remove();
-
-            }
-
-        }
-    );
-
-
-    /*
-     * If there are no bases selected,
-     * there is nothing else to display.
-     */
-
-    if(
-        !baseDatasets.length
-    ){
-
-        return;
-
-    }
-
-
-    /*
-     * =====================================================
-     * BUILD COMPARISON HTML
-     * =====================================================
-     */
-
-    const comparisonRows =
-        baseDatasets
-            .map(
-                dataset => {
-
-                    const values =
-                        dataset.data ||
-                        [];
-
-
-                    const baseAverage =
-                        average(
-                            values
-                        );
-
-
-                    const baseLastIndex =
-                        getLastValidIndex(
-                            values
-                        );
-
-
-                    const baseLast =
-                        baseLastIndex >= 0
-                            ?
-                                Number(
-                                    values[
-                                        baseLastIndex
-                                    ]
-                                )
-                            :
-                                null;
-
-
-                    const averageVsPortugal =
-                        getPercentageDifference(
-                            baseAverage,
-                            portugalAverage
-                        );
-
-
-                    const latestPortugal =
-                        portugalLast;
-
-
-                    const latestVsPortugal =
-                        getPercentageDifference(
-                            baseLast,
-                            latestPortugal
-                        );
-
-
-                    let className =
-                        "neutral";
-
-
-                    if(
-                        latestVsPortugal !==
-                        null
-                    ){
-
-                        if(
-                            latestVsPortugal >
-                            5
-                        ){
-
-                            className =
-                                "above";
-
-                        }
-                        else if(
-                            latestVsPortugal <
-                            -5
-                        ){
-
-                            className =
-                                "below";
-
-                        }
-
-                    }
-
-
-                    const signAverage =
-                        averageVsPortugal !== null &&
-                        averageVsPortugal >= 0
-                            ? "+"
-                            : "";
-
-
-                    const signLatest =
-                        latestVsPortugal !== null &&
-                        latestVsPortugal >= 0
-                            ? "+"
-                            : "";
-
-
-                    return `
-
-                        <div
-                            class="
-                                aog-trend-kpi-base-row
-                                ${className}
-                            "
-                        >
-
-                            <div
-                                class="aog-trend-kpi-base-name"
-                            >
-
-                                ${dataset.label}
-
-                            </div>
-
-
-                            <div
-                                class="aog-trend-kpi-base-metric"
-                            >
-
-                                <span>
-
-                                    AVG
-
-                                </span>
-
-                                <strong>
-
-                                    ${aogTrendFormatValue(
-                                        baseAverage,
-                                        metric
-                                    )}
-
-                                </strong>
-
-                                <small>
-
-                                    ${
-                                        averageVsPortugal !== null
-                                            ?
-                                            signAverage +
-                                            averageVsPortugal.toFixed(
-                                                1
-                                            ) +
-                                            "% vs PT"
-                                            :
-                                            "vs PT —"
-
-                                    }
-
-                                </small>
-
-                            </div>
-
-
-                            <div
-                                class="aog-trend-kpi-base-metric"
-                            >
-
-                                <span>
-
-                                    LATEST
-
-                                </span>
-
-                                <strong>
-
-                                    ${aogTrendFormatValue(
-                                        baseLast,
-                                        metric
-                                    )}
-
-                                </strong>
-
-                                <small>
-
-                                    ${
-                                        latestVsPortugal !== null
-                                            ?
-                                            signLatest +
-                                            latestVsPortugal.toFixed(
-                                                1
-                                            ) +
-                                            "% vs PT"
-                                            :
-                                            "vs PT —"
-
-                                    }
-
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    `;
-
-                }
-            )
-            .join("");
-
-
-    /*
-     * =====================================================
-     * ADD BREAKDOWN TO AVERAGE CARD
-     * =====================================================
-     *
-     * One compact comparison panel is enough. It avoids
-     * destroying the 4-card structure of the dashboard.
-     */
-
-    if(
-        averageElement &&
-        averageElement.parentElement
-    ){
-
-        const breakdown =
-            document.createElement(
-                "div"
-            );
-
-
-        breakdown.className =
-            "aog-trend-kpi-breakdown";
-
-
-        breakdown.innerHTML = `
-
-            <div
-                class="aog-trend-kpi-reference"
-            >
-
-                🇵🇹 Portugal Reference
-
-            </div>
-
-            ${comparisonRows}
-
-        `;
-
-
-        averageElement.parentElement
-            .appendChild(
-                breakdown
-            );
-
-    }
-
-
-    /*
-     * =====================================================
-     * OPERATIONAL INSIGHT
-     * =====================================================
-     */
-
-    const insight =
-        document.getElementById(
-            "aogTrendInsight"
-        );
-
-
-    if(
-        insight
-    ){
-
-        let text = "";
-
-
-        const availableMonths =
-            validValues(
-                portugalValues
-            ).length;
-
-
-        if(
-            availableMonths === 0
-        ){
-
-            text =
-                "No Portugal AOG data is currently available for the selected analysis period.";
-
-        }
-
-
-        else if(
-            availableMonths === 1
-        ){
-
-            const onlyIndex =
-                portugalFirstIndex;
-
-
-            const onlyLabel =
-                safePeriods[
-                    onlyIndex
-                ]?.label ||
-                "the available month";
-
-
-            text =
-
-                `Only ${onlyLabel} is currently available. Portugal is being used as the operational baseline; additional months will be added automatically as AOG history becomes available.`;
-
-        }
-
-
-        else if(
-            portugalVariation !== null
-        ){
-
-            if(
-                portugalVariation >
-                5
-            ){
-
-                text =
-
-                    `Portugal AOG increased by ${portugalVariation.toFixed(1)}% from the first to the latest visible month. The selected bases are benchmarked against the same Portugal reference.`;
-
-            }
-            else if(
-                portugalVariation <
-                -5
-            ){
-
-                text =
-
-                    `Portugal AOG decreased by ${Math.abs(portugalVariation).toFixed(1)}% from the first to the latest visible month. The selected bases are benchmarked against the same Portugal reference.`;
-
-            }
-            else{
-
-                text =
-
-                    `Portugal AOG remained broadly stable across the visible period (${portugalVariation >= 0 ? "+" : ""}${portugalVariation.toFixed(1)}%). The selected bases are benchmarked against the same Portugal reference.`;
-
-            }
-
-        }
-
-
-        else{
-
-            text =
-                "Portugal is currently the operational reference baseline.";
-
-        }
-
-
-        insight.innerHTML = `
-
-            <strong>
-
-                Operational Insight
-
-            </strong>
-
-
-            <span>
-
-                ${text}
-
-            </span>
-
-        `;
+        });
 
     }
 
@@ -18880,275 +17391,297 @@ function calculateAOGTrendLine(
 
 }
 
-// =========================================================
-// AOG TREND — MAIN REFRESH
-// =========================================================
+/* =========================================================
+   AOG TREND — OPERATIONAL INSIGHT (AI STYLE)
+========================================================= */
+
+function updateOperationalInsight(periods,datasets,metric){
+
+    const target =
+        document.getElementById("aogTrendInsight");
+
+    if(!target) return;
+
+    const portugal =
+        datasets.find(x=>x.id==="PORTUGAL");
+
+    if(!portugal){
+
+        target.textContent="No data available.";
+
+        return;
+
+    }
+
+    const values =
+        portugal.data.filter(v=>Number.isFinite(Number(v)));
+
+    if(!values.length){
+
+        target.innerHTML=`
+            <strong>Operational Insight</strong>
+            <span>No Aircraft on Ground records are available for the selected period.</span>
+        `;
+        return;
+
+    }
+
+    let text="";
+
+    if(values.length===1){
+
+        text=`
+            ${periods[0].label} is currently the operational baseline for Portugal.
+            Trend analysis will automatically expand as additional monthly AOG reports
+            are imported into the dashboard.
+        `;
+
+    }else{
+
+        const peak=Math.max(...values);
+        const peakMonth=periods[portugal.data.indexOf(peak)].label;
+
+        const last=values[values.length-1];
+        const previous=values[values.length-2];
+
+        const diff=((last-previous)/previous)*100;
+
+        if(diff>5){
+
+            text=`
+                Aircraft on Ground activity increased during the latest month.
+                ${peakMonth} remains the highest operational month, while Portugal
+                shows an increasing monthly trend.
+            `;
+
+        }else if(diff<-5){
+
+            text=`
+                Aircraft on Ground activity decreased compared with the previous month.
+                Portugal is currently showing an improving operational trend.
+            `;
+
+        }else{
+
+            text=`
+                Portugal remains operationally stable across the selected period,
+                with no significant variation in monthly Aircraft on Ground events.
+            `;
+
+        }
+
+    }
+
+    target.innerHTML=`
+        <strong>Operational Insight</strong>
+        <span>${text}</span>
+    `;
+
+}
+
+/* =========================================================
+   AOG TREND — MONTHLY TABLE
+========================================================= */
+
+function updateAOGTrendTable(periods,datasets){
+
+    const body =
+        document.getElementById("aogTrendTableBody");
+
+    if(!body) return;
+
+    body.innerHTML="";
+
+    const portugal =
+        datasets.find(d=>d.id==="PORTUGAL");
+
+    const bases =
+        datasets.filter(d=>d.id!=="PORTUGAL" && d.id!=="TREND");
+
+    periods.forEach((period,index)=>{
+
+        const pt =
+            Number(portugal.data[index] || 0);
+
+        const baseA =
+            bases[0]?.data[index] ?? "-";
+
+        const baseB =
+            bases[1]?.data[index] ?? "-";
+
+        let diff="-";
+
+        if(Number.isFinite(Number(baseA)) && pt!==0){
+
+            const value=((baseA-pt)/pt)*100;
+
+            diff=`<span class="${
+                value>=0
+                    ? "trend-diff above"
+                    : "trend-diff below"
+            }">
+                ${value>=0?"+":""}${value.toFixed(1)}%
+            </span>`;
+
+        }
+
+        body.innerHTML+=`
+
+            <tr>
+
+                <td><strong>${period.label}</strong></td>
+
+                <td>${pt}</td>
+
+                <td>${baseA}</td>
+
+                <td>${baseB}</td>
+
+                <td>${diff}</td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+/* =========================================================
+   AOG TREND — REFRESH ANALYSIS
+========================================================= */
 
 async function updateAOGTrendAnalysis(){
 
-    try{
+    if(!AOG_TREND_STATE.periods?.length){
 
-        /*
-         * =================================================
-         * ENSURE DATA
-         * =================================================
-         */
-
-        let periods =
-            AOG_TREND_STATE.periods || [];
-
-
-        if(
-            !periods.length
-        ){
-
-            periods =
-                await loadAOGTrendData();
-
-        }
-
-
-        /*
-         * =================================================
-         * VISIBLE PERIODS
-         * =================================================
-         */
-
-        const visiblePeriods =
-            aogTrendGetVisiblePeriods();
-
-
-        /*
-         * =================================================
-         * CONTROLS
-         * =================================================
-         */
-
-        const metric =
-            document.getElementById(
-                "aogTrendMetric"
-            )?.value ||
-            "count";
-
-
-        const compare =
-            document.getElementById(
-                "aogTrendCompare"
-            )?.value ||
-            "allBases";
-
-
-        /*
-         * =================================================
-         * BASE SELECTOR
-         * =================================================
-         *
-         * Only visible when the user wants a specific base.
-         *
-         */
-
-        const baseControl =
-            document.getElementById(
-                "aogTrendBaseControl"
-            );
-
-
-        if(
-            baseControl
-        ){
-
-            baseControl.style.display =
-
-                compare === "base"
-                    ? ""
-                    :
-                    "none";
-
-        }
-
-
-        /*
-         * =================================================
-         * BUILD DATASETS
-         * =================================================
-         */
-
-        const datasets =
-            buildAOGTrendDatasets(
-                visiblePeriods,
-                metric,
-                compare
-            );
-
-
-        /*
-         * =================================================
-         * CHART SUBTITLE
-         * =================================================
-         */
-
-        const subtitle =
-            document.getElementById(
-                "aogTrendChartSubtitle"
-            );
-
-
-        if(
-            subtitle
-        ){
-
-            subtitle.textContent =
-                aogTrendMetricLabel(
-                    metric
-                );
-
-        }
-
-
-        /*
-         * =================================================
-         * PERIOD BADGE
-         * =================================================
-         */
-
-        const badge =
-            document.getElementById(
-                "aogTrendPeriodBadge"
-            );
-
-
-        if(
-            badge
-        ){
-
-            const period =
-                document.getElementById(
-                    "aogTrendPeriod"
-                )?.value ||
-                "all";
-
-
-            if(
-                period === "all"
-            ){
-
-                badge.textContent =
-                    "ALL AVAILABLE DATA";
-
-            }
-            else{
-
-                badge.textContent =
-                    `LAST ${period} MONTHS`;
-
-            }
-
-        }
-
-
-        /*
-         * =================================================
-         * EMPTY STATE
-         * =================================================
-         */
-
-        if(
-            !visiblePeriods.length
-        ){
-
-            drawAOGTrendChart(
-                [],
-                [],
-                metric
-            );
-
-
-            updateAOGTrendKPIs(
-                [],
-                [],
-                metric
-            );
-
-
-            return;
-
-        }
-
-
-        /*
-         * =================================================
-         * DRAW
-         * =================================================
-         */
-
-        drawAOGTrendChart(
-            visiblePeriods,
-            datasets,
-            metric
-        );
-
-
-        /*
-         * =================================================
-         * KPIs
-         * =================================================
-         */
-
-        updateAOGTrendKPIs(
-            visiblePeriods,
-            datasets,
-            metric
-        );
-
-
-        /*
-         * =================================================
-         * DEBUG
-         * =================================================
-         */
-
-        console.log(
-            "AOG TREND — refreshed:",
-            {
-
-                periods:
-                    visiblePeriods.length,
-
-                metric:
-                    metric,
-
-                compare:
-                    compare,
-
-                datasets:
-                    datasets.map(
-                        dataset => ({
-                            id:
-                                dataset.id,
-
-                            label:
-                                dataset.label,
-
-                            values:
-                                dataset.data
-                        })
-                    )
-
-            }
-        );
+        await loadAOGTrendData();
 
     }
 
-    catch(error){
+    const metric =
+        document.getElementById("aogTrendMetric")?.value || "count";
 
-        console.error(
-            "AOG TREND — refresh error:",
-            error
-        );
+    const periodMode =
+        document.getElementById("aogTrendPeriod")?.value || "all";
+
+    let periods =
+        [...AOG_TREND_STATE.periods];
+
+    periods.sort((a,b)=>
+        aogTrendPeriodSortValue(a.key)-
+        aogTrendPeriodSortValue(b.key)
+    );
+
+    if(periodMode!=="all"){
+
+        const n = Number(periodMode);
+
+        periods = periods.slice(-n);
 
     }
+
+    const datasets =
+        buildAOGTrendDatasets(periods,metric);
+
+    /* Subtitle */
+
+    const subtitle =
+        document.getElementById("aogTrendChartSubtitle");
+
+    if(subtitle){
+
+        subtitle.textContent =
+            `${periods.length} Month${periods.length!==1?"s":""} Comparison`;
+
+    }
+
+    /* Badge */
+
+    const badge =
+        document.getElementById("aogTrendPeriodBadge");
+
+    if(badge){
+
+        badge.textContent =
+            periodMode==="all"
+            ? "ALL AVAILABLE DATA"
+            : `LAST ${periodMode} MONTHS`;
+
+    }
+
+    drawAOGTrendChart(periods,datasets,metric);
+
+    updateAOGTrendKPIs(periods,datasets,metric);
+
+    updateOperationalInsight(periods,datasets,metric);
+
+    updateAOGTrendTable(periods,datasets);
 
 }
+
+/* =========================================================
+   AOG TREND — BASE SELECTORS
+========================================================= */
+
+function changeAOGTrendBaseA(){
+
+    const baseA =
+        document.getElementById("aogTrendBaseA");
+
+    const baseB =
+        document.getElementById("aogTrendBaseB");
+
+    if(
+        baseA.value==="ALL"
+    ){
+
+        baseB.value="";
+
+        baseB.disabled=true;
+
+    }else{
+
+        baseB.disabled=false;
+
+        if(baseA.value===baseB.value)
+            baseB.value="";
+
+    }
+
+    updateAOGTrendAnalysis();
+
+}
+
+function changeAOGTrendBaseB(){
+
+    const baseA =
+        document.getElementById("aogTrendBaseA");
+
+    const baseB =
+        document.getElementById("aogTrendBaseB");
+
+    if(baseA.value===baseB.value){
+
+        showAlert(
+            "Select a different comparison base.",
+            "warning"
+        );
+
+        baseB.value="";
+        return;
+
+    }
+
+    updateAOGTrendAnalysis();
+
+}
+
+window.changeAOGTrendBaseA =
+    changeAOGTrendBaseA;
+
+window.changeAOGTrendBaseB =
+    changeAOGTrendBaseB;
 
 // =========================================================
 // AOG TREND — INITIALIZE
@@ -23090,6 +21623,623 @@ function changeAOGTrendBase(){
 
 }
 
+/* =========================================================
+   CAPTURE AOG SECTION
+========================================================= */
+
+async function captureAOGSection(element){
+
+    const currentScroll = window.scrollY;
+
+    document.body.style.overflow = "hidden";
+
+    element.scrollIntoView({
+        block: "start",
+        behavior: "instant"
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    const canvas = await html2canvas(element,{
+        scale: 2.5,
+        useCORS: true,
+        backgroundColor: "#FFFFFF",
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: element.scrollHeight
+    });
+
+    document.body.style.overflow = "";
+    window.scrollTo(0, currentScroll);
+
+    return canvas;
+
+}
+
+/* =========================================================
+   PDF HEADER & FOOTER
+========================================================= */
+
+function addAOGPDFHeaderFooter(pdf,title,page,totalPages){
+
+    const pageWidth = 297;
+    const pageHeight = 210;
+
+    /* Header */
+
+    pdf.setFillColor(7,53,144);
+    pdf.rect(0,0,pageWidth,22,"F");
+
+    
+const logo = document.getElementById("ryanair-logo-2");
+
+if (logo && logo.complete) {
+
+    const logoCanvas = document.createElement("canvas");
+    logoCanvas.width = logo.naturalWidth;
+    logoCanvas.height = logo.naturalHeight;
+
+    const ctx = logoCanvas.getContext("2d");
+    ctx.drawImage(logo, 0, 0);
+
+    pdf.addImage(
+ logo,
+        "PNG",
+        8,
+        2,
+        42,
+        14
+    );
+
+}
+
+    pdf.setTextColor(255,210,0);
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(11);
+
+    pdf.text(
+        "AIRCRAFT ON GROUND MONTHLY REPORT",
+        48,
+        10
+    );
+
+    pdf.setTextColor(255,255,255);
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(7);
+
+    pdf.text(
+        `Reporting Period: ${getAOGCurrentPeriodLabel()}`,
+        205,
+        8
+    );
+
+    pdf.text(
+        `Scope: ${
+            CURRENT_AOG_ANALYSIS_SCOPE === "BASE"
+                ? CURRENT_AOG_ANALYSIS_BASE
+                : "All Portuguese Bases"
+        }`,
+        205,
+        14
+    );
+
+    /* Section title */
+
+    pdf.setTextColor(7,53,144);
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(15);
+
+    pdf.text(title,10,33);
+
+    pdf.setDrawColor(255,210,0);
+    pdf.setLineWidth(.8);
+    pdf.line(10,37,38,37);
+
+    /* Footer */
+
+    pdf.setDrawColor(220);
+    pdf.line(10,pageHeight-8,pageWidth-10,pageHeight-8);
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(7);
+    pdf.setTextColor(110);
+
+    pdf.text(
+        "Ryanair Engineering Dashboard",
+        10,
+        pageHeight-3
+    );
+
+    pdf.text(
+        `Page ${page} of ${totalPages}`,
+        pageWidth-30,
+        pageHeight-3
+    );
+
+}
+
+/* =========================================================
+   SHOW PDF LOADING
+========================================================= */
+
+function showExecutivePDFLoading(message="Preparing Executive Report..."){
+
+    const loading = document.getElementById("executivePdfLoading");
+    const fill = document.getElementById("executiveProgressFill");
+    const text = document.getElementById("executiveProgressText");
+
+    if(loading) loading.classList.add("show");
+
+    if(fill) fill.style.width = "0%";
+
+    if(text) text.textContent = message;
+
+}
+
+/* =========================================================
+   HIDE PDF LOADING
+========================================================= */
+
+function hideExecutivePDFLoading(){
+
+    const loading = document.getElementById("executivePdfLoading");
+    const fill = document.getElementById("executiveProgressFill");
+
+    if(loading) loading.classList.remove("show");
+
+    if(fill) fill.style.width = "0%";
+
+}
+
+/* =========================================================
+   CAPTURE PDF SECTION (AUTO HEIGHT - FINAL)
+========================================================= */
+
+async function capturePDFSection(section){
+
+    const currentScroll = window.scrollY;
+    const currentOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    /* Esconde todos os selectors durante o PDF */
+
+    const hiddenElements = [];
+
+    section.querySelectorAll("select").forEach(el=>{
+
+        hiddenElements.push({
+            element:el,
+            display:el.style.display
+        });
+
+        el.style.display = "none";
+
+    });
+
+    /* Espera o layout estabilizar */
+
+    section.scrollIntoView({
+        block:"start",
+        behavior:"instant"
+    });
+
+    await new Promise(r=>requestAnimationFrame(r));
+    await new Promise(r=>setTimeout(r,250));
+
+    /* ALTURA REAL DA SECÇÃO */
+
+    const captureHeight = Math.max(
+        section.scrollHeight,
+        section.offsetHeight,
+        section.getBoundingClientRect().height
+    );
+
+    const captureWidth = Math.max(
+        section.scrollWidth,
+        section.offsetWidth
+    );
+
+    const canvas = await html2canvas(section,{
+        scale:2.8,
+        useCORS:true,
+        backgroundColor:"#FFFFFF",
+        scrollX:0,
+        scrollY:-window.scrollY,
+        width:captureWidth,
+        height:captureHeight,
+        windowWidth:captureWidth,
+        windowHeight:captureHeight,
+        removeContainer:true
+    });
+
+    /* Restaurar selectors */
+
+    hiddenElements.forEach(item=>{
+        item.element.style.display = item.display;
+    });
+
+    document.body.style.overflow = currentOverflow;
+    window.scrollTo(0,currentScroll);
+
+    return canvas;
+
+}
+
+function drawAOGPDFHeader(pdf, page, totalPages, orientation="landscape"){
+
+    const PAGE_WIDTH  = orientation === "portrait" ? 210 : 297;
+    const PAGE_HEIGHT = orientation === "portrait" ? 297 : 210;
+
+    // Header Ryanair
+    pdf.setFillColor(7,33,89);
+    pdf.rect(0,0,PAGE_WIDTH,18,"F");
+
+    // Logo (usa o IMG escondido da página)
+    const logo = document.getElementById("ryanair-logo-2");
+
+    if(logo){
+        const c = document.createElement("canvas");
+        c.width = logo.naturalWidth;
+        c.height = logo.naturalHeight;
+        c.getContext("2d").drawImage(logo,0,0);
+
+        pdf.addImage(
+            c.toDataURL("image/png"),
+            "PNG",
+            8,2,38,13
+        );
+    }
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(10);
+    pdf.setTextColor(255,210,0);
+
+    pdf.text(
+        "AIRCRAFT ON GROUND MONTHLY EXECUTIVE REPORT",
+        50,
+        8
+    );
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(6);
+    pdf.setTextColor(240,245,255);
+
+    pdf.text(
+        "Engineering Dashboard • Aircraft on Ground Analysis",
+        50,
+        13
+    );
+
+    pdf.setFontSize(6.5);
+    pdf.setTextColor(255,255,255);
+
+    pdf.text("Reporting Period",PAGE_WIDTH-70,6);
+    pdf.text(getAOGCurrentPeriodLabel(),PAGE_WIDTH-70,10);
+
+    pdf.text("Scope",PAGE_WIDTH-70,14);
+    pdf.text(
+        CURRENT_AOG_ANALYSIS_SCOPE==="BASE"
+            ? CURRENT_AOG_ANALYSIS_BASE
+            : "All Portuguese Bases",
+        PAGE_WIDTH-70,
+        17
+    );
+
+    // Footer
+    pdf.setDrawColor(220);
+    pdf.line(10,PAGE_HEIGHT-8,PAGE_WIDTH-10,PAGE_HEIGHT-8);
+
+    pdf.setFontSize(7);
+    pdf.setTextColor(120);
+
+    pdf.text(
+        "Ryanair Engineering Dashboard • AOG Executive Report",
+        10,
+        PAGE_HEIGHT-3
+    );
+
+    pdf.text(
+        `Page ${page} of ${totalPages}`,
+        PAGE_WIDTH-30,
+        PAGE_HEIGHT-3
+    );
+}
+
+/* =========================================================
+   EXPORT AOG EXECUTIVE PDF (FINAL STABLE VERSION)
+========================================================= */
+
+async function exportAOGExecutivePDF(){
+
+    const loading =
+        document.getElementById("executivePdfLoading");
+
+    const progressFill =
+        document.getElementById("executiveProgressFill");
+
+    const progressText =
+        document.getElementById("executiveProgressText");
+
+    const updateProgress = (value,message)=>{
+
+        if(progressFill){
+            progressFill.style.width = value + "%";
+        }
+
+        if(progressText){
+            progressText.textContent = message;
+        }
+
+    };
+
+    try{
+
+        loading?.classList.add("show");
+
+        updateProgress(5,"Preparing Executive Report...");
+
+        await new Promise(r=>requestAnimationFrame(r));
+        await new Promise(r=>setTimeout(r,300));
+
+        /* Refresh all charts */
+
+        if(window.Chart){
+
+            Object.values(Chart.instances || {}).forEach(chart=>{
+
+                try{
+                    chart.resize();
+                    chart.update("none");
+                }catch(e){}
+
+            });
+
+        }
+
+        await new Promise(r=>setTimeout(r,250));
+
+        const { jsPDF } = window.jspdf;
+
+        const pdf = new window.jsPDF.jsPDF({
+            orientation:"landscape",
+            unit:"mm",
+            format:"a4",
+            compress:true
+        });
+
+        /* ==========================================
+           PDF SECTIONS
+        ========================================== */
+
+        const sections = [
+
+    {
+        id:"aogPortugalKPIGrid",
+        orientation:"landscape"
+    },
+
+    {
+        id:"aogDistributionSection",
+        orientation:"landscape"
+    },
+
+    {
+        id:"aogRecurringImpactSection",
+        orientation:"portrait"
+    },
+
+    {
+        id:"aogTrendAnalysis",
+        orientation:"landscape"
+    }
+
+];
+
+        let page = 1;
+
+        for(const section of sections){
+
+            updateProgress(
+                10 + (page / sections.length) * 80,
+                `Capturing ${section.title}...`
+            );
+
+            const element =
+                document.getElementById(section.id);
+
+            if(!element){
+                console.warn("PDF section not found:",section.id);
+                page++;
+                continue;
+            }
+
+            /* Portrait / Landscape */
+
+            if(page>1){
+
+                pdf.addPage(
+                    "a4",
+                    section.orientation
+                );
+
+            }
+
+            drawAOGPDFHeader(
+                pdf,
+                page,
+                sections.length,
+                section.orientation
+            );
+
+            /* --------------------------------------
+               Hide selectors for PDF only
+            -------------------------------------- */
+
+            const hidden = [];
+
+            element.querySelectorAll("select").forEach(select=>{
+
+                hidden.push({
+                    element:select,
+                    display:select.style.display
+                });
+
+                select.style.display="none";
+
+            });
+
+            /* Capture */
+
+/* --------------------------------------
+   CAPTURE SECTION
+   (Portugal Overview = only KPI cards)
+-------------------------------------- */
+
+let canvas;
+
+if(section.id === "aogPortugalOverview"){
+
+    const clone = element.cloneNode(true);
+
+    clone.style.position = "absolute";
+    clone.style.left = "-99999px";
+    clone.style.width = element.offsetWidth + "px";
+    clone.style.background = "#FFF";
+
+    // Mantém apenas os KPI cards
+    clone.querySelectorAll(
+        ".overview-grid + *, .overview-chart, .distribution-grid, table, canvas"
+    ).forEach(el => el.remove());
+
+    document.body.appendChild(clone);
+
+    canvas = await html2canvas(clone,{
+        scale:3,
+        useCORS:true,
+        backgroundColor:"#FFF"
+    });
+
+    document.body.removeChild(clone);
+
+}else{
+
+    canvas = await capturePDFSection(element);
+
+}
+
+            /* Restore selectors */
+
+            hidden.forEach(item=>{
+                item.element.style.display=item.display;
+            });
+
+            /* --------------------------------------
+               Page Dimensions
+            -------------------------------------- */
+
+            const PAGE_WIDTH =
+                section.orientation==="portrait" ? 210 : 297;
+
+            const PAGE_HEIGHT =
+                section.orientation==="portrait" ? 297 : 210;
+
+            /* Portugal Overview ocupa mais espaço */
+
+const CONTENT_WIDTH =
+    section.id==="aogPortugalOverview"
+        ? PAGE_WIDTH-2      // quase largura total
+        : PAGE_WIDTH-14;
+
+const CONTENT_HEIGHT =
+    section.id==="aogPortugalOverview"
+        ? PAGE_HEIGHT-18     // ocupa praticamente toda a folha
+        : PAGE_HEIGHT-40;
+
+            const ratio =
+                canvas.width / canvas.height;
+
+            let drawWidth =
+                CONTENT_WIDTH;
+
+            let drawHeight =
+                drawWidth / ratio;
+
+            if(drawHeight > CONTENT_HEIGHT){
+
+                drawHeight = CONTENT_HEIGHT;
+                drawWidth = drawHeight * ratio;
+
+            }
+
+            const posX =
+                (PAGE_WIDTH-drawWidth)/2;
+
+const posY =
+    section.id==="aogPortugalOverview"
+        ? 18
+        : 26 + (CONTENT_HEIGHT-drawHeight)/2;
+
+            pdf.addImage(
+                canvas.toDataURL("image/png",1),
+                "PNG",
+                posX,
+                posY,
+                drawWidth,
+                drawHeight,
+                undefined,
+                "FAST"
+            );
+
+            page++;
+
+        }
+
+        updateProgress(
+            98,
+            "Finalising Executive Report..."
+        );
+
+        await new Promise(r=>setTimeout(r,300));
+
+        pdf.save(
+            `Ryanair_AOG_Monthly_Report_${getAOGCurrentPeriodLabel().replace(/\s+/g,"_")}.pdf`
+        );
+
+        updateProgress(
+            100,
+            "Executive Report Generated!"
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+            "AOG EXECUTIVE PDF ERROR:",
+            error
+        );
+
+        alert(
+            "Unable to generate Executive PDF."
+        );
+
+    }
+
+    finally{
+
+        loading?.classList.remove("show");
+
+        if(progressFill){
+            progressFill.style.width="0%";
+        }
+
+    }
+
+}
+
+
 
 // =========================================================
 // GLOBAL ACCESS
@@ -23203,9 +22353,6 @@ window.changeAOGResultsPeriod =
 window.refreshAOGSearchResults =
     refreshAOGSearchResults;
 
-window.exportAOGSearchPDF =
-    exportAOGSearchPDF;
-
 window.resetAOGManagementFilters =
     resetAOGManagementFilters;
 
@@ -23234,10 +22381,6 @@ window.hideAOG =
 
 window.initializeAOG =
     initializeAOG;
-
-
-window.exportAOGPDF =
-    exportAOGPDF;
 
 
 window.openAOGImport =

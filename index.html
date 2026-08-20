@@ -4,6 +4,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 <head>
     <link rel="icon" type="image/png" href="ryanair-logo-page.png">
@@ -44431,7 +44432,7 @@ CREATE USER MODAL
             <button
                 type="button"
                 class="rh-btn rh-btn-white"
-                onclick="exportAOGPDF()"
+                onclick="exportAOGExecutivePDF()"
             >
 
                 Export PDF
@@ -44456,7 +44457,7 @@ CREATE USER MODAL
                 onclick="openAOGEditVisuals()"
             >
 
-                Edit Visuals (Manual)
+                Data Recorded Manager
 
             </button>
 
@@ -45665,10 +45666,7 @@ CREATE USER MODAL
 <!-- AOG — TREND ANALYSIS -->
 <!-- ===================================================== -->
 
-<section
-    id="aogTrendAnalysis"
-    class="exec-section"
->
+<section id="aogTrendAnalysis" class="exec-section" style="margin-top:40px;">
 
     <!-- ================================================= -->
     <!-- SECTION HEADER -->
@@ -45678,12 +45676,10 @@ CREATE USER MODAL
 
         <div>
 
-            <h2>
-                AOG Trend Analysis
-            </h2>
+            <h2>AOG Trend Analysis</h2>
 
             <span>
-                Monthly Aircraft on Ground evolution
+                Monthly Aircraft on Ground evolution across Portuguese bases
             </span>
 
         </div>
@@ -45692,202 +45688,134 @@ CREATE USER MODAL
 
 
     <!-- ================================================= -->
-<!-- AOG TREND CONTROLS -->
-<!-- ================================================= -->
+    <!-- TREND FILTER TOOLBAR -->
+    <!-- ================================================= -->
 
-<div
-    class="aog-trend-controls"
->
+    <div class="aog-trend-toolbar">
 
-    <!-- ========================= -->
-    <!-- VIEW / PERIOD -->
-    <!-- ========================= -->
+        <!-- ANALYSIS PERIOD -->
 
-    <div
-        class="aog-trend-control"
-    >
+        <div class="aog-trend-filter-card">
 
-        <label
-            for="aogTrendPeriod"
-        >
-            VIEW
-        </label>
+            <label for="aogTrendPeriod">
+                Analysis Period
+            </label>
 
+            <select id="aogTrendPeriod" onchange="updateAOGTrendAnalysis()">
 
-        <select
-            id="aogTrendPeriod"
-        >
+                <option value="all">
+                    All Available Data
+                </option>
 
-            <option value="all">
-                ALL AVAILABLE DATA
-            </option>
+                <option value="12">
+                    Last 12 Months
+                </option>
 
-            <option value="12">
-                LAST 12 MONTHS
-            </option>
+                <option value="6">
+                    Last 6 Months
+                </option>
 
-            <option value="6">
-                LAST 6 MONTHS
-            </option>
+                <option value="3">
+                    Last 3 Months
+                </option>
 
-            <option value="3">
-                LAST 3 MONTHS
-            </option>
+            </select>
 
-        </select>
-
-    </div>
+        </div>
 
 
-    <!-- ========================= -->
-    <!-- DATA TYPE -->
-    <!-- ========================= -->
+        <!-- DATA TYPE -->
 
-    <div
-        class="aog-trend-control"
-    >
+        <div class="aog-trend-filter-card">
 
-        <label
-            for="aogTrendMetric"
-        >
-            DATA TYPE
-        </label>
+            <label for="aogTrendMetric">
+                Data Type
+            </label>
 
+            <select id="aogTrendMetric" onchange="updateAOGTrendAnalysis()">
 
-        <select
-            id="aogTrendMetric"
-        >
+                <option value="count">
+                    Total AOG
+                </option>
 
-            <option value="count">
-                Total AOG
-            </option>
+                <option value="averageTime">
+                    Average AOG Time
+                </option>
 
-            <option value="averageTime">
-                Average AOG Time
-            </option>
+                <option value="totalTime">
+                    Total AOG Time
+                </option>
 
-            <option value="totalTime">
-                Total AOG Time
-            </option>
+            </select>
 
-        </select>
-
-    </div>
+        </div>
 
 
-    <!-- ========================= -->
-    <!-- COMPARE -->
-    <!-- ========================= -->
+        <!-- COMPARISON BASE A -->
 
-    <div
-        class="aog-trend-control"
-    >
+        <div class="aog-trend-filter-card">
 
-        <label
-            for="aogTrendCompare"
-        >
-            COMPARE
-        </label>
+            <label for="aogTrendBaseA">
+                Comparison Base A
+            </label>
+
+            <select id="aogTrendBaseA" onchange="changeAOGTrendBaseA()">
+
+                <!-- Populated automatically -->
+
+            </select>
+
+        </div>
 
 
-        <select
-            id="aogTrendCompare"
-        >
+        <!-- COMPARISON BASE B -->
 
-            <option value="portugal">
-                Portugal
-            </option>
+        <div class="aog-trend-filter-card">
 
-            <option value="base">
-                Individual Base
-            </option>
+            <label for="aogTrendBaseB">
+                Comparison Base B
+            </label>
 
-            <option value="allBases">
-                All Portuguese Bases
-            </option>
+            <select id="aogTrendBaseB" onchange="changeAOGTrendBaseB()">
 
-        </select>
+                <!-- Populated automatically -->
+
+            </select>
+
+        </div>
 
     </div>
-
-
-    <!-- ========================= -->
-    <!-- BASE SELECTOR -->
-    <!-- ========================= -->
-
-    <div
-        id="aogTrendBaseControl"
-        class="aog-trend-control"
-        style="display:none;"
-    >
-
-        <label
-            for="aogTrendBase"
-        >
-            BASE
-        </label>
-
-
-        <select
-            id="aogTrendBase"
-        >
-
-            <option value="">
-                Select base...
-            </option>
-
-        </select>
-
-    </div>
-
-</div>
 
 
     <!-- ================================================= -->
-    <!-- CHART -->
+    <!-- CHART CARD -->
     <!-- ================================================= -->
 
-    <div
-        class="aog-trend-card"
-    >
+    <div class="aog-trend-card">
 
-        <div
-            class="aog-trend-card-header"
-        >
+        <div class="aog-trend-card-header">
 
             <div>
 
                 <div class="aog-trend-card-title">
-                    Monthly AOG Trend
+                    Monthly Aircraft on Ground Trend
                 </div>
 
-                <div
-                    class="aog-trend-card-subtitle"
-                    id="aogTrendChartSubtitle"
-                >
-                    Aircraft on Ground occurrences
+                <div class="aog-trend-card-subtitle" id="aogTrendChartSubtitle">
+                    Portugal Operational Reference
                 </div>
 
             </div>
 
-
-            <div
-                class="aog-trend-period-badge"
-                id="aogTrendPeriodBadge"
-            >
-                ALL DATA
+            <div class="aog-trend-period-badge" id="aogTrendPeriodBadge">
+                ALL AVAILABLE DATA
             </div>
 
         </div>
 
+        <div class="aog-trend-chart-wrapper">
 
-        <div
-            class="aog-trend-chart-wrapper"
-        >
-
-            <canvas
-                id="aogTrendChart"
-            ></canvas>
+            <canvas id="aogTrendChart"></canvas>
 
         </div>
 
@@ -45895,73 +45823,66 @@ CREATE USER MODAL
 
 
     <!-- ================================================= -->
-    <!-- TREND KPIs -->
+    <!-- TREND KPI CARDS -->
     <!-- ================================================= -->
 
-    <div
-        id="aogTrendKPIs"
-        class="aog-trend-kpi-grid"
-    >
+    <div class="aog-trend-kpis-grid">
 
-        <div class="aog-trend-kpi">
+        <!-- Monthly Average -->
 
-            <div class="aog-trend-kpi-label">
-                AVERAGE
+        <div class="aog-trend-kpi-card blue">
+
+            <div class="trend-kpi-label">
+                Monthly Average
             </div>
 
-            <div
-                class="aog-trend-kpi-value"
-                id="aogTrendAverage"
-            >
-                -
+            <div id="aogTrendAverage" class="trend-kpi-value">
+                —
             </div>
 
         </div>
 
 
-        <div class="aog-trend-kpi">
+        <!-- Peak Month -->
 
-            <div class="aog-trend-kpi-label">
-                PEAK MONTH
+        <div class="aog-trend-kpi-card orange">
+
+            <div class="trend-kpi-label">
+                Peak Month
             </div>
 
-            <div
-                class="aog-trend-kpi-value"
-                id="aogTrendPeak"
-            >
-                -
-            </div>
-
-        </div>
-
-
-        <div class="aog-trend-kpi">
-
-            <div class="aog-trend-kpi-label">
-                LOWEST MONTH
-            </div>
-
-            <div
-                class="aog-trend-kpi-value"
-                id="aogTrendLowest"
-            >
-                -
+            <div id="aogTrendPeak" class="trend-kpi-value">
+                —
             </div>
 
         </div>
 
 
-        <div class="aog-trend-kpi">
+        <!-- Lowest Month -->
 
-            <div class="aog-trend-kpi-label">
-                TREND
+        <div class="aog-trend-kpi-card green">
+
+            <div class="trend-kpi-label">
+                Lowest Month
             </div>
 
-            <div
-                class="aog-trend-kpi-value"
-                id="aogTrendVariation"
-            >
-                -
+            <div id="aogTrendLowest" class="trend-kpi-value">
+                —
+            </div>
+
+        </div>
+
+
+        <!-- Trend Status -->
+
+        <div class="aog-trend-kpi-card yellow">
+
+            <div class="trend-kpi-label">
+                Trend Status
+            </div>
+
+            <div id="aogTrendVariation" class="trend-kpi-value">
+                —
             </div>
 
         </div>
@@ -45970,20 +45891,81 @@ CREATE USER MODAL
 
 
     <!-- ================================================= -->
-    <!-- INSIGHT -->
+    <!-- PORTUGAL REFERENCE COMPARISON -->
     <!-- ================================================= -->
 
-    <div
-        id="aogTrendInsight"
-        class="aog-trend-insight"
-    >
+    <div class="aog-trend-comparison-card">
+
+        <div class="aog-trend-comparison-header">
+
+            🇵🇹 Portugal Reference Comparison
+
+        </div>
+
+        <div id="aogTrendComparison" class="aog-trend-comparison-list">
+
+            <!-- Filled automatically by updateAOGTrendKPIs() -->
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- MONTHLY COMPARISON TABLE -->
+    <!-- ================================================= -->
+
+    <div class="aog-trend-table-card">
+
+        <div class="aog-trend-table-header">
+
+            Monthly Comparison Table
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="aog-trend-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Month</th>
+                        <th>Portugal</th>
+                        <th>Base A</th>
+                        <th>Base B</th>
+                        <th>Difference vs Portugal</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="aogTrendTableBody">
+
+                    <!-- Filled automatically -->
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- OPERATIONAL INSIGHT -->
+    <!-- ================================================= -->
+
+    <div class="aog-operational-insight-card" id="aogTrendInsight">
 
         <strong>
             Operational Insight
         </strong>
 
         <span>
-            Waiting for trend data...
+            Waiting for monthly trend analysis...
         </span>
 
     </div>
@@ -46435,6 +46417,31 @@ CREATE USER MODAL
 
 
 </div>
+
+<!-- =====================================================
+     EXECUTIVE PDF LOADING MODAL
+===================================================== -->
+
+<div id="executivePdfLoading" class="executive-pdf-loading">
+
+    <div class="executive-pdf-loading-card">
+
+        <div class="executive-spinner"></div>
+
+        <h2>Generating Executive Report</h2>
+
+        <p>Please wait while we prepare your Ryanair Engineering PDF...</p>
+
+        <div class="executive-progress-bar">
+            <div id="executiveProgressFill"></div>
+        </div>
+
+        <span id="executiveProgressText">Initialising...</span>
+
+    </div>
+
+</div>
+
 <!-- =====================================================
      GLOBAL FOOTER
 ===================================================== -->
