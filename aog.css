@@ -5506,3 +5506,28 @@ body.home-page .app-container {
 
     font-size:14px;
 }
+
+/* ==========================================
+   ANNUAL AOG — SMALLER KPI VALUES
+   ========================================== */
+
+.aog-kpi-card h2,
+.aog-overview-card h2,
+.aog-overview-card .kpi-value{
+    font-size:2.35rem !important;
+    line-height:1.05;
+    font-weight:800;
+    letter-spacing:-1px;
+}
+
+.aog-kpi-card h3,
+.aog-overview-card h3{
+    font-size:0.82rem !important;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.aog-overview-card p,
+.aog-kpi-card p{
+    font-size:0.82rem !important;
+}
